@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import classNames from "classnames";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={
+        classNames(inter.className, "grid grid-rows-[80px_1fr_8rem] gap-4 h-screen text-white bg-primaryDark max-w-1200 mx-auto w-95vw")
+      }>{children}</body>
     </html>
   );
 }
+
+
