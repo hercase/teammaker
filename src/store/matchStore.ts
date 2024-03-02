@@ -12,6 +12,10 @@ interface MatchState {
   setMaxPlayers: (max_players: number) => void;
   random: boolean;
   setRandom: (random: boolean) => void;
+  colorA: string;
+  setColorA: (colorA: string) => void;
+  colorB: string;
+  setColorB: (colorB: string) => void;
 }
 
 export const matchStore = create(
@@ -27,6 +31,10 @@ export const matchStore = create(
       setMaxPlayers: (max_players: number) => set(() => ({ max_players })),
       random: false,
       setRandom: (random: boolean) => set(() => ({ random })),
+      colorA: "#ffffff",
+      setColorA: (colorA: string) => set(() => ({ colorA })),
+      colorB: "#151d65",
+      setColorB: (colorB: string) => set(() => ({ colorB })),
     }),
     {
       name: "match-store",
