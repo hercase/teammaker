@@ -1,1 +1,4 @@
-export type Players = string[];
+export type Player = {
+  name: string;
+  details: string;
+};

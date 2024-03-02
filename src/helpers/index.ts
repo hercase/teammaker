@@ -1,36 +1,18 @@
-import { Players } from "@/types";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { Player } from "@/types";
 import { uniq } from "lodash";
 
-// Strings
+export function generatePlayers(str: string) {
+  const separetedByLine = str.split("\n");
+  const lettersOnly = separetedByLine.map((p) => p.replace(/[0-9.]/g, "").trim());
+  const uniquePlayers = uniq(lettersOnly).filter((p) => p !== "");
 
-export function filterPlayers(str: string) {
-  const regex = /[a-zÀ-ÿ\s]+/gi;
+  const playersList: Player[] = uniquePlayers.map((p) => {
+    const onlyLetters = p.replace(/[^a-zA-Zà-üÀ-Ü]/g, " ");
+    const [name, details] = onlyLetters.split(" ");
+    return { name, details };
+  });
 
-  const players: Players = [];
-  let m;
-
-  while ((m = regex.exec(str)) !== null) {
-    if (m.index === regex.lastIndex) {
-      regex.lastIndex++;
-    }
-
-    m.forEach((match) => {
-      const cleanedPlayerName = match.toLowerCase().trim();
-      players.push(cleanedPlayerName);
-    });
-  }
-
-  const cleanPlayersList = players
-    .toString()
-    .replace(/\n/g, ",")
-    .split(",")
-    .filter((item) => item);
-
-  const duplicatesRemoved = uniq(cleanPlayersList);
-
-  return [...duplicatesRemoved];
+  return playersList;
 }
 
 export const trucanteString = (str: string, maxChar: number) => {
