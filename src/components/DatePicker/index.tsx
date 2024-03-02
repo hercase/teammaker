@@ -6,7 +6,7 @@ const DatePicker = () => {
   return (
     <div className="w-full text-sm text-gray-400">
       <span className="label">Fecha</span>
-      <input type="date" className="input mt-1" value={date} onChange={(e) => setDate(e.target.value)} />
+      <input type="datetime-local" className="input mt-1" value={date} onChange={(e) => setDate(e.target.value)} />
     </div>
   );
 };

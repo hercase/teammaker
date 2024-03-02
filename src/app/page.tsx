@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { matchStore, playersStore } from "@/store";
 import { ClipboardIcon } from "@/components/Icons";
 import Button from "@/components/Button";
@@ -9,6 +10,7 @@ import ToggleSwitch from "@/components/ToggleSwitch";
 import Input from "@/components/Input";
 
 const Create = () => {
+  const router = useRouter();
   const { location, setLocation, creator, setCreator, random, setRandom } = matchStore();
   const { input, setInput, players } = playersStore();
 
@@ -51,7 +53,7 @@ const Create = () => {
       </form>
 
       <div className="flex justify-center w-full">
-        <Button disabled={players.length > 1 ? false : true} onClick={() => CreateTeams()}>
+        <Button disabled={players.length > 1 ? false : true} onClick={() => router.push("/list")}>
           Crear equipos
         </Button>
       </div>
