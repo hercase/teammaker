@@ -13,12 +13,7 @@ import ToggleSwitch from "@/components/ToggleSwitch";
 import Input from "@/components/Input";
 
 const Create = () => {
-  const { location, setLocation, players, setPlayers, creator, random, setRandom } = matchStore();
-
-  console.log("🚀 ~ players:", players);
-
-  const [persistLocation, setPersistLocation] = useLocalStorage("match-location", location);
-  const [persistCreator, setPersistCreator] = useLocalStorage("creator", creator);
+  const { location, setLocation, players, setPlayers, creator, setCreator, random, setRandom } = matchStore();
   const [value, setValue] = useState("");
   const router = useRouter();
 
@@ -33,7 +28,6 @@ const Create = () => {
     const playersList = random ? shuffle(players) : players;
 
     setPlayers(playersList);
-    setLocation(persistLocation);
     if (players) router.push("/list");
   };
 
@@ -63,17 +57,14 @@ const Create = () => {
       </div>
       <p className="text-white font-sans">Datos del partido</p>
       <form className="grid grid-cols-1 gap-2 mb-4">
-        <Input label="Lugar" value={persistLocation} onChange={(e) => setPersistLocation(e.target.value)} />
-        <Input label="Creador" value={persistCreator} onChange={(e) => setPersistCreator(e.target.value)} />
+        <Input label="Lugar" value={location} onChange={(e) => setLocation(e.target.value)} />
+        <Input label="Creador" value={creator} onChange={(e) => setCreator(e.target.value)} />
         <div className="flex gap-2">
           <DatePicker />
           <div className="flex flex-col">
-            <span className="block text-sm font-medium text-gray-700 mb-2">Aleatorio</span>
-            <div className="flex h-full">
+            <span className="label">Aleatorio</span>
+            <div className="flex justify-center items-center mt-1 h-full">
               <ToggleSwitch
-                title="Crear lista de manera aleatoria"
-                size="sm"
-                value={random}
                 checked={random}
                 onChange={() => {
                   setRandom(!random);
