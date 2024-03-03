@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
-import { matchStore } from "@/store";
+import { matchStore, uiStore } from "@/store";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import Image from "next/image";
 import PlayersList from "@/components/PlayersList";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import { VersusIcon } from "@/components/Icons";
+import EditPlayerModal from "@/components/EditPlayerModal";
 
 const ListTeam = () => {
   const router = useRouter();
   const { date, location, creator, random, teamA, setTeamA, setTeamB, teamB, resetMatch } = matchStore();
+
+  const { showEditPlayerModal, setShowEditPlayerModal } = uiStore();
+
   const totalPlayers = teamA.players?.length + teamB.players?.length;
 
   useEffect(() => {
@@ -69,10 +72,11 @@ const ListTeam = () => {
       </div>
       <div className="flex justify-center w-full gap-4">
         <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
-        <Button variant="danger" onClick={() => router.push("/match")}>
+        <Button variant="danger" onClick={() => setShowEditPlayerModal(true)}>
           Reemplazar jugador
         </Button>
       </div>
+      <EditPlayerModal isOpen={showEditPlayerModal} setIsOpen={setShowEditPlayerModal} />
     </div>
   );
 };

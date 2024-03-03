@@ -1,3 +1,4 @@
 import { matchStore } from "./matchStore";
+import { uiStore } from "./uiStore";
 
-export { matchStore };
+export { matchStore, uiStore };
