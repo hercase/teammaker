@@ -1,7 +1,7 @@
 export type Player = {
   name: string;
   details: string;
-  replacedBy: {
+  replacedBy?: {
     name: string;
     details: string;
   };

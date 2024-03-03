@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { matchStore } from "@/store";
 import { ClipboardIcon } from "@/components/Icons";
@@ -13,25 +13,6 @@ import { shuffle } from "lodash";
 import { MatchInputs } from "@/types";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import classNames from "classnames";
-
-/*
-1 Oveja
-2 Sera
-3 Germán
-4 Gonza
-5 Agus
-6 Lucas
-7 Cristian F.
-8 Keis
-9 Elio
-10 Cepillo
-11 Maty F.
-12 Tomas F.
-13 Gaston
-14 Lucas(gaston)
-15 Luis(gaston)
-16 Joaco
-*/
 
 const Create = () => {
   const router = useRouter();
