@@ -1,25 +1,34 @@
-import { FC } from "react";
-import PropTypes from "prop-types";
+import { forwardRef } from "react";
+import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
+import classNames from "classnames";
 
 interface InputProps {
   label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: boolean;
 }
 
-const Input: FC<InputProps> = ({ label, value, onChange }) => {
-  return (
-    <div className="label">
-      <label>{label}</label>
-      <div className="mt-1">
-        <input className="input" value={value} onChange={onChange} />
-      </div>
+const Input = forwardRef<HTMLInputElement, InputProps>(({ label, error = false, ...props }, ref) => (
+  <div className="label flex flex-col gap-1">
+    <label htmlFor={label}>{label}</label>
+    <div className="relative">
+      <input
+        ref={ref}
+        id={label}
+        className={classNames("input border-0 outline-none", {
+          "text-red-600 ring-1 ring-inset ring-red-600 placeholder:text-red-300 focus:ring-2 focus:ring-inset focus:ring-red-500":
+            error,
+        })}
+        {...props}
+      />
+      {error && (
+        <div className="pointer-events-none absolute right-0 top-0 h-full flex items-center pr-3">
+          <ExclamationCircleIcon className="h-5 w-5 text-red-600" aria-hidden="true" />
+        </div>
+      )}
     </div>
-  );
-};
+  </div>
+));
 
-Input.propTypes = {
-  label: PropTypes.any,
-};
+Input.displayName = "Input";
 
 export default Input;

@@ -2,24 +2,26 @@ import { FC } from "react";
 import { Player } from "@/types";
 import { ShirtIcon } from "@/components/Icons";
 import { uniqueId } from "lodash";
+import classNames from "classnames";
 
 interface PlayersListProps {
-  name: string;
+  shirtPosition?: "left" | "right";
   color: string;
   setColor: (color: string) => void;
   players?: Player[];
 }
 
-const PlayersList: FC<PlayersListProps> = ({ name, color, setColor, players }) => {
+const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color, setColor, players }) => {
   return (
     <div className="relative w-1/2 bg-white rounded-md p-2">
-      <div className="flex gap-2 items-center">
-        <label>
-          <ShirtIcon color={color} />
-          <input className="hidden" type="color" value={color} onChange={(e) => setColor(e.target.value)} />
-        </label>
-        <h3 className="font-semibold  text-gray-600 capitalize">{name}</h3>
-      </div>
+      <label
+        className={classNames("flex justify-start", {
+          "justify-end": shirtPosition === "right",
+        })}
+      >
+        <ShirtIcon color={color} />
+        <input className="hidden" type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+      </label>
 
       <ul className="divide-y divide-gray-200">
         {players?.map((player) => (

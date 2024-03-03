@@ -8,6 +8,7 @@ import Image from "next/image";
 import PlayersList from "@/components/PlayersList";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
+import { VersusIcon } from "@/components/Icons";
 
 const ListTeam = () => {
   const router = useRouter();
@@ -50,16 +51,16 @@ const ListTeam = () => {
 
         <div style={{ minHeight: "100px" }} className="relative flex justify-center mb-5 text-center gap-3">
           <PlayersList
-            name={teamA.name}
+            shirtPosition="right"
             players={teamA.players}
             color={teamA.color}
             setColor={(color) => setTeamA({ ...teamA, color })}
           />
-          <div className="z-10 absolute bottom-3">
-            <Image alt="Versus icon" src="/img/versus.svg" width={45} height={45} />
-          </div>
+
+          <VersusIcon className="z-10 absolute top-10" />
+
           <PlayersList
-            name={teamB.name}
+            shirtPosition="left"
             players={teamB.players}
             color={teamB.color}
             setColor={(color) => setTeamB({ ...teamB, color })}

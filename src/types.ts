@@ -8,7 +8,6 @@ export type Player = {
 };
 
 export type Team = {
-  name: string;
   color: string;
   players: Player[];
 };
@@ -27,4 +26,12 @@ export interface MatchState {
   teamB: Team;
   setTeamB: (team: Team) => void;
   resetMatch: () => void;
+}
+
+export interface MatchInputs {
+  list: string;
+  location: string;
+  creator: string;
+  date: string;
+  random: boolean;
 }
