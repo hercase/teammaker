@@ -1,21 +1,21 @@
+import { Team } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface MatchState {
   location: string;
   setLocation: (location: string) => void;
-  date: string;
-  setDate: (date: string) => void;
+  date: Date;
+  setDate: (date: Date) => void;
   creator: string;
   setCreator: (creator: string) => void;
-  max_players: number;
-  setMaxPlayers: (max_players: number) => void;
   random: boolean;
   setRandom: (random: boolean) => void;
-  colorA: string;
-  setColorA: (colorA: string) => void;
-  colorB: string;
-  setColorB: (colorB: string) => void;
+  teamA: Team;
+  setTeamA: (team: Team) => void;
+  teamB: Team;
+  setTeamB: (team: Team) => void;
+  resetMatch: () => void;
 }
 
 export const matchStore = create(
@@ -23,18 +23,22 @@ export const matchStore = create(
     (set) => ({
       location: "",
       setLocation: (location: string) => set(() => ({ location })),
-      date: new Date().toISOString().split("T")[0],
-      setDate: (date: string) => set(() => ({ date })),
+      date: new Date(),
+      setDate: (date: Date) => set(() => ({ date })),
       creator: "",
       setCreator: (creator: string) => set(() => ({ creator })),
-      max_players: 12,
-      setMaxPlayers: (max_players: number) => set(() => ({ max_players })),
       random: false,
       setRandom: (random: boolean) => set(() => ({ random })),
-      colorA: "#ffffff",
-      setColorA: (colorA: string) => set(() => ({ colorA })),
-      colorB: "#151d65",
-      setColorB: (colorB: string) => set(() => ({ colorB })),
+      teamA: { name: "Equipo claro", color: "#ffffff", players: [] },
+      setTeamA: (team: Team) => set(() => ({ teamA: team })),
+      teamB: { name: "Equipo oscuro", color: "#151d65", players: [] },
+      setTeamB: (team: Team) => set(() => ({ teamB: team })),
+      resetMatch: () =>
+        set(() => ({
+          teamA: { name: "Equipo claro", color: "#ffffff", players: [] },
+          teamB: { name: "Equipo oscuro", color: "#151d65", players: [] },
+          date: new Date(),
+        })),
     }),
     {
       name: "match-store",

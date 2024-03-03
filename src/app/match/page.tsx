@@ -1,45 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { matchStore, playersStore } from "@/store";
+import { useEffect } from "react";
+import { matchStore } from "@/store";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { shuffle } from "lodash";
 import Image from "next/image";
 import PlayersList from "@/components/PlayersList";
 import { useRouter } from "next/navigation";
-import { Player } from "@/types";
+import Button from "@/components/Button";
 
 const ListTeam = () => {
   const router = useRouter();
-
-  const { date, location, creator, random, colorA, setColorA, colorB, setColorB } = matchStore();
-  const { players } = playersStore();
-  const [names, setNames] = useState<Player[]>(players);
-
-  const [shuffling, setShuffling] = useState(false);
-
-  const half = Math.ceil(players?.length / 2);
-
-  const firstHalf = names?.slice(0, half);
-  const secondHalf = names?.slice(-half);
+  const { date, location, creator, random, teamA, setTeamA, setTeamB, teamB, resetMatch } = matchStore();
+  const totalPlayers = teamA.players?.length + teamB.players?.length;
 
   useEffect(() => {
-    if (shuffling && random) setTimeout(() => setNames(shuffle(names)), 500);
-  }, [names, shuffling, random]);
+    if (totalPlayers <= 0) router.push("/");
+  }, [totalPlayers, router]);
 
-  useEffect(() => {
-    if (random) {
-      setShuffling(true);
-      setTimeout(() => setShuffling(false), 1500);
-    }
-  }, [random]);
-
-  useEffect(() => {
-    if (players.length === 0) {
-      router.push("/");
-    }
-  }, [router, players.length]);
+  const handleCreateNewList = () => {
+    resetMatch();
+    router.push("/");
+  };
 
   return (
     <div className="flex flex-col w-full">
@@ -60,22 +42,35 @@ const ListTeam = () => {
               <p className="text-gray-900 font-medium hover:text-gray-600">{location}</p>
               <p className="text-gray-500 capitalize">{format(date, "EEEE dd/MM - p", { locale: es })} hs </p>
               <p className="text-gray-500">Creado por {creator}</p>
-              <p className="text-gray-500">{players?.length} Jugadores</p>
+              <p className="text-gray-500">{totalPlayers} Jugadores</p>
               {random && <p className="text-gray-500">Lista aleatoria 🎲</p>}
             </div>
           </div>
         </div>
 
         <div style={{ minHeight: "100px" }} className="relative flex justify-center mb-5 text-center gap-3">
-          <PlayersList players={firstHalf} color={colorA} setColor={setColorA} />
+          <PlayersList
+            name={teamA.name}
+            players={teamA.players}
+            color={teamA.color}
+            setColor={(color) => setTeamA({ ...teamA, color })}
+          />
           <div className="z-10 absolute bottom-3">
             <Image alt="Versus icon" src="/img/versus.svg" width={45} height={45} />
           </div>
-          <PlayersList players={secondHalf} color={colorB} setColor={setColorB} />
+          <PlayersList
+            name={teamB.name}
+            players={teamB.players}
+            color={teamB.color}
+            setColor={(color) => setTeamB({ ...teamB, color })}
+          />
         </div>
       </div>
-      <div className="flex justify-center p-4">
-        {colorA === colorB && <p>Los colores de los equipos deben ser distintos</p>}
+      <div className="flex justify-center w-full gap-4">
+        <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
+        <Button variant="danger" onClick={() => router.push("/match")}>
+          Reemplazar jugador
+        </Button>
       </div>
     </div>
   );

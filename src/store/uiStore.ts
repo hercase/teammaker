@@ -1,23 +1,22 @@
 import create from "zustand-store-addons";
-import { Player } from "@/types";
 import { generatePlayers } from "@/helpers";
 
-interface PlayersState {
+interface UIState {
   input: string;
   setInput: (input: string) => void;
-  players: Player[] | [];
+  playersCount: number;
 }
 
-export const playersStore = create<PlayersState>(
+export const uiStore = create<UIState>(
   (set) => ({
     input: "",
     setInput: (input: string) => set(() => ({ input })),
-    players: [],
+    playersCount: 0,
   }),
   {
     computed: {
-      players: function () {
-        return generatePlayers(this.input);
+      playersCount: function () {
+        return generatePlayers(this.input).length;
       },
     },
   }

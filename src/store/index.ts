@@ -1,4 +1,4 @@
 import { matchStore } from "./matchStore";
-import { playersStore } from "./playersStore";
+import { uiStore } from "./uiStore";
 
-export { matchStore, playersStore };
+export { matchStore, uiStore };

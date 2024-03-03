@@ -5,7 +5,7 @@ interface ShirtIconProps {
   size?: number;
 }
 
-const ShirtIcon: FC<ShirtIconProps> = ({ color, size = 32, ...rest }) => {
+const ShirtIcon: FC<ShirtIconProps> = ({ color, size = 42, ...rest }) => {
   return (
     <svg
       className="shirtIcon"

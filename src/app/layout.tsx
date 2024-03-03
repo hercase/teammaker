@@ -27,7 +27,7 @@ export default function RootLayout({
         <header className="grid place-items-center">
           <Logo dark />
         </header>
-        <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-900 to-primary-950">
+        <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-900 to-primary-950 max-w-screen-lg mx-auto w-full">
           {children}
         </main>
       </body>
