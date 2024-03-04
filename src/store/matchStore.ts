@@ -1,43 +1,47 @@
-import { MatchInputs, Team } from "@/types";
+import { MatchInputs, MatchState } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-interface MatchState {
-  location: string;
-  date: Date;
-  creator: string;
-  random: boolean;
-  setMatch: (match: Omit<MatchInputs, "list">) => void;
-  teamA: Team;
-  setTeamA: (team: Team) => void;
-  teamB: Team;
-  setTeamB: (team: Team) => void;
-  resetMatch: () => void;
-}
 
 export const matchStore = create(
   persist<MatchState>(
     (set) => ({
+      players: [],
+      substitutes: [],
       location: "",
       date: new Date(),
-      creator: "",
+      organizer: "",
       random: false,
+      colors: {
+        teamA: "#ffffff",
+        teamB: "#151d65",
+      },
+      setColors: (
+        colors = {
+          teamA: "#ffffff",
+          teamB: "#151d65",
+        }
+      ) => {
+        set(() => ({
+          colors: {
+            teamA: colors?.teamA,
+            teamB: colors?.teamB,
+          },
+        }));
+      },
       setMatch: (match: Omit<MatchInputs, "list">) => {
         set(() => ({
           location: match.location,
-          date: new Date(match.date),
-          creator: match.creator,
+          date: match.date,
+          organizer: match.organizer,
           random: match.random,
         }));
       },
-      teamA: { name: "Equipo claro", color: "#ffffff", players: [] },
-      setTeamA: (team: Team) => set(() => ({ teamA: team })),
-      teamB: { name: "Equipo oscuro", color: "#151d65", players: [] },
-      setTeamB: (team: Team) => set(() => ({ teamB: team })),
+      setPlayers: (players) => set(() => ({ players })),
+      setSubstitutes: (substitutes) => set(() => ({ substitutes })),
       resetMatch: () =>
         set(() => ({
-          teamA: { name: "Equipo claro", color: "#ffffff", players: [] },
-          teamB: { name: "Equipo oscuro", color: "#151d65", players: [] },
+          players: [],
+          substitutes: [],
           date: new Date(),
         })),
     }),

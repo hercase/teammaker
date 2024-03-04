@@ -1,37 +1,33 @@
 export type Player = {
+  id: number;
   name: string;
   details: string;
-  replacedBy?: {
-    name: string;
-    details: string;
-  };
 };
 
-export type Team = {
-  color: string;
-  players: Player[];
+export type Colors = {
+  teamA?: string;
+  teamB?: string;
 };
-
-export interface MatchState {
-  location: string;
-  setLocation: (location: string) => void;
-  date: Date;
-  setDate: (date: Date) => void;
-  creator: string;
-  setCreator: (creator: string) => void;
-  random: boolean;
-  setRandom: (random: boolean) => void;
-  teamA: Team;
-  setTeamA: (team: Team) => void;
-  teamB: Team;
-  setTeamB: (team: Team) => void;
-  resetMatch: () => void;
-}
 
 export interface MatchInputs {
   list: string;
   location: string;
-  creator: string;
-  date: string;
+  organizer: string;
+  date: Date;
   random: boolean;
+  colors?: Colors;
+}
+export interface MatchState {
+  players: Player[];
+  substitutes: Player[];
+  location: string;
+  date: Date;
+  organizer: string;
+  random: boolean;
+  colors: Colors;
+  setColors: (colors: Colors) => void;
+  setMatch: (match: Omit<MatchInputs, "list">) => void;
+  setPlayers: (players: Player[]) => void;
+  setSubstitutes: (substitutes: Player[]) => void;
+  resetMatch: () => void;
 }

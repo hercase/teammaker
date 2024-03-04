@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { matchStore } from "@/store";
 import { ClipboardIcon } from "@/components/Icons";
 import Button from "@/components/Button";
-import DatePicker from "@/components/DatePicker";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import Input from "@/components/Input";
 import { generatePlayers } from "@/helpers";
@@ -16,7 +15,8 @@ import classNames from "classnames";
 
 const Create = () => {
   const router = useRouter();
-  const { setMatch, teamA, setTeamA, teamB, setTeamB } = matchStore();
+  const { players, organizer, random, location, setMatch, setPlayers } = matchStore();
+
   const {
     register,
     handleSubmit,
@@ -25,13 +25,12 @@ const Create = () => {
     formState: { errors },
   } = useForm<MatchInputs>({
     mode: "onBlur",
+    defaultValues: { location, organizer, random },
   });
 
-  const totalPlayers = teamA.players.length + teamB.players.length;
-
   useEffect(() => {
-    if (totalPlayers > 0) router.push("/match");
-  }, [totalPlayers, router]);
+    if (players.length > 0) router.push("/match");
+  }, [players, router]);
 
   const handlePaste = () =>
     navigator?.clipboard.readText().then((clipText) => {
@@ -43,17 +42,10 @@ const Create = () => {
 
     if (names.length < 2) return;
 
-    setMatch({ location: data.location, date: data.date, creator: data.creator, random: data.random });
-
     const players = data.random ? shuffle(names) : names;
 
-    const half = Math.ceil(players?.length / 2);
-
-    const firstHalf = players?.slice(0, half);
-    const secondHalf = players?.slice(-half);
-
-    setTeamA({ ...teamA, players: firstHalf });
-    setTeamB({ ...teamB, players: secondHalf });
+    setMatch({ location: data.location, date: data.date, organizer: data.organizer, random: data.random });
+    setPlayers(players);
   };
 
   return (
@@ -65,7 +57,7 @@ const Create = () => {
               !!errors.list,
           })}
           placeholder={`1. Pedro\n2. Flor\n3. Juan \n4. Sylvie\n5. Chloe ...`}
-          {...register("list", { required: true })}
+          {...register("list", { required: true, validate: (value) => value.split("\n").filter((v) => v).length > 3 })}
         />
         <Button
           type="button"
@@ -76,12 +68,11 @@ const Create = () => {
           <ClipboardIcon />
         </Button>
       </div>
-      <p className="text-white font-sans">Datos del partido</p>
       <div className="grid grid-cols-1 gap-2 mb-4">
         <Input label="Lugar" error={!!errors.location} {...register("location", { required: true })} />
-        <Input label="Creador" error={!!errors.creator} {...register("creator", { required: true })} />
+        <Input label="Organizador" error={!!errors.organizer} {...register("organizer", { required: true })} />
         <div className="flex gap-2">
-          <DatePicker error={!!errors.date} {...register("date", { required: true })} />
+          <Input label="Fecha" type="datetime-local" error={!!errors.date} {...register("date", { required: true })} />
           <div className="flex flex-col">
             <span className="label">Aleatorio</span>
             <div className="flex justify-center items-center mt-1 h-full">

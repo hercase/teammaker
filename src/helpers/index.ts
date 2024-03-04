@@ -1,5 +1,5 @@
 import { Player } from "@/types";
-import { uniq } from "lodash";
+import { uniq, uniqueId } from "lodash";
 
 export function generatePlayers(str: string) {
   const separetedByLine = str.split("\n");
@@ -9,7 +9,11 @@ export function generatePlayers(str: string) {
   const playersList: Player[] = uniquePlayers.map((p) => {
     const onlyLetters = p.replace(/[^a-zA-Zà-üÀ-Ü]/g, " ");
     const [name, details] = onlyLetters.split(" ");
-    return { name, details };
+    return {
+      id: uniqueId("player_"),
+      name,
+      details,
+    };
   });
 
   return playersList;
