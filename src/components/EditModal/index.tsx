@@ -12,7 +12,7 @@ interface EditModalProps {
 }
 
 const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
-  const { location, date, colors, setMatch, setColors } = matchStore();
+  const { organizer, location, date, colors, setMatch, setColors } = matchStore();
 
   const {
     register,
@@ -27,8 +27,8 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
     setMatch({
       location: data.location,
       date: data.date,
-      organizer: data.organizer,
       random: data.random,
+      organizer,
     });
 
     setColors({

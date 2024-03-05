@@ -25,7 +25,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={label}
           type={type}
-          className={classNames("input border-0 outline-none", {
+          className={classNames("input border-1 outline-none", {
             "text-red-600 ring-2 ring-inset ring-red-600 placeholder:text-red-300 focus:ring-2 focus:ring-inset focus:ring-red-500":
               error,
             "border border-primary-300": variant === "outline",

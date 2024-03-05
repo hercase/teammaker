@@ -11,21 +11,10 @@ export const matchStore = create(
       date: new Date(),
       organizer: "",
       random: false,
-      colors: {
-        teamA: "#ffffff",
-        teamB: "#151d65",
-      },
-      setColors: (
-        colors = {
-          teamA: "#ffffff",
-          teamB: "#151d65",
-        }
-      ) => {
+      colors: { teamA: "#ffffff", teamB: "#151d65" },
+      setColors: (colors = { teamA: "#ffffff", teamB: "#151d65" }) => {
         set(() => ({
-          colors: {
-            teamA: colors?.teamA,
-            teamB: colors?.teamB,
-          },
+          colors: { teamA: colors?.teamA, teamB: colors?.teamB },
         }));
       },
       setMatch: (match: Omit<MatchInputs, "list">) => {
