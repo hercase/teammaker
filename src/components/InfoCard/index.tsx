@@ -1,10 +1,10 @@
-import { matchStore } from "@/store";
+import { useMatchStore } from "@/store";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
 
 const InfoCard = () => {
-  const { date, location, organizer, random, players } = matchStore();
+  const { date, location, organizer, random, players } = useMatchStore();
   return (
     <div className="col-span-1 flex shadow-sm rounded-md w-full mx-auto">
       <div className="flex-shrink-0 flex items-center justify-center px-4 bg-purple-600 text-white text-sm font-medium rounded-l-md">

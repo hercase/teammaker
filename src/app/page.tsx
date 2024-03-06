@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { matchStore } from "@/store";
+import { useMatchStore } from "@/store";
 import { ClipboardIcon } from "@/components/Icons";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
@@ -16,7 +16,7 @@ import DatePicker from "@/components/DatePicker";
 
 const Create = () => {
   const router = useRouter();
-  const { players, organizer, random, location, setMatch, setPlayers } = matchStore();
+  const { players, organizer, random, location, setMatch, setPlayers } = useMatchStore();
 
   const {
     register,

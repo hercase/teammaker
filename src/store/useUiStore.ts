@@ -5,7 +5,7 @@ interface UIStore {
   setShowEditModal: (show: boolean) => void;
 }
 
-export const uiStore = create<UIStore>((set) => ({
+export const useUiStore = create<UIStore>((set) => ({
   showEditModal: false,
   setShowEditModal: (show: boolean) => set(() => ({ showEditModal: show })),
 }));

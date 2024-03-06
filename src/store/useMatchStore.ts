@@ -2,7 +2,7 @@ import { MatchInputs, MatchState } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export const matchStore = create(
+export const useMatchStore = create(
   persist<MatchState>(
     (set) => ({
       players: [],

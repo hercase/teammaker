@@ -1,4 +1,4 @@
-import { matchStore } from "./matchStore";
-import { uiStore } from "./uiStore";
+import { useMatchStore } from "./useMatchStore";
+import { useUiStore } from "./useUiStore";
 
-export { matchStore, uiStore };
+export { useMatchStore, useUiStore };

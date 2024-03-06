@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { matchStore, uiStore } from "@/store";
+import { useMatchStore, useUiStore } from "@/store";
 import PlayersList from "@/components/PlayersList";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
@@ -11,9 +11,8 @@ import InfoCard from "@/components/InfoCard";
 
 const ListTeam = () => {
   const router = useRouter();
-  const { players, resetMatch, colors } = matchStore();
-
-  const { showEditModal, setShowEditModal } = uiStore();
+  const { players, resetMatch, colors } = useMatchStore();
+  const { showEditModal, setShowEditModal } = useUiStore();
 
   const totalPlayers = players.length;
   const half = Math.ceil(players?.length / 2);

@@ -1,5 +1,5 @@
 import { Fragment, FC } from "react";
-import { matchStore } from "@/store";
+import { useMatchStore } from "@/store";
 import { MatchInputs } from "@/types";
 import { Dialog, Transition } from "@headlessui/react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -14,7 +14,7 @@ interface EditModalProps {
 }
 
 const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
-  const { organizer, location, date, colors, setMatch, setColors } = matchStore();
+  const { organizer, location, date, colors, setMatch, setColors } = useMatchStore();
 
   const {
     register,
