@@ -12,7 +12,7 @@
   }
 }
 
-input[type="datetime-local"] {
+input[type="date"] {
   display: block;
   -webkit-appearance: textfield;
   -moz-appearance: textfield;
