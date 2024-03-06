@@ -1,12 +1,17 @@
 export type Player = {
   id: string;
   name: string;
-  details: string;
+  details?: string;
 };
 
 export type Colors = {
   teamA?: string;
   teamB?: string;
+};
+
+export type Replace = {
+  old: Player["id"];
+  new: Player["id"];
 };
 
 export interface MatchInputs {
@@ -20,6 +25,7 @@ export interface MatchInputs {
 export interface MatchState {
   players: Player[];
   substitutes: Player[];
+  replacements: Replace[];
   location: string;
   date: Date;
   organizer: string;
