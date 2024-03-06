@@ -1,4 +1,5 @@
 import { MatchInputs, MatchState } from "@/types";
+import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -19,21 +20,20 @@ export const useMatchStore = create(
         }));
       },
       setMatch: (match: Omit<MatchInputs, "list">) => {
-        set(() => ({
-          location: match.location,
-          date: match.date,
-          organizer: match.organizer,
-          random: match.random,
-        }));
+        set(
+          produce((state: MatchState) => ({
+            ...state,
+            location: match.location,
+            date: match.date,
+            organizer: match.organizer,
+            random: match.random,
+          }))
+        );
       },
       setPlayers: (players) => set(() => ({ players })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
       resetMatch: () =>
-        set(() => ({
-          players: [],
-          substitutes: [],
-          date: new Date(),
-        })),
+        set(produce((state: MatchState) => ({ ...state, players: [], substitutes: [], replacements: [] }))),
     }),
     {
       name: "match-store",

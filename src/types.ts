@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export type Player = {
   id: string;
   name: string;
@@ -36,4 +38,22 @@ export interface MatchState {
   setPlayers: (players: Player[]) => void;
   setSubstitutes: (substitutes: Player[]) => void;
   resetMatch: () => void;
+}
+
+export interface AlertOptions {
+  catchOnCancel?: boolean;
+  title: ReactNode;
+  submitText: ReactNode;
+}
+
+export interface DialogStore {
+  awaitingPromise: {
+    resolve?: () => void;
+    reject?: () => void;
+  };
+  open: boolean;
+  state: AlertOptions;
+  dialog: (options: Partial<AlertOptions>) => Promise<void>;
+  handleClose: () => void;
+  handleSubmit: () => void;
 }

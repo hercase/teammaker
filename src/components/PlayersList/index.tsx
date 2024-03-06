@@ -6,6 +6,7 @@ import { ShirtIcon } from "@/components/Icons";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
 import { ArrowsUpDownIcon, EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { useMatchStore } from "@/store";
+import useDialog from "@/hooks/useDialog";
 
 interface PlayersListProps {
   shirtPosition?: "left" | "right";
@@ -14,7 +15,16 @@ interface PlayersListProps {
 }
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
+  const dialog = useDialog();
   const { replacements } = useMatchStore();
+
+  const handleDelete = (player: Player) => {
+    dialog({
+      title: `Esta seguro que desea eliminar a ${player.name}?`,
+      catchOnCancel: true,
+      submitText: "Confirmar",
+    });
+  };
 
   return (
     <div className="relative w-1/2 bg-white rounded-md p-2">
@@ -47,7 +57,11 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
               }
             >
               <MenuOption icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800" />} label="Reemplazar" />
-              <MenuOption icon={<TrashIcon className="h-5 w-5 fill-red-800" />} label="Eliminar" />
+              <MenuOption
+                onClick={() => handleDelete(player)}
+                icon={<TrashIcon className="h-5 w-5 fill-red-800" />}
+                label="Eliminar"
+              />
             </FloatingMenu>
           );
         })}
