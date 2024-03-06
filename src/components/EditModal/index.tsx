@@ -2,9 +2,10 @@ import { Fragment, FC } from "react";
 import { matchStore } from "@/store";
 import { MatchInputs } from "@/types";
 import { Dialog, Transition } from "@headlessui/react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import DatePicker from "@/components/DatePicker";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<MatchInputs>({
@@ -77,13 +79,13 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     labelClassName="text-gray-700"
                     {...register("location")}
                   />
-                  <Input
-                    type="datetime-local"
-                    label="Fecha"
-                    variant="outline"
-                    error={!!errors.date}
-                    labelClassName="text-gray-700"
-                    {...register("date")}
+                  <Controller
+                    name="date"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <DatePicker selected={field.value} error={!!errors.date} onChange={field.onChange} />
+                    )}
                   />
 
                   <div>
