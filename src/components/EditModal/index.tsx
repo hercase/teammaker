@@ -91,11 +91,19 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     <div className="flex gap-4">
                       <div className="flex gap-2 text-sm items-center">
                         Equipo A
-                        <input type="color" {...register("colors.teamA")} />
+                        <input
+                          type="color"
+                          className="rounded-lg border border-gray-300 p-1 w-8 h-8"
+                          {...register("colors.teamA")}
+                        />
                       </div>
                       <div className="flex gap-2 text-sm items-center">
                         Equipo B
-                        <input type="color" {...register("colors.teamB")} />
+                        <input
+                          type="color"
+                          className="rounded-lg border border-gray-300 p-1 w-8 h-8"
+                          {...register("colors.teamB")}
+                        />
                       </div>
                     </div>
                   </div>

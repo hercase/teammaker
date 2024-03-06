@@ -11,7 +11,7 @@ interface InputProps {
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error = false, variant, labelClassName, type, ...props }, ref) => (
-    <div className="label flex flex-col gap-2">
+    <div className="label flex flex-col gap-2 w-full">
       <label
         className={classNames(labelClassName, {
           "text-red-500": error,
