@@ -7,7 +7,7 @@ import { ClipboardIcon } from "@/components/Icons";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import Input from "@/components/Input";
-import { generatePlayers } from "@/helpers";
+import { generatePlayers } from "@/utils";
 import { shuffle } from "lodash";
 import { MatchInputs } from "@/types";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
