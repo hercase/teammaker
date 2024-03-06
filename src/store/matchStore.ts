@@ -7,6 +7,7 @@ export const matchStore = create(
     (set) => ({
       players: [],
       substitutes: [],
+      replacements: [],
       location: "",
       date: new Date(),
       organizer: "",
