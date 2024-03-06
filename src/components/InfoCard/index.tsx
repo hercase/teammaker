@@ -1,7 +1,7 @@
 import { matchStore } from "@/store";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { InformationCircleIcon, MapPinIcon } from "@heroicons/react/20/solid";
+import { InformationCircleIcon } from "@heroicons/react/20/solid";
 
 const InfoCard = () => {
   const { date, location, organizer, random, players } = matchStore();
