@@ -8,6 +8,6 @@
   }
 
   .label {
-    @apply font-normal text-sm text-gray-300 flex-1;
+    @apply font-normal text-sm text-gray-400;
   }
 }

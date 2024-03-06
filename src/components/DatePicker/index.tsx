@@ -28,9 +28,10 @@ const DatePicker: FC<DatePickerProps> = ({ selected, error, variant, onChange })
       showTimeSelect
       locale="es"
       minDate={new Date()}
-      selected={selected}
+      selected={selected && new Date(selected)}
       onChange={onChange}
-      popperPlacement="bottom"
+      withPortal
+      portalId="root-portal"
     />
   </div>
 );

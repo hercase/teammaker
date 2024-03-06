@@ -6,6 +6,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import DatePicker from "@/components/DatePicker";
+import ColorPicker from "../ColorPicker";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -90,23 +91,22 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
 
                   <div>
                     <p>Colores</p>
-                    <div className="flex gap-4">
-                      <div className="flex gap-2 text-sm items-center">
-                        Equipo A
-                        <input
-                          type="color"
-                          className="rounded-lg border border-gray-300 p-1 w-8 h-8"
-                          {...register("colors.teamA")}
-                        />
-                      </div>
-                      <div className="flex gap-2 text-sm items-center">
-                        Equipo B
-                        <input
-                          type="color"
-                          className="rounded-lg border border-gray-300 p-1 w-8 h-8"
-                          {...register("colors.teamB")}
-                        />
-                      </div>
+                    <div className="flex gap-6">
+                      <Controller
+                        name="colors.teamA"
+                        control={control}
+                        render={({ field }) => (
+                          <ColorPicker label="Equipo A" color={field.value} onChange={field.onChange} />
+                        )}
+                      />
+
+                      <Controller
+                        name="colors.teamB"
+                        control={control}
+                        render={({ field }) => (
+                          <ColorPicker label="Equipo B" color={field.value} onChange={field.onChange} />
+                        )}
+                      />
                     </div>
                   </div>
 
