@@ -1,6 +1,8 @@
 import { FC } from "react";
 import { Player } from "@/types";
 import { uniqueId } from "lodash";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 import classNames from "classnames";
 import { ShirtIcon } from "@/components/Icons";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
@@ -11,7 +13,8 @@ import {
   EllipsisVerticalIcon,
 } from "@heroicons/react/20/solid";
 import { useMatchStore } from "@/store";
-import useDialog from "@/hooks/useDialog";
+
+const MySwal = withReactContent(Swal);
 
 interface PlayersListProps {
   shirtPosition?: "left" | "right";
@@ -20,16 +23,22 @@ interface PlayersListProps {
 }
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
-  const dialog = useDialog();
   const { replacements, replacePlayer } = useMatchStore();
 
   const handleDelete = (player: Player) => {
-    dialog({
+    MySwal.fire({
       title: "Dar de baja",
-      description: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
-      submitText: "Confirmar",
-    }).then(() => {
-      replacePlayer(player.id);
+      text: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Confirmar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        replacePlayer(player.id);
+      }
     });
   };
 
