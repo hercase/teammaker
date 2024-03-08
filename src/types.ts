@@ -13,7 +13,7 @@ export type Colors = {
 
 export type Replace = {
   old: Player["id"];
-  new: Player["id"];
+  new?: Player["id"];
 };
 
 export interface MatchInputs {
@@ -39,6 +39,7 @@ export interface MatchState {
   setMatch: (match: Omit<MatchInputs, "list">) => void;
   setPlayers: (players: Player[]) => void;
   setSubstitutes: (substitutes: Player[]) => void;
+  replacePlayer: (old_id: string, new_id?: string) => void;
   resetMatch: () => void;
 }
 

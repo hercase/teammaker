@@ -42,10 +42,10 @@ export const useMatchStore = create(
       },
       setPlayers: (players) => set(() => ({ players })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
-      removePlayer: (id: string) => {
+      replacePlayer: (old_id, new_id) => {
         set(
           produce((state: MatchState) => {
-            state.players = state.players.filter((player) => player.id !== id);
+            state.replacements.push({ old: old_id, new: new_id });
           })
         );
       },
