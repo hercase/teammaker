@@ -8,6 +8,7 @@ const useDialogStore = create<DialogStore>((set) => ({
   open: false,
   state: {
     title: "Title",
+    description: "Description",
     submitText: "Confirmar",
     catchOnCancel: false,
   },

@@ -25,7 +25,8 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
 
   const handleDelete = (player: Player) => {
     dialog({
-      title: `Esta seguro que desea dar de baja a ${player.name}?`,
+      title: "Dar de baja",
+      description: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
       submitText: "Confirmar",
     }).then(() => {
       replacePlayer(player.id);
