@@ -18,6 +18,12 @@ export const useMatchStore = create(
   persist<MatchState>(
     (set) => ({
       ...initialState,
+      hasHydrated: false,
+      setHasHydrated: (state: boolean) => {
+        set({
+          hasHydrated: state,
+        });
+      },
       setColors: (colors = { teamA: "#ffffff", teamB: "#151d65" }) => {
         set(() => ({
           colors: { teamA: colors?.teamA, teamB: colors?.teamB },
@@ -55,6 +61,9 @@ export const useMatchStore = create(
     }),
     {
       name: "match-store",
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

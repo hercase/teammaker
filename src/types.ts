@@ -25,6 +25,8 @@ export interface MatchInputs {
   colors?: Colors;
 }
 export interface MatchState {
+  hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
   players: Player[];
   substitutes: Player[];
   replacements: Replace[];

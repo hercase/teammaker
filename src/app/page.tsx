@@ -13,10 +13,11 @@ import { MatchInputs } from "@/types";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import classNames from "classnames";
 import DatePicker from "@/components/DatePicker";
+import Spinner from "@/components/Spinner";
 
 const Create = () => {
   const router = useRouter();
-  const { players, organizer, random, location, setMatch, setPlayers } = useMatchStore();
+  const { hasHydrated, players, organizer, random, location, setMatch, setPlayers } = useMatchStore();
 
   const {
     register,
@@ -30,8 +31,10 @@ const Create = () => {
   });
 
   useEffect(() => {
-    if (players.length > 0) router.push("/match");
-  }, [players, router]);
+    if (hasHydrated && players?.length) {
+      router.push("/match");
+    }
+  }, [hasHydrated, players, router]);
 
   const handlePaste = () =>
     navigator?.clipboard.readText().then((clipText) => {
@@ -48,6 +51,8 @@ const Create = () => {
     setMatch({ location: data.location, date: data.date, organizer: data.organizer, random: data.random });
     setPlayers(players);
   };
+
+  if (!hasHydrated) return <Spinner />;
 
   return (
     <form className="flex flex-col p-5 gap-3 mx-auto w-full h-full" onSubmit={handleSubmit(onSubmit)}>
