@@ -3,17 +3,21 @@ import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+const initialState = {
+  players: [],
+  substitutes: [],
+  replacements: [],
+  location: "",
+  date: new Date(),
+  organizer: "",
+  random: false,
+  colors: { teamA: "#ffffff", teamB: "#151d65" },
+};
+
 export const useMatchStore = create(
   persist<MatchState>(
     (set) => ({
-      players: [],
-      substitutes: [],
-      replacements: [],
-      location: "",
-      date: new Date(),
-      organizer: "",
-      random: false,
-      colors: { teamA: "#ffffff", teamB: "#151d65" },
+      ...initialState,
       setColors: (colors = { teamA: "#ffffff", teamB: "#151d65" }) => {
         set(() => ({
           colors: { teamA: colors?.teamA, teamB: colors?.teamB },
@@ -32,8 +36,22 @@ export const useMatchStore = create(
       },
       setPlayers: (players) => set(() => ({ players })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
+      removePlayer: (id: string) => {
+        set(
+          produce((state: MatchState) => {
+            state.players = state.players.filter((player) => player.id !== id);
+          })
+        );
+      },
       resetMatch: () =>
-        set(produce((state: MatchState) => ({ ...state, players: [], substitutes: [], replacements: [] }))),
+        set(
+          produce((state: MatchState) => ({
+            ...state,
+            players: initialState.players,
+            substitutes: initialState.substitutes,
+            replacements: initialState.replacements,
+          }))
+        ),
     }),
     {
       name: "match-store",
