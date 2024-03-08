@@ -14,7 +14,7 @@ const ConfirmDialog = () => {
       aria-hidden="true"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 h-screen w-screen"
     >
-      <div className="relative p-8 text-center bg-white rounded-lg shadow">
+      <div className="relative p-8 pt-12 text-center bg-white rounded-lg shadow">
         <button
           type="button"
           className="text-gray-400 absolute top-1 right-1 bg-transparent text-sm p-1.5 ml-auto inline-flex items-center"

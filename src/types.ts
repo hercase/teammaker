@@ -50,7 +50,7 @@ export interface UIStore {
 
 export interface AlertOptions {
   catchOnCancel?: boolean;
-  title: ReactNode;
+  title: string | ReactNode;
   submitText: ReactNode;
 }
 

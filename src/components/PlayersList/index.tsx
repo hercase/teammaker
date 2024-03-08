@@ -4,7 +4,12 @@ import { uniqueId } from "lodash";
 import classNames from "classnames";
 import { ShirtIcon } from "@/components/Icons";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
-import { ArrowsUpDownIcon, ChevronDownIcon, EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowDownCircleIcon,
+  ArrowsUpDownIcon,
+  ChevronDownIcon,
+  EllipsisVerticalIcon,
+} from "@heroicons/react/20/solid";
 import { useMatchStore } from "@/store";
 import useDialog from "@/hooks/useDialog";
 
@@ -20,12 +25,14 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
 
   const handleDelete = (player: Player) => {
     dialog({
-      title: `Esta seguro que desea eliminar a ${player.name}?`,
+      title: `Esta seguro que desea dar de baja a ${player.name}?`,
       submitText: "Confirmar",
     }).then(() => {
       replacePlayer(player.id);
     });
   };
+
+  const handleReplace = (player: Player) => {};
 
   return (
     <div className="relative w-1/2 bg-white rounded-md p-2">
@@ -40,6 +47,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
       <ul className="divide-y divide-gray-200">
         {players?.map((player) => {
           const replacement = replacements.find((replace) => replace.old === player.id);
+
           return (
             <FloatingMenu
               key={uniqueId(`${player.name}-${player.details}`)}
@@ -59,11 +67,16 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
                 </>
               }
             >
-              <MenuOption icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800" />} label="Reemplazar" />
               <MenuOption
+                onClick={() => handleReplace(player)}
+                icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800" />}
+                label="Reemplazar"
+              />
+              <MenuOption
+                disabled={replacement ? replacement?.new === undefined : false}
                 onClick={() => handleDelete(player)}
-                icon={<TrashIcon className="h-5 w-5 fill-red-800" />}
-                label="Eliminar"
+                icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800" />}
+                label="Dar de baja"
               />
             </FloatingMenu>
           );
