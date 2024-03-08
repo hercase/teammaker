@@ -1,9 +1,5 @@
+import { UIStore } from "@/types";
 import { create } from "zustand";
-
-interface UIStore {
-  showEditModal: boolean;
-  setShowEditModal: (show: boolean) => void;
-}
 
 export const useUiStore = create<UIStore>((set) => ({
   showEditModal: false,

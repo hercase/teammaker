@@ -40,6 +40,11 @@ export interface MatchState {
   resetMatch: () => void;
 }
 
+export interface UIStore {
+  showEditModal: boolean;
+  setShowEditModal: (show: boolean) => void;
+}
+
 export interface AlertOptions {
   catchOnCancel?: boolean;
   title: ReactNode;
