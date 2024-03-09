@@ -20,7 +20,6 @@ const useAlert = () => {
       },
     })
       .fire({
-        input,
         inputLabel,
         title,
         text,
