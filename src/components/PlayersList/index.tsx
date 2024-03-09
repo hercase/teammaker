@@ -74,9 +74,10 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
               }
             >
               <MenuOption
+                disabled
                 onClick={() => handleReplace(player)}
                 icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800" />}
-                label="Reemplazar"
+                label="Reemplazar (en proceso)"
               />
               <MenuOption
                 disabled={replacement ? replacement?.new === undefined : false}
