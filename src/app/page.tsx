@@ -12,7 +12,6 @@ import { shuffle } from "lodash";
 import { MatchInputs } from "@/types";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import classNames from "classnames";
-import DatePicker from "@/components/DatePicker";
 import Spinner from "@/components/Spinner";
 
 const Create = () => {
@@ -78,13 +77,12 @@ const Create = () => {
         <Input label="Lugar" error={!!errors.location} {...register("location", { required: true })} />
         <Input label="Organizador" error={!!errors.organizer} {...register("organizer", { required: true })} />
         <div className="flex gap-2">
-          <Controller
-            name="date"
-            control={control}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <DatePicker selected={field.value} error={!!errors.date} onChange={field.onChange} />
-            )}
+          <Input
+            label="Fecha"
+            variant="outline"
+            type="datetime-local"
+            error={!!errors.date}
+            {...register("date", { required: true })}
           />
           <div className="flex flex-col">
             <span className="label">Aleatorio</span>

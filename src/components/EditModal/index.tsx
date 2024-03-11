@@ -5,7 +5,6 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
-import DatePicker from "@/components/DatePicker";
 import ColorPicker from "../ColorPicker";
 
 interface EditModalProps {
@@ -80,13 +79,12 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     labelClassName="text-gray-700"
                     {...register("location")}
                   />
-                  <Controller
-                    name="date"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <DatePicker selected={field.value} error={!!errors.date} onChange={field.onChange} />
-                    )}
+                  <Input
+                    label="Fecha"
+                    variant="outline"
+                    type="datetime-local"
+                    error={!!errors.date}
+                    {...register("date", { required: true })}
                   />
 
                   <div>
