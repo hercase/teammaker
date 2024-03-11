@@ -83,6 +83,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     label="Fecha"
                     variant="outline"
                     type="datetime-local"
+                    min={new Date().toISOString().split(".")[0]}
                     error={!!errors.date}
                     {...register("date", { required: true })}
                   />
