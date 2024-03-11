@@ -1,4 +1,5 @@
 import { MatchInputs, MatchState } from "@/types";
+import { generatePlayer } from "@/utils";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -42,10 +43,16 @@ export const useMatchStore = create(
       },
       setPlayers: (players) => set(() => ({ players })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
-      replacePlayer: (old_id, new_id) => {
+      replacePlayer: (old_id, new_user) => {
         set(
           produce((state: MatchState) => {
-            state.replacements.push({ old: old_id, new: new_id });
+            if (new_user) {
+              const { id, name, details } = generatePlayer(new_user);
+              state.substitutes.push({ id, name, details });
+              state.replacements.push({ old: old_id, new: id });
+            } else {
+              state.replacements.push({ old: old_id });
+            }
           })
         );
       },

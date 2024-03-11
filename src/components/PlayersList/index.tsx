@@ -5,14 +5,11 @@ import { uniqueId } from "lodash";
 import classNames from "classnames";
 import { ShirtIcon } from "@/components/Icons";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
-import {
-  ArrowDownCircleIcon,
-  ArrowsUpDownIcon,
-  ChevronDownIcon,
-  EllipsisVerticalIcon,
-} from "@heroicons/react/20/solid";
+import { ArrowDownCircleIcon, ArrowsUpDownIcon, EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { useMatchStore } from "@/store";
 import useAlert from "@/hooks/useAlert";
+import PlayerName from "../PlayerName";
+import usePlayers from "@/hooks/usePlayers";
 
 interface PlayersListProps {
   shirtPosition?: "left" | "right";
@@ -21,7 +18,11 @@ interface PlayersListProps {
 }
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
-  const { replacements, replacePlayer } = useMatchStore();
+  const { substitutes, replacements, replacePlayer } = useMatchStore();
+  const playersList = usePlayers(players || []);
+
+  console.log("🚀 ~ playersList:", playersList);
+
   const alert = useAlert();
 
   const handleDelete = (player: Player) => {
@@ -35,8 +36,11 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
     alert({
       text: `Selecciona el jugador que reemplazará a ${player.name}`,
       input: "text",
-
-      cb: (user) => console.log(user),
+      inputValidator: (value: string) => {
+        if (!value) return "Debes seleccionar un jugador";
+        if (!/^[a-zA-Z\s\(\)]+$/.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
+      },
+      cb: (user) => replacePlayer(player.id, user),
     });
   };
 
@@ -51,8 +55,8 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
       </label>
 
       <ul className="divide-y divide-gray-200">
-        {players?.map((player) => {
-          const replacement = replacements.find((replace) => replace.old === player.id);
+        {playersList?.map((player) => {
+          const replacement = replacements?.find((replace) => replace.old === player.id);
 
           return (
             <FloatingMenu
@@ -62,22 +66,16 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
               )}
               trigger={
                 <>
-                  <p className="flex">
-                    {replacement && <ChevronDownIcon className="h-5 w-5 fill-red-800" />}
-                    <span className={classNames({ "line-through opacity-50": replacement })}>{player.name}</span>
-                  </p>
-                  {player.details && (
-                    <span className="text-[10px] font-semibold uppercase text-secondary-600">({player.details})</span>
-                  )}
+                  <PlayerName player={player} />
+
                   <EllipsisVerticalIcon className="h-5 w-5 absolute right-2 top-1/2 transform -translate-y-1/2 hidden group-hover:block" />
                 </>
               }
             >
               <MenuOption
-                disabled
                 onClick={() => handleReplace(player)}
                 icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800" />}
-                label="Reemplazar (en proceso)"
+                label="Reemplazar"
               />
               <MenuOption
                 disabled={replacement ? replacement?.new === undefined : false}
