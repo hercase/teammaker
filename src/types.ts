@@ -4,6 +4,8 @@ export type Player = {
   id: string;
   name: string;
   details?: string;
+  isDeleted?: boolean;
+  isReplacedBy?: Player["id"];
 };
 
 export type Colors = {
@@ -11,9 +13,10 @@ export type Colors = {
   teamB?: string;
 };
 
-export type Replace = {
-  old: Player["id"];
-  new?: Player["id"];
+export type MatchEvent = {
+  type: "substitute" | "delete";
+  player_id: Player["id"];
+  date: Date;
 };
 
 export interface MatchInputs {
@@ -25,21 +28,22 @@ export interface MatchInputs {
   colors?: Colors;
 }
 export interface MatchState {
-  hasHydrated: boolean;
-  setHasHydrated: (state: boolean) => void;
   players: Player[];
   substitutes: Player[];
-  replacements: Replace[];
+  history: MatchEvent[];
   location: string;
   date: Date | null;
   organizer: string;
   random: boolean;
   colors: Colors;
+  hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
   setColors: (colors: Colors) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
   setPlayers: (players: Player[]) => void;
   setSubstitutes: (substitutes: Player[]) => void;
-  replacePlayer: (old_id: string, new_id?: string) => void;
+  removePlayer: (id: string) => void;
+  replacePlayer: (old_id: string, player_name: string) => void;
   resetMatch: () => void;
 }
 

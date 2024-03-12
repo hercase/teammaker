@@ -7,7 +7,7 @@ import { persist } from "zustand/middleware";
 const initialState = {
   players: [],
   substitutes: [],
-  replacements: [],
+  history: [],
   location: "",
   date: null,
   organizer: "",
@@ -43,26 +43,47 @@ export const useMatchStore = create(
       },
       setPlayers: (players) => set(() => ({ players })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
-      replacePlayer: (old_id, new_user) => {
+      removePlayer: (id: string) =>
         set(
           produce((state: MatchState) => {
-            if (new_user) {
-              const { id, name, details } = generatePlayer(new_user);
-              state.substitutes.push({ id, name, details });
-              state.replacements.push({ old: old_id, new: id });
-            } else {
-              state.replacements.push({ old: old_id });
+            const player = state.players.find((p) => p.id === id);
+
+            if (player) {
+              player.isDeleted = true;
+              state.history.push({
+                type: "delete",
+                player_id: id,
+                date: new Date(),
+              });
             }
           })
-        );
-      },
+        ),
+      replacePlayer: (old_id: string, player_name: string) =>
+        set(
+          produce((state: MatchState) => {
+            const player = state.players.find((p) => p.id === old_id);
+
+            if (player) {
+              const newPlayer = generatePlayer(player_name);
+
+              state.substitutes.push(newPlayer);
+              player.isReplacedBy = newPlayer.id;
+
+              state.history.push({
+                type: "substitute",
+                player_id: old_id,
+                date: new Date(),
+              });
+            }
+          })
+        ),
       resetMatch: () =>
         set(
           produce((state: MatchState) => ({
             ...state,
             players: initialState.players,
             substitutes: initialState.substitutes,
-            replacements: initialState.replacements,
+            history: initialState.history,
           }))
         ),
     }),

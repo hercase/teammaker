@@ -10,7 +10,7 @@ interface PlayerNameProps {
 
 const PlayerName: FC<PlayerNameProps> = ({ player, className }) => (
   <span className={classNames("flex items-center gap-1", className)}>
-    {player.name}{" "}
+    {player.name}
     {player.details && (
       <span className="text-[9px] font-semibold uppercase">({truncate(player.details, { length: 10 })})</span>
     )}

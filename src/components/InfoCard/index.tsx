@@ -13,9 +13,11 @@ const InfoCard = () => {
       <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
         <div className="flex-1 px-4 py-2 text-sm truncate">
           <p className="text-gray-900 font-medium text-md">{location}</p>
-          <p className="text-gray-900 font-medium text-md first-letter:uppercase">
-            {format(date, "EEEE dd/MM - p", { locale: es })} hs
-          </p>
+          {date && (
+            <p className="text-gray-900 font-medium text-md first-letter:uppercase">
+              {format(date, "EEEE dd/MM - p", { locale: es })} hs
+            </p>
+          )}
           <p className="text-gray-500">Creado por {organizer}</p>
           <p className="text-gray-500">{players.length} Jugadores</p>
           {random && <p className="text-gray-500">Lista aleatoria 🎲</p>}

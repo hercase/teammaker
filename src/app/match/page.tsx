@@ -16,6 +16,7 @@ const Match = () => {
   const router = useRouter();
   const alert = useAlert();
   const { hasHydrated, players, resetMatch, colors, date } = useMatchStore();
+
   const { showEditModal, setShowEditModal } = useUiStore();
 
   const half = Math.ceil(players?.length / 2);
@@ -43,6 +44,7 @@ const Match = () => {
         },
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
   const handleCreateNewList = () => {
