@@ -14,6 +14,7 @@ import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import classNames from "classnames";
 import Spinner from "@/components/Spinner";
 import { format } from "date-fns";
+import DateInput from "@/components/DateInput";
 
 const Create = () => {
   const router = useRouter();
@@ -78,14 +79,7 @@ const Create = () => {
         <Input label="Lugar" error={!!errors.location} {...register("location", { required: true })} />
         <Input label="Organizador" error={!!errors.organizer} {...register("organizer", { required: true })} />
         <div className="flex gap-2">
-          <Input
-            label="Fecha"
-            variant="outline"
-            type="datetime-local"
-            min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
-            error={!!errors.date}
-            {...register("date", { required: true })}
-          />
+          <DateInput error={!!errors.date} {...register("date", { required: true })} />
           <div className="flex flex-col">
             <span className="label">Aleatorio</span>
             <div className="flex justify-center items-center mt-1 h-full">

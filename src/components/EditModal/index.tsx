@@ -7,6 +7,7 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import ColorPicker from "../ColorPicker";
 import { format } from "date-fns";
+import DateInput from "../DateInput";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -80,15 +81,8 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     labelClassName="text-gray-700"
                     {...register("location")}
                   />
-                  <Input
-                    label="Fecha"
-                    variant="outline"
-                    type="datetime-local"
-                    min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
-                    error={!!errors.date}
-                    {...register("date", { required: true })}
-                  />
 
+                  <DateInput error={!!errors.date} {...register("date", { required: true })} />
                   <div>
                     <p>Colores</p>
                     <div className="flex gap-6">
@@ -109,7 +103,6 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                       />
                     </div>
                   </div>
-
                   <Button type="submit" variant="secondary" className="w-full">
                     Confirmar
                   </Button>
