@@ -27,19 +27,22 @@ export interface MatchInputs {
   random: boolean;
   colors?: Colors;
 }
-export interface MatchState {
-  players: Player[];
-  substitutes: Player[];
-  history: MatchEvent[];
+export interface MatchStore {
   location: string;
   date: Date | null;
   organizer: string;
   random: boolean;
   colors: Colors;
-  hasHydrated: boolean;
-  setHasHydrated: (state: boolean) => void;
   setColors: (colors: Colors) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
+}
+
+export interface PlayersStore {
+  players: Player[];
+  substitutes: Player[];
+  history: MatchEvent[];
+  hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
   setPlayers: (players: Player[]) => void;
   setSubstitutes: (substitutes: Player[]) => void;
   removePlayer: (id: string) => void;

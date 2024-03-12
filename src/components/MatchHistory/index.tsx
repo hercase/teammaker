@@ -1,11 +1,11 @@
 import React from "react";
-import { useMatchStore } from "@/store";
 import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/20/solid";
 import PlayerName from "@/components/PlayerName";
 import { format } from "date-fns";
+import usePlayers from "@/hooks/usePlayers";
 
 const MatchHistory = () => {
-  const { history, players, substitutes } = useMatchStore();
+  const { history, players, substitutes } = usePlayers();
 
   if (!history.length) return null;
 

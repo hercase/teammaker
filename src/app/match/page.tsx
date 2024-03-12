@@ -11,18 +11,14 @@ import InfoCard from "@/components/InfoCard";
 import Spinner from "@/components/Spinner";
 import MatchHistory from "@/components/MatchHistory";
 import useAlert from "@/hooks/useAlert";
+import usePlayers from "@/hooks/usePlayers";
 
 const Match = () => {
   const router = useRouter();
   const alert = useAlert();
-  const { hasHydrated, players, resetMatch, colors, date } = useMatchStore();
-
+  const { colors, date } = useMatchStore();
+  const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
-
-  const half = Math.ceil(players?.length / 2);
-
-  const teamA = players?.slice(0, half);
-  const teamB = players?.slice(-half);
 
   useEffect(() => {
     if (!hasHydrated) return;

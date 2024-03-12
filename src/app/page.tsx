@@ -13,12 +13,13 @@ import { MatchInputs } from "@/types";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import classNames from "classnames";
 import Spinner from "@/components/Spinner";
-import { format } from "date-fns";
 import DateInput from "@/components/DateInput";
+import usePlayers from "@/hooks/usePlayers";
 
 const Create = () => {
   const router = useRouter();
-  const { hasHydrated, players, organizer, random, location, setMatch, setPlayers } = useMatchStore();
+  const { organizer, random, location, setMatch } = useMatchStore();
+  const { hasHydrated, players, setPlayers } = usePlayers();
 
   const {
     register,

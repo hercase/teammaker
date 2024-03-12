@@ -6,7 +6,6 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import ColorPicker from "../ColorPicker";
-import { format } from "date-fns";
 import DateInput from "../DateInput";
 
 interface EditModalProps {

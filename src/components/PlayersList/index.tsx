@@ -6,9 +6,9 @@ import classNames from "classnames";
 import { ShirtIcon } from "@/components/Icons";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
 import { ArrowDownCircleIcon, ArrowPathIcon, ArrowsUpDownIcon, EllipsisVerticalIcon } from "@heroicons/react/20/solid";
-import { useMatchStore } from "@/store";
 import useAlert from "@/hooks/useAlert";
 import PlayerName from "../PlayerName";
+import usePlayers from "@/hooks/usePlayers";
 
 interface PlayersListProps {
   shirtPosition?: "left" | "right";
@@ -17,7 +17,7 @@ interface PlayersListProps {
 }
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
-  const { substitutes, removePlayer, replacePlayer } = useMatchStore();
+  const { substitutes, removePlayer, replacePlayer } = usePlayers();
 
   const alert = useAlert();
 
