@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useMatchStore } from "@/store";
-import { ClipboardIcon } from "@/components/Icons";
+import { ClipboardIcon } from "@heroicons/react/20/solid";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import Input from "@/components/Input";
