@@ -20,7 +20,7 @@ export interface MatchInputs {
   list: string;
   location: string;
   organizer: string;
-  date: Date;
+  date: Date | null;
   random: boolean;
   colors?: Colors;
 }
@@ -31,7 +31,7 @@ export interface MatchState {
   substitutes: Player[];
   replacements: Replace[];
   location: string;
-  date: Date;
+  date: Date | null;
   organizer: string;
   random: boolean;
   colors: Colors;

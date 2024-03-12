@@ -13,6 +13,7 @@ import { MatchInputs } from "@/types";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
 import classNames from "classnames";
 import Spinner from "@/components/Spinner";
+import { format } from "date-fns";
 
 const Create = () => {
   const router = useRouter();
@@ -81,6 +82,7 @@ const Create = () => {
             label="Fecha"
             variant="outline"
             type="datetime-local"
+            min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
             error={!!errors.date}
             {...register("date", { required: true })}
           />

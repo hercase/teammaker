@@ -10,10 +10,12 @@ import EditModal from "@/components/EditModal";
 import InfoCard from "@/components/InfoCard";
 import Spinner from "@/components/Spinner";
 import MatchHistory from "@/components/MatchHistory";
+import useAlert from "@/hooks/useAlert";
 
 const Match = () => {
   const router = useRouter();
-  const { hasHydrated, players, resetMatch, colors } = useMatchStore();
+  const alert = useAlert();
+  const { hasHydrated, players, resetMatch, colors, date } = useMatchStore();
   const { showEditModal, setShowEditModal } = useUiStore();
 
   const half = Math.ceil(players?.length / 2);
@@ -22,10 +24,26 @@ const Match = () => {
   const teamB = players?.slice(-half);
 
   useEffect(() => {
-    if (hasHydrated && !players?.length) {
+    if (!hasHydrated) return;
+
+    if (!players?.length) {
       router.push("/");
     }
-  }, [hasHydrated, players, router]);
+  }, [hasHydrated, players, router, resetMatch, alert]);
+
+  useEffect(() => {
+    const matchIsOld = date && new Date(date) < new Date();
+
+    if (matchIsOld) {
+      alert({
+        text: "El partido ya ha finalizado, ¿deseas crear una nueva lista?",
+        cb: () => {
+          resetMatch();
+          router.push("/");
+        },
+      });
+    }
+  }, [date]);
 
   const handleCreateNewList = () => {
     resetMatch();

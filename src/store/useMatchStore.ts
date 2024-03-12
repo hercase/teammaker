@@ -9,7 +9,7 @@ const initialState = {
   substitutes: [],
   replacements: [],
   location: "",
-  date: new Date(),
+  date: null,
   organizer: "",
   random: false,
   colors: { teamA: "#ffffff", teamB: "#151d65" },
