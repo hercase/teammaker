@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import classNames from "classnames";
-import { format } from "date-fns";
+import { addMinutes, format } from "date-fns";
 
 interface DateInputProps {
   error?: boolean;
@@ -15,14 +15,14 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({ error = false,
       })}
       htmlFor="date"
     >
-      Fecha
+      Fecha <span className=" text-xs text-gray-400">(mínimo 15 minutos desde ahora)</span>
     </label>
     <div className="relative">
       <input
         ref={ref}
         id="date"
         type="datetime-local"
-        min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
+        min={format(addMinutes(new Date(), 15), "yyyy-MM-dd'T'HH:mm")}
         className={classNames("input border-1 outline-none", {
           "text-red-600 ring-2 ring-inset ring-red-600 placeholder:text-red-300 focus:ring-2 focus:ring-inset focus:ring-red-500":
             error,
