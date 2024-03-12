@@ -10,10 +10,8 @@ import EditModal from "@/components/EditModal";
 import InfoCard from "@/components/InfoCard";
 import Spinner from "@/components/Spinner";
 import MatchHistory from "@/components/MatchHistory";
-import { generatePlayer } from "@/utils";
 
 const Match = () => {
-  generatePlayer("Lele (Pelado)");
   const router = useRouter();
   const { hasHydrated, players, resetMatch, colors } = useMatchStore();
   const { showEditModal, setShowEditModal } = useUiStore();
