@@ -15,11 +15,11 @@ const MatchHistory = () => {
         const sub = substitutes.find((s) => s.id === replace.new);
 
         return (
-          <li key={replace.old} className="flex gap-1 items-center text-gray-600">
+          <li key={replace.old} className="flex gap-1 items-center text-gray-600 text-sm">
             {player && (
-              <span className="flex items-center text-red-600">
+              <span className="flex items-center text-red-600 capitalize">
                 <ArrowDownCircleIcon className="w-5 h-5 fill-red-600 " />
-                <PlayerName player={player} />
+                <PlayerName player={player} className="!text-red-600" />
               </span>
             )}
 
@@ -29,7 +29,7 @@ const MatchHistory = () => {
               <>
                 <span className="flex items-center">
                   <ArrowUpCircleIcon className="w-5 h-5 fill-green-600" />
-                  <span className="text-green-600">{sub?.name}</span>
+                  <PlayerName player={sub} className="!text-green-600" />
                   <span>.</span>
                 </span>
               </>
