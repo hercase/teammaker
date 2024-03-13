@@ -1,4 +1,4 @@
-import { MatchInputs, PlayersStore } from "@/types";
+import { PlayersStore } from "@/types";
 import { generatePlayer } from "@/utils";
 import { produce } from "immer";
 import { create } from "zustand";
@@ -16,20 +16,7 @@ export const usePlayersStore = create(
       ...initialState,
       hasHydrated: false,
       setHasHydrated: (state: boolean) => {
-        set({
-          hasHydrated: state,
-        });
-      },
-      setMatch: (match: Omit<MatchInputs, "list">) => {
-        set(
-          produce((state: PlayersStore) => ({
-            ...state,
-            location: match.location,
-            date: match.date,
-            organizer: match.organizer,
-            random: match.random,
-          }))
-        );
+        set({ hasHydrated: state });
       },
       setPlayers: (players) => set(() => ({ players })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
@@ -40,11 +27,7 @@ export const usePlayersStore = create(
 
             if (player) {
               player.isDeleted = true;
-              state.history.push({
-                type: "delete",
-                player_id: id,
-                date: new Date(),
-              });
+              state.history.push({ type: "delete", player_id: id, date: new Date() });
             }
           })
         ),
@@ -58,12 +41,7 @@ export const usePlayersStore = create(
 
               state.substitutes.push(newPlayer);
               player.isReplacedBy = newPlayer.id;
-
-              state.history.push({
-                type: "substitute",
-                player_id: old_id,
-                date: new Date(),
-              });
+              state.history.push({ type: "substitute", player_id: old_id, date: new Date() });
             }
           })
         ),

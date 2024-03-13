@@ -20,6 +20,7 @@ export const useMatchStore = create(
           colors: { teamA: colors?.teamA, teamB: colors?.teamB },
         }));
       },
+
       setMatch: (match: Omit<MatchInputs, "list">) => {
         set(
           produce((state: MatchStore) => ({
