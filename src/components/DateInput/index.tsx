@@ -1,13 +1,16 @@
-import { forwardRef } from "react";
+import { FC } from "react";
 import classNames from "classnames";
 import { addMinutes, format } from "date-fns";
+import { MatchInputs } from "@/types";
+import { UseFormRegister } from "react-hook-form";
 
 interface DateInputProps {
-  error?: boolean;
+  error: boolean;
   variant?: "outline";
+  register: UseFormRegister<MatchInputs>;
 }
 
-const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({ error = false, variant, ...props }, ref) => (
+const DateInput: FC<DateInputProps> = ({ register, error, variant, ...rest }) => (
   <div className="label flex flex-col gap-2 w-full">
     <label
       className={classNames({
@@ -19,7 +22,6 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({ error = false,
     </label>
     <div className="relative">
       <input
-        ref={ref}
         id="date"
         type="datetime-local"
         min={format(addMinutes(new Date(), 15), "yyyy-MM-dd'T'HH:mm")}
@@ -28,11 +30,12 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({ error = false,
             error,
           "border border-primary-300": variant === "outline",
         })}
-        {...props}
+        {...register("date", { required: true })}
+        {...rest}
       />
     </div>
   </div>
-));
+);
 
 DateInput.displayName = "DateInput";
 

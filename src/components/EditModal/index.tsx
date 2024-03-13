@@ -4,9 +4,9 @@ import { MatchInputs } from "@/types";
 import { Dialog, Transition } from "@headlessui/react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
-import Input from "@/components/Input";
-import ColorPicker from "../ColorPicker";
-import DateInput from "../DateInput";
+import ColorPicker from "@/components/ColorPicker";
+import DateInput from "@/components/DateInput";
+import TextInput from "@/components/TextInput";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -73,15 +73,14 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                   Editar
                 </Dialog.Title>
                 <form className="flex flex-col gap-6 mt-4 text-gray-500" onSubmit={handleSubmit(onSubmit)}>
-                  <Input
-                    label="Lugar"
+                  <TextInput
                     variant="outline"
+                    name="location"
+                    label="Lugar"
                     error={!!errors.location}
-                    labelClassName="text-gray-700"
-                    {...register("location")}
+                    register={register}
                   />
-
-                  <DateInput error={!!errors.date} {...register("date", { required: true })} />
+                  <DateInput variant="outline" error={!!errors.date} register={register} />
                   <div>
                     <p>Colores</p>
                     <div className="flex gap-6">
