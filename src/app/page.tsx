@@ -67,13 +67,8 @@ const Create = () => {
           placeholder={`1. Pedro\n2. Flor\n3. Juan \n4. Sylvie\n5. Chloe ...`}
           {...register("list", { required: true, validate: (value) => value.split("\n").filter((v) => v).length > 3 })}
         />
-        <Button
-          type="button"
-          variant="secondary"
-          className="absolute bottom-5 right-5 w-12"
-          onClick={() => handlePaste()}
-        >
-          <ClipboardDocumentIcon />
+        <Button type="button" variant="secondary" className="absolute bottom-5 right-5" onClick={() => handlePaste()}>
+          <ClipboardDocumentIcon className="h-5 w-5" />
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-2 mb-4">
