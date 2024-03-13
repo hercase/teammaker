@@ -1,21 +1,29 @@
-<a href="https://codeclimate.com/github/hercase/teammaker/maintainability"><img src="https://api.codeclimate.com/v1/badges/f7ee15a81b21fa9f2b3c/maintainability" /></a>
+<a  href="https://codeclimate.com/github/hercase/teammaker/maintainability"><img  src="https://api.codeclimate.com/v1/badges/f7ee15a81b21fa9f2b3c/maintainability" /></a>
 
-## Getting Started
+# Teammaker
+
+### Getting Started
 
 First, run the development server:
 
 ```bash
-npm run dev
+npm  run  dev
 # or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn  dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Dependencies
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- [@headlessui/react](https://ghub.io/@headlessui/react): A set of completely unstyled, fully accessible UI components for React, designed to integrate beautifully with Tailwind CSS
+- [next](https://ghub.io/next): The React Framework
+- [react-hook-form](https://ghub.io/react-hook-form): Performant, flexible and extensible forms library for React Hooks
+- [zustand](https://ghub.io/zustand): 🐻 Bear necessities for state management in React
+
+### Dev Dependencies
+
+- [lodash](https://ghub.io/@types/lodash):
+- [eslint](https://ghub.io/eslint): An AST-based pattern checker for JavaScript.
+- [tailwindcss](https://ghub.io/tailwindcss): A utility-first CSS framework for rapidly building custom user interfaces.
+- [typescript](https://ghub.io/typescript): TypeScript is a language for application scale JavaScript development
