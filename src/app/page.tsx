@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useMatchStore } from "@/store";
-import { ClipboardIcon } from "@heroicons/react/20/solid";
+import { ClipboardDocumentIcon } from "@heroicons/react/20/solid";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import Input from "@/components/Input";
@@ -73,7 +73,7 @@ const Create = () => {
           className="absolute bottom-5 right-5 w-12"
           onClick={() => handlePaste()}
         >
-          <ClipboardIcon />
+          <ClipboardDocumentIcon />
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-2 mb-4">
