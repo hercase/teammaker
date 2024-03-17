@@ -5,9 +5,16 @@ import { uniqueId } from "lodash";
 import classNames from "classnames";
 import { ShirtIcon } from "@/components/Icons";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
-import { ArrowDownCircleIcon, ArrowPathIcon, ArrowsUpDownIcon, EllipsisVerticalIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowDownCircleIcon,
+  ArrowPathIcon,
+  ArrowsUpDownIcon,
+  EllipsisVerticalIcon,
+  PencilSquareIcon,
+} from "@heroicons/react/20/solid";
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
+import { useMatchStore } from "@/store";
 
 interface PlayersListProps {
   shirtPosition?: "left" | "right";
@@ -16,7 +23,8 @@ interface PlayersListProps {
 }
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
-  const { substitutes, deletePlayer, changePlayer } = usePlayers();
+  const { substitutes, removePlayer, replacePlayer, renamePlayer } = usePlayers();
+  const { random } = useMatchStore();
 
   return (
     <div className="relative w-1/2 bg-white rounded-md p-2">
@@ -51,15 +59,22 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
                 </>
               }
             >
+              {!random && (
+                <MenuOption
+                  onClick={() => renamePlayer(player)}
+                  icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600" />}
+                  label="Renombrar"
+                />
+              )}
               <MenuOption
                 disabled={!!player.isReplacedBy}
-                onClick={() => changePlayer(player)}
+                onClick={() => replacePlayer(player)}
                 icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800" />}
                 label="Reemplazar"
               />
               <MenuOption
                 disabled={player.isDeleted || !!player.isReplacedBy}
-                onClick={() => deletePlayer(player)}
+                onClick={() => removePlayer(player)}
                 icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800" />}
                 label="Dar de baja"
               />

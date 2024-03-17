@@ -20,6 +20,25 @@ export const usePlayersStore = create(
       },
       setPlayers: (players) => set(() => ({ players })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
+      renamePlayer: (id: string, player_name: string) =>
+        set(
+          produce((state: PlayersStore) => {
+            const { name, details } = generatePlayer(player_name);
+
+            const player = state.players.find((p) => p.id === id);
+            const substitute = state.substitutes.find((p) => p.id === player?.isReplacedBy);
+
+            if (player && !substitute) {
+              player.name = name;
+              player.details = details;
+            }
+
+            if (substitute) {
+              substitute.name = name;
+              substitute.details = details;
+            }
+          })
+        ),
       removePlayer: (id: string) =>
         set(
           produce((state: PlayersStore) => {

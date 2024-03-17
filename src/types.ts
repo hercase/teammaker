@@ -14,7 +14,7 @@ export type Colors = {
 };
 
 export type MatchEvent = {
-  type: "substitute" | "delete";
+  type: "substitute" | "delete" | "rename";
   player_id: Player["id"];
   date: Date;
 };
@@ -42,6 +42,7 @@ export interface PlayersStore {
   substitutes: Player[];
   history: MatchEvent[];
   hasHydrated: boolean;
+  renamePlayer: (id: string, player_name: string) => void;
   setHasHydrated: (state: boolean) => void;
   setPlayers: (players: Player[]) => void;
   setSubstitutes: (substitutes: Player[]) => void;
