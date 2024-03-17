@@ -27,7 +27,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
   const { random } = useMatchStore();
 
   return (
-    <div className="relative w-1/2 bg-white rounded-md p-2">
+    <div className="relative w-1/2 bg-white rounded-md p-2 dark:bg-gray-800">
       <div className={classNames("flex justify-start mb-2", { "justify-end": shirtPosition === "right" })}>
         <ShirtIcon color={color} />
       </div>
@@ -40,7 +40,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
             <FloatingMenu
               key={uniqueId(`${player.name}-${player.details}`)}
               className={classNames(
-                "relative flex gap-1 font-display text-[16px] p-1 py-2 capitalize justify-center items-center text-gray-600 w-full group hover:bg-gray-200"
+                "relative flex gap-1 font-display text-[16px] p-1 py-2 capitalize justify-center items-center text-gray-600 w-full group hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-400"
               )}
               trigger={
                 <>
@@ -62,20 +62,20 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
               {!random && (
                 <MenuOption
                   onClick={() => renamePlayer(player)}
-                  icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600" />}
+                  icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600 dark:fill-secondary-400" />}
                   label="Renombrar"
                 />
               )}
               <MenuOption
                 disabled={!!player.isReplacedBy}
                 onClick={() => replacePlayer(player)}
-                icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800" />}
+                icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800 dark:fill-primary-400" />}
                 label="Reemplazar"
               />
               <MenuOption
                 disabled={player.isDeleted || !!player.isReplacedBy}
                 onClick={() => removePlayer(player)}
-                icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800" />}
+                icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800 dark:fill-red-400" />}
                 label="Dar de baja"
               />
             </FloatingMenu>

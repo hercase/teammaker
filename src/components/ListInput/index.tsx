@@ -20,7 +20,7 @@ const ListInput: FC<ListInputProps> = ({ register, error, onPaste, ...rest }) =>
   return (
     <div className="flex flex-col flex-auto w-full relative" style={{ maxHeight: "400px" }}>
       <textarea
-        className={classNames("p-4 w-full flex-1 rounded-md resize-none text-gray-700 outline-none", {
+        className={classNames("p-4 w-full flex-1 rounded-md resize-none outline-none input", {
           "text-red-600 ring-1 ring-inset ring-red-600 placeholder:text-red-300 focus:ring-2 focus:ring-inset focus:ring-red-500":
             error,
         })}

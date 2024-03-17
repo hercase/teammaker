@@ -4,11 +4,11 @@
 
 @layer components {
   .input {
-    @apply border-gray-300 text-gray-500 rounded-md w-full h-8 px-2;
+    @apply border-gray-300 text-gray-500 rounded-md w-full h-8 px-2 dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-400 dark:border-gray-700 dark:focus:ring-gray-500;
   }
 
   .label {
-    @apply font-normal text-sm text-gray-400;
+    @apply font-normal text-sm text-gray-400 dark:text-gray-300;
   }
 }
 
