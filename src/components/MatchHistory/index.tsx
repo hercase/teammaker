@@ -10,7 +10,10 @@ const MatchHistory = () => {
   if (!history.length) return null;
 
   return (
-    <ul className="flex flex-col justify-between bg-white rounded-md p-2">
+    <ul
+      className="flex flex-col justify-between bg-white dark:bg-gray-800
+    rounded-md p-2"
+    >
       {history.map(({ player_id, type, date }) => {
         const player = players.find((p) => p.id === player_id);
 
@@ -19,7 +22,7 @@ const MatchHistory = () => {
         if (!player) return null;
 
         return (
-          <li key={format(date, "HH:mm:ss") + player} className="flex gap-1 items-center text-gray-600 text-xs">
+          <li key={format(date, "HH:mm:ss") + player} className="flex gap-1 items-center text-gray-600  text-xs">
             <span className="text-gray-400">{format(date, "dd/MM HH:mm")}</span>
 
             <span className="flex items-center text-red-600 capitalize">
@@ -27,7 +30,9 @@ const MatchHistory = () => {
               <PlayerName player={player} className="!text-red-600" />
             </span>
 
-            <span className="text-gray-600">{type === "substitute" ? "reemplazado por" : "se dio de baja."}</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              {type === "substitute" ? "reemplazado por" : "se dio de baja."}
+            </span>
             {type === "substitute" && substitute && (
               <>
                 <span className="flex items-center">
