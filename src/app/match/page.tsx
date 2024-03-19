@@ -12,11 +12,14 @@ import Spinner from "@/components/Spinner";
 import MatchHistory from "@/components/MatchHistory";
 import useAlert from "@/hooks/useAlert";
 import usePlayers from "@/hooks/usePlayers";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { HandRaisedIcon } from "@heroicons/react/20/solid";
 
 const Match = () => {
   const router = useRouter();
   const alert = useAlert();
-  const { colors, date } = useMatchStore();
+  const { colors, date, random } = useMatchStore();
   const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
 
@@ -51,26 +54,37 @@ const Match = () => {
   if (!hasHydrated) return <Spinner />;
 
   return (
-    <div className="flex flex-col w-full">
-      <div className="flex flex-col gap-5 p-4">
-        <InfoCard />
+    <DndProvider backend={HTML5Backend}>
+      <div className="flex flex-col w-full">
+        <div className="flex flex-col gap-5 p-4">
+          <InfoCard />
 
-        <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
-          <PlayersList shirtPosition="right" players={teamA} color={colors.teamA} />
-          <VersusIcon className="z-10 absolute top-10" />
-          <PlayersList shirtPosition="left" players={teamB} color={colors.teamB} />
+          <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
+            <PlayersList shirtPosition="right" players={teamA} color={colors.teamA} />
+            <VersusIcon className="z-10 absolute top-10" />
+            <PlayersList shirtPosition="left" players={teamB} color={colors.teamB} />
+          </div>
+
+          {!random && (
+            <div className="flex gap-2 items-center text-gray-300">
+              <HandRaisedIcon className="w-5 h-5" />
+              <p className="text-sm">
+                Arrastra los jugadores para ordenar o cambiar de equipo.
+              </p>
+            </div>
+          )}
+
+          <MatchHistory />
         </div>
-
-        <MatchHistory />
+        <div className="flex justify-center w-full gap-4 mt-4">
+          <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
+          <Button variant="secondary" onClick={() => setShowEditModal(true)}>
+            Editar
+          </Button>
+        </div>
+        <EditModal isOpen={showEditModal} setIsOpen={setShowEditModal} />
       </div>
-      <div className="flex justify-center w-full gap-4 mt-4">
-        <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
-        <Button variant="secondary" onClick={() => setShowEditModal(true)}>
-          Editar
-        </Button>
-      </div>
-      <EditModal isOpen={showEditModal} setIsOpen={setShowEditModal} />
-    </div>
+    </DndProvider>
   );
 };
 

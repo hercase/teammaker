@@ -1,6 +1,7 @@
 import { usePlayersStore } from "@/store";
 import { Player } from "@/types";
 import useAlert from "@/hooks/useAlert";
+import { validateName } from "@/utils";
 
 const usePlayers = () => {
   const alert = useAlert();
@@ -28,11 +29,8 @@ const usePlayers = () => {
   const replacePlayer = (player: Player) => {
     alert({
       text: `Ingresa el nombre del jugador que reemplazará a ${player.name}`,
-      input: "text",
-      inputValidator: (value: string) => {
-        if (!value) return "Debes seleccionar un jugador";
-        if (!/^[a-zA-Z\s\(\)]+$/.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
-      },
+      inputValidator: validateName,
+
       cb: (user: string) => _replacePlayer(player.id, user),
     });
   };
@@ -40,11 +38,7 @@ const usePlayers = () => {
   const renamePlayer = (player: Player) => {
     alert({
       text: `Ingresa el nuevo nombre para ${player.name}`,
-      input: "text",
-      inputValidator: (value: string) => {
-        if (!value) return "Debes ingresar un nombre";
-        if (!/^[a-zA-Z\s\(\)]+$/.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
-      },
+      inputValidator: validateName,
       cb: (user: string) => _renamePlayer(player.id, user),
     });
   };

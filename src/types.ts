@@ -49,6 +49,7 @@ export interface PlayersStore {
   removePlayer: (id: string) => void;
   replacePlayer: (old_id: string, player_name: string) => void;
   resetMatch: () => void;
+  exchangePlayers: (playerId1: string, playerId2: string) => void;
 }
 
 export interface UIStore {

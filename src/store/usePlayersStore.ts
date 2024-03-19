@@ -73,6 +73,15 @@ export const usePlayersStore = create(
             history: initialState.history,
           }))
         ),
+      exchangePlayers: (playerId1: string, playerId2: string) => set((state) => produce(state, (draft) => {
+          const index1 = draft.players.findIndex((p) => p.id === playerId1);
+          const index2 = draft.players.findIndex((p) => p.id === playerId2);
+      
+          if (index1 !== -1 && index2 !== -1) {
+            [draft.players[index1], draft.players[index2]] = [draft.players[index2], draft.players[index1]];
+          }
+        })),
+        
     }),
     {
       name: "players-store",

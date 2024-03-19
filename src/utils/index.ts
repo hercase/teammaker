@@ -31,3 +31,8 @@ export const trucanteString = (str: string, maxChar: number) => {
   }
   return str;
 };
+
+export const validateName = (value: string) => {
+  if (!value) return "Debes ingresar un nombre";
+  if (!/^[a-zA-Z\s\(\)]+$/.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
+};

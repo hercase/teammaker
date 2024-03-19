@@ -4,11 +4,13 @@ import classNames from "classnames";
 
 interface ToggleSwitchProps {
   checked: boolean;
+  disabled?: boolean;
   onChange: () => void;
 }
 
-const ToggleSwitch: FC<ToggleSwitchProps> = ({ checked, onChange }) => (
+const ToggleSwitch: FC<ToggleSwitchProps> = ({ checked, disabled, onChange }) => (
   <Switch
+    disabled={disabled}
     checked={checked}
     onChange={onChange}
     className={classNames(
