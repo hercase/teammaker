@@ -1,7 +1,8 @@
 import { FC, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Player } from "@/types";
-import usePlayers from "@/hooks/usePlayers";
+import classNames from "classnames";
+import {  usePlayersStore } from "@/store";
 
 interface PlayerNameProps {
   player: Player;
@@ -9,7 +10,7 @@ interface PlayerNameProps {
 }
 
 const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
-  const { exchangePlayers } = usePlayers();
+  const { exchangePlayers } = usePlayersStore();
   const ref = useRef<HTMLParagraphElement>(null);
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'player',
@@ -33,7 +34,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
   return (
     <p
       ref={ref}
-      className={`${className} ${isDragging ? 'opacity-50' : 'opacity-100'}`}
+      className={classNames(isDragging ? 'opacity-50' : 'opacity-100', className)}
     >
       {player.name}
       {player.details && (

@@ -11,7 +11,6 @@ const usePlayers = () => {
     removePlayer: _removePlayer,
     replacePlayer: _replacePlayer,
     renamePlayer: _renamePlayer,
-    exchangePlayers,
     ...store
   } = usePlayersStore();
 
@@ -53,7 +52,6 @@ const usePlayers = () => {
     removePlayer,
     replacePlayer,
     renamePlayer,
-    exchangePlayers,
     ...store,
   };
 };
