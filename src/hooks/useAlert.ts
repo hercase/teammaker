@@ -19,7 +19,11 @@ const Alert = withReactContent(Swal).mixin({
 const useAlert = () => {
   const customAlert = ({ cb, ...rest }: AlertOptions) => {
     // @ts-expect-error: showCancelButton is not in the type definition
-    Alert.fire({ ...rest, showCancelButton: true }).then((result) => {
+    Alert.fire({
+      input: "text",
+      ...rest,
+      showCancelButton: true,
+    }).then((result) => {
       if (result.isConfirmed) {
         cb(result.value);
       }
