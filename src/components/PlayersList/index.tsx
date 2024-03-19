@@ -49,11 +49,11 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
                   {substitute && (
                     <>
                       <ArrowPathIcon className="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 fill-secondary-600" />
-                      <PlayerName player={substitute} className="w-full" />
+                      <PlayerName player={substitute} />
                     </>
                   )}
 
-                  {!substitute && !player.isDeleted && <PlayerName className="w-full" player={player} />}
+                  {!substitute && !player.isDeleted && <PlayerName player={player} />}
 
                   <EllipsisVerticalIcon className="h-5 w-5 absolute right-2 top-1/2 transform -translate-y-1/2 hidden group-hover:block" />
                 </>

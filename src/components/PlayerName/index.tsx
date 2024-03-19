@@ -2,7 +2,8 @@ import { FC, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Player } from "@/types";
 import classNames from "classnames";
-import {  usePlayersStore } from "@/store";
+import usePlayers from "@/hooks/usePlayers";
+import { useMatchStore } from '@/store';
 
 interface PlayerNameProps {
   player: Player;
@@ -10,14 +11,17 @@ interface PlayerNameProps {
 }
 
 const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
-  const { exchangePlayers } = usePlayersStore();
+  const { exchangePlayers } = usePlayers();
+  const { random } = useMatchStore();
   const ref = useRef<HTMLParagraphElement>(null);
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'player',
     item: { id: player.id },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
+    canDrag: !random,
   }));
 
   const [, drop] = useDrop({
@@ -34,7 +38,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
   return (
     <p
       ref={ref}
-      className={classNames(isDragging ? 'opacity-50' : 'opacity-100', className)}
+      className={classNames("w-full", isDragging ? 'opacity-50' : 'opacity-100', className)}
     >
       {player.name}
       {player.details && (

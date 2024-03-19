@@ -7,6 +7,7 @@ import Button from "@/components/Button";
 import ColorPicker from "@/components/ColorPicker";
 import DateInput from "@/components/DateInput";
 import TextInput from "@/components/TextInput";
+import ToggleSwitch from "../ToggleSwitch";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -14,7 +15,7 @@ interface EditModalProps {
 }
 
 const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
-  const { organizer, location, date, colors, setMatch, setColors } = useMatchStore();
+  const { organizer, location, date, colors, random, setMatch, setColors } = useMatchStore();
 
   const {
     register,
@@ -23,7 +24,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
     formState: { errors },
   } = useForm<MatchInputs>({
     mode: "onBlur",
-    defaultValues: { location, colors, date },
+    defaultValues: { location, colors, date, random },
   });
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
@@ -73,7 +74,20 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     error={!!errors.location}
                     register={register}
                   />
-                  <DateInput variant="outline" error={!!errors.date} register={register} />
+                  <div className="flex gap-2">
+                    <DateInput variant="outline" register={register} error={!!errors.date} />
+                    {random && <div className="flex flex-col">
+                      <span className="label">Aleatorio</span>
+                      <div className="flex justify-center items-center mt-1 h-full">
+                        <Controller
+                          name="random"
+                          control={control}
+                          defaultValue={false}
+                          render={({ field }) => <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />}
+                        />
+                      </div>
+                    </div>}
+                  </div>
                   <div>
                     <p className="label">Colores</p>
                     <div className="flex gap-6">
