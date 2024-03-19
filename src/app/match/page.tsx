@@ -21,6 +21,9 @@ const Match = () => {
   const alert = useAlert();
   const { colors, date, random } = useMatchStore();
   const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
+
+  console.log("🚀 ~ players:", players);
+
   const { showEditModal, setShowEditModal } = useUiStore();
 
   useEffect(() => {
@@ -68,9 +71,7 @@ const Match = () => {
           {!random && (
             <div className="flex gap-2 items-center text-gray-300">
               <HandRaisedIcon className="w-5 h-5" />
-              <p className="text-sm">
-                Arrastra los jugadores para ordenar o cambiar de equipo.
-              </p>
+              <p className="text-sm">Arrastra los jugadores para ordenar o cambiar de equipo.</p>
             </div>
           )}
 
