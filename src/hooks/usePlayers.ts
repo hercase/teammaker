@@ -10,7 +10,7 @@ const usePlayers = () => {
     removePlayer: _removePlayer,
     replacePlayer: _replacePlayer,
     renamePlayer: _renamePlayer,
-    exchangePlayers: _exchangePlayers,
+    exchangePlayers,
     ...store
   } = usePlayersStore();
 
@@ -36,10 +36,6 @@ const usePlayers = () => {
       },
       cb: (user: string) => _replacePlayer(player.id, user),
     });
-  };
-
-  const exchangePlayers = (playerId1: string, playerId2: string) => {
-    _exchangePlayers(playerId1, playerId2);
   };
 
   const renamePlayer = (player: Player) => {
