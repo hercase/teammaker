@@ -27,7 +27,7 @@ const MatchHistory = () => {
 
             <span className="flex items-center text-red-600 capitalize">
               <ArrowDownCircleIcon className="w-5 h-5 fill-red-600 " />
-              <PlayerName player={player} className="!text-red-600" />
+              <PlayerName player={player} className="!text-red-600 p-0 w-auto" />
             </span>
 
             <span className="text-gray-600 dark:text-gray-400">
@@ -37,7 +37,7 @@ const MatchHistory = () => {
               <>
                 <span className="flex items-center">
                   <ArrowUpCircleIcon className="w-5 h-5 fill-green-600" />
-                  <PlayerName player={substitute} className="!text-green-600" />
+                  <PlayerName player={substitute} className="!text-green-600 p-0 w-auto" />
                   <span>.</span>
                 </span>
               </>

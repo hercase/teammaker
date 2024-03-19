@@ -40,7 +40,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
             <FloatingMenu
               key={uniqueId(`${player.name}-${player.details}`)}
               className={classNames(
-                "relative flex gap-1 font-display text-[16px] p-1 py-2 capitalize justify-center items-center text-gray-600 w-full group hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-gray-400"
+                "relative flex gap-1 font-display text-[16px] capitalize justify-center items-center text-gray-600 w-full group dark:text-gray-400"
               )}
               trigger={
                 <>

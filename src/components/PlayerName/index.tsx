@@ -1,9 +1,9 @@
-import { FC, useRef } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import { FC, useRef } from "react";
+import { useDrag, useDrop } from "react-dnd";
 import { Player } from "@/types";
 import classNames from "classnames";
 import usePlayers from "@/hooks/usePlayers";
-import { useMatchStore } from '@/store';
+import { useMatchStore } from "@/store";
 
 interface PlayerNameProps {
   player: Player;
@@ -16,7 +16,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
   const ref = useRef<HTMLParagraphElement>(null);
 
   const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'player',
+    type: "player",
     item: { id: player.id },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -24,21 +24,34 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
     canDrag: !random,
   }));
 
-  const [, drop] = useDrop({
-    accept: 'player',
+  const [{ isOver }, drop] = useDrop({
+    accept: "player",
     drop: (item: { id: string }) => {
       if (player.id) {
         exchangePlayers(item.id, player.id);
       }
     },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+    canDrop: (item: { id: string }) => item.id !== player.id,
   });
 
   drag(drop(ref));
-  
+
   return (
     <p
       ref={ref}
-      className={classNames("w-full", isDragging ? 'opacity-50' : 'opacity-100', className)}
+      className={classNames(
+        "w-full p-1 py-2",
+        {
+          "opacity-50": isDragging,
+          "cursor-move": !random,
+          "border-2 border-dashed border-gray-300 ": isOver && !isDragging,
+        },
+        className
+      )}
     >
       {player.name}
       {player.details && (
