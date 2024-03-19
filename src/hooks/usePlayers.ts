@@ -7,7 +7,7 @@ const usePlayers = () => {
   const alert = useAlert();
   const {
     players,
-    substitutes,
+    bench,
     removePlayer: _removePlayer,
     replacePlayer: _replacePlayer,
     renamePlayer: _renamePlayer,
@@ -45,7 +45,7 @@ const usePlayers = () => {
 
   return {
     players,
-    substitutes,
+    bench,
     teamA,
     teamB,
     removePlayer,

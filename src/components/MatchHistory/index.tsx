@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import usePlayers from "@/hooks/usePlayers";
 
 const MatchHistory = () => {
-  const { history, players, substitutes } = usePlayers();
+  const { history, players, bench } = usePlayers();
 
   if (!history.length) return null;
 
@@ -17,7 +17,7 @@ const MatchHistory = () => {
       {history.map(({ player_id, type, date }) => {
         const player = players.find((p) => p.id === player_id);
 
-        const substitute = substitutes.find((p) => p.id === player?.isReplacedBy);
+        const substitute = bench.find((p) => p.id === player?.isReplacedBy);
 
         if (!player) return null;
 

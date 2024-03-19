@@ -1,12 +1,12 @@
 import { PlayersStore } from "@/types";
 import { generatePlayer } from "@/utils";
-import { produce } from "immer";
+import { produce, current } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 const initialState = {
   players: [],
-  substitutes: [],
+  bench: [],
   history: [],
 };
 
@@ -19,14 +19,14 @@ export const usePlayersStore = create(
         set({ hasHydrated: state });
       },
       setPlayers: (players) => set(() => ({ players })),
-      setSubstitutes: (substitutes) => set(() => ({ substitutes })),
+      setBench: (bench) => set(() => ({ bench })),
       renamePlayer: (id: string, player_name: string) =>
         set(
           produce((state: PlayersStore) => {
             const { name, details } = generatePlayer(player_name);
 
             const player = state.players.find((p) => p.id === id);
-            const substitute = state.substitutes.find((p) => p.id === player?.isReplacedBy);
+            const substitute = state.bench.find((p) => p.id === player?.isReplacedBy);
 
             if (player && !substitute) {
               player.name = name;
@@ -58,7 +58,7 @@ export const usePlayersStore = create(
             if (player) {
               const newPlayer = generatePlayer(player_name);
 
-              state.substitutes.push(newPlayer);
+              state.bench.push(newPlayer);
               player.isReplacedBy = newPlayer.id;
               state.history.push({ type: "substitute", player_id: old_id, date: new Date() });
             }
@@ -69,19 +69,24 @@ export const usePlayersStore = create(
           produce((state: PlayersStore) => ({
             ...state,
             players: initialState.players,
-            substitutes: initialState.substitutes,
+            bench: initialState.bench,
             history: initialState.history,
           }))
         ),
-      exchangePlayers: (playerId1: string, playerId2: string) => set((state) => produce(state, (draft) => {
-          const index1 = draft.players.findIndex((p) => p.id === playerId1);
-          const index2 = draft.players.findIndex((p) => p.id === playerId2);
-      
-          if (index1 !== -1 && index2 !== -1) {
-            [draft.players[index1], draft.players[index2]] = [draft.players[index2], draft.players[index1]];
-          }
-        })),
-        
+      exchangePlayers: (playerId1: string, playerId2: string) =>
+        set((state) =>
+          produce(state, (draft) => {
+            console.log("draft", current(draft));
+            console.log("playerId1", playerId1);
+            console.log("playerId2", playerId2);
+            const index1 = draft.players.findIndex((p) => p.id === playerId1 || p.isReplacedBy === playerId2);
+            const index2 = draft.players.findIndex((p) => p.id === playerId2 || p.isReplacedBy === playerId1);
+
+            if (index1 !== -1 && index2 !== -1) {
+              [draft.players[index1], draft.players[index2]] = [draft.players[index2], draft.players[index1]];
+            }
+          })
+        ),
     }),
     {
       name: "players-store",

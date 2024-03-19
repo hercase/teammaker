@@ -23,7 +23,7 @@ interface PlayersListProps {
 }
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
-  const { substitutes, removePlayer, replacePlayer, renamePlayer } = usePlayers();
+  const { bench, removePlayer, replacePlayer, renamePlayer } = usePlayers();
   const { random } = useMatchStore();
 
   return (
@@ -34,7 +34,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
 
       <ul className="divide-y divide-gray-200">
         {players?.map((player) => {
-          const substitute = substitutes.find((p) => p.id === player.isReplacedBy);
+          const substitute = bench.find((p) => p.id === player.isReplacedBy);
 
           return (
             <FloatingMenu
