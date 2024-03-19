@@ -12,13 +12,14 @@ import Spinner from "@/components/Spinner";
 import MatchHistory from "@/components/MatchHistory";
 import useAlert from "@/hooks/useAlert";
 import usePlayers from "@/hooks/usePlayers";
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { HandRaisedIcon } from "@heroicons/react/20/solid";
 
 const Match = () => {
   const router = useRouter();
   const alert = useAlert();
-  const { colors, date } = useMatchStore();
+  const { colors, date, random } = useMatchStore();
   const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
 
@@ -63,6 +64,15 @@ const Match = () => {
             <VersusIcon className="z-10 absolute top-10" />
             <PlayersList shirtPosition="left" players={teamB} color={colors.teamB} />
           </div>
+
+          {!random && (
+            <div className="flex gap-2 items-center text-gray-300">
+              <HandRaisedIcon className="w-5 h-5" />
+              <p className="text-sm">
+                Arrastra los jugadores para ordenar o cambiar de equipo.
+              </p>
+            </div>
+          )}
 
           <MatchHistory />
         </div>
