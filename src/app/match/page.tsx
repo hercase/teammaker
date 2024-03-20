@@ -5,7 +5,6 @@ import { useMatchStore, useUiStore } from "@/store";
 import PlayersList from "@/components/PlayersList";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
-import { VersusIcon } from "@/components/Icons";
 import EditModal from "@/components/EditModal";
 import InfoCard from "@/components/InfoCard";
 import Spinner from "@/components/Spinner";
@@ -61,16 +60,13 @@ const Match = () => {
 
           <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
             <PlayersList shirtPosition="right" players={teamA} color={colors.teamA} />
-            <VersusIcon className="z-10 absolute top-10" />
             <PlayersList shirtPosition="left" players={teamB} color={colors.teamB} />
           </div>
 
           {!random && (
             <div className="flex gap-2 items-center text-gray-300">
               <HandRaisedIcon className="w-5 h-5" />
-              <p className="text-sm">
-                Arrastra los jugadores para ordenar o cambiar de equipo.
-              </p>
+              <p className="text-sm">Arrastra los jugadores para ordenar o cambiar de equipo.</p>
             </div>
           )}
 

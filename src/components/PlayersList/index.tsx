@@ -3,7 +3,7 @@ import { Player } from "@/types";
 import { uniqueId } from "lodash";
 
 import classNames from "classnames";
-import { ShirtIcon } from "@/components/Icons";
+import ShirtIcon from "@/components/Icons/ShirtIcon";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
 import {
   ArrowDownCircleIcon,
@@ -14,7 +14,6 @@ import {
 } from "@heroicons/react/20/solid";
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
-import { useMatchStore } from "@/store";
 
 interface PlayersListProps {
   shirtPosition?: "left" | "right";
@@ -24,10 +23,9 @@ interface PlayersListProps {
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
   const { removePlayer, replacePlayer, renamePlayer } = usePlayers();
-  const { random } = useMatchStore();
 
   return (
-    <div className="relative w-1/2 bg-white rounded-md p-2 dark:bg-gray-800">
+    <div className="relative w-1/2 bg-white rounded-md p-2 dark:bg-gray-800 border-l-4" style={{ borderColor: color }}>
       <div className={classNames("flex justify-start mb-2", { "justify-end": shirtPosition === "right" })}>
         <ShirtIcon color={color} />
       </div>
@@ -41,7 +39,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
             )}
             trigger={
               <>
-                {player.isDeleted && <span>-</span>}
+                {player.isDeleted && !player.isReplacedBy && <span className="w-full p-1 py-2">-</span>}
 
                 {player.isReplacedBy && (
                   <>
@@ -55,13 +53,12 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
               </>
             }
           >
-            {!random && (
-              <MenuOption
-                onClick={() => renamePlayer(player)}
-                icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600 dark:fill-secondary-400" />}
-                label="Renombrar"
-              />
-            )}
+            <MenuOption
+              disabled={player.isDeleted}
+              onClick={() => renamePlayer(player)}
+              icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600 dark:fill-secondary-400" />}
+              label="Renombrar"
+            />
             <MenuOption
               disabled={!!player.isReplacedBy}
               onClick={() => replacePlayer(player)}

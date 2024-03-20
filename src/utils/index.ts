@@ -25,6 +25,8 @@ export function generatePlayers(str: string) {
   return playersList;
 }
 
+export const generateFullName = (player: Player) => `${player.name} ${player.details ? `(${player.details})` : ""}`;
+
 export const trucanteString = (str: string, maxChar: number) => {
   if (str.length > maxChar) {
     return str.substring(0, maxChar) + "...";

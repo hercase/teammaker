@@ -29,6 +29,7 @@ const usePlayers = () => {
   const replacePlayer = (player: Player) => {
     alert({
       text: `Ingresa el nombre del jugador que reemplazará a ${player.name}`,
+      input: "text",
       inputValidator: validateName,
 
       cb: (user: string) => _replacePlayer(player.id, user),
@@ -38,6 +39,7 @@ const usePlayers = () => {
   const renamePlayer = (player: Player) => {
     alert({
       text: `Ingresa el nuevo nombre para ${player.name}`,
+      input: "text",
       inputValidator: validateName,
       cb: (user: string) => _renamePlayer(player.id, user),
     });

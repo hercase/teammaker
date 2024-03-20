@@ -8,14 +8,14 @@ const initialState = {
   date: null,
   organizer: "",
   random: false,
-  colors: { teamA: "#ffffff", teamB: "#151d65" },
+  colors: { teamA: "#e3e3e3", teamB: "#151d65" },
 };
 
 export const useMatchStore = create(
   persist<MatchStore>(
     (set) => ({
       ...initialState,
-      setColors: (colors = { teamA: "#ffffff", teamB: "#151d65" }) => {
+      setColors: (colors = { teamA: "#e3e3e3", teamB: "#151d65" }) => {
         set(() => ({
           colors: { teamA: colors?.teamA, teamB: colors?.teamB },
         }));

@@ -14,8 +14,9 @@ export type Colors = {
 };
 
 export type MatchEvent = {
-  type: "substitute" | "delete" | "rename";
-  player_id: Player["id"];
+  type: "replace" | "delete" | "rename";
+  old_name: string;
+  new_name?: string;
   date: Date;
 };
 

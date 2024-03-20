@@ -1,6 +1,6 @@
 import { PlayersStore } from "@/types";
-import { generatePlayer } from "@/utils";
-import { produce, current } from "immer";
+import { generateFullName, generatePlayer } from "@/utils";
+import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -23,19 +23,33 @@ export const usePlayersStore = create(
       renamePlayer: (id: string, player_name: string) =>
         set(
           produce((state: PlayersStore) => {
-            const { name, details } = generatePlayer(player_name);
+            const newPlayer = generatePlayer(player_name);
 
             const player = state.players.find((p) => p.id === id);
             const substitute = state.bench.find((p) => p.id === player?.isReplacedBy);
 
             if (player && !substitute) {
-              player.name = name;
-              player.details = details;
+              state.history.push({
+                type: "rename",
+                old_name: generateFullName(player),
+                new_name: generateFullName(newPlayer),
+                date: new Date(),
+              });
+
+              player.name = newPlayer.name;
+              player.details = newPlayer.details;
             }
 
             if (substitute) {
-              substitute.name = name;
-              substitute.details = details;
+              state.history.push({
+                type: "rename",
+                old_name: generateFullName(substitute),
+                new_name: generateFullName(newPlayer),
+                date: new Date(),
+              });
+
+              substitute.name = newPlayer.name;
+              substitute.details = newPlayer.details;
             }
           })
         ),
@@ -46,7 +60,8 @@ export const usePlayersStore = create(
 
             if (player) {
               player.isDeleted = true;
-              state.history.push({ type: "delete", player_id: id, date: new Date() });
+
+              state.history.push({ type: "delete", old_name: generateFullName(player), date: new Date() });
             }
           })
         ),
@@ -60,7 +75,14 @@ export const usePlayersStore = create(
 
               state.bench.push(newPlayer);
               player.isReplacedBy = newPlayer.id;
-              state.history.push({ type: "substitute", player_id: old_id, date: new Date() });
+              player.isDeleted = false;
+
+              state.history.push({
+                type: "replace",
+                old_name: generateFullName(player),
+                new_name: generateFullName(newPlayer),
+                date: new Date(),
+              });
             }
           })
         ),

@@ -48,7 +48,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
     <p
       ref={ref}
       className={classNames(
-        "w-full p-1 py-2",
+        "flex gap-1 justify-center items-center w-full p-1 py-2",
         {
           "opacity-50": isDragging,
           "cursor-move": !random,
