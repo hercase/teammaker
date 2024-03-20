@@ -1,5 +1,5 @@
 import { PlayersStore } from "@/types";
-import { generateFullName, generatePlayer } from "@/utils";
+import { generateMatchEvent, generatePlayer } from "@/utils";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -29,24 +29,13 @@ export const usePlayersStore = create(
             const substitute = state.bench.find((p) => p.id === player?.isReplacedBy);
 
             if (player && !substitute) {
-              state.history.push({
-                type: "rename",
-                old_name: generateFullName(player),
-                new_name: generateFullName(newPlayer),
-                date: new Date(),
-              });
-
+              state.history.push(generateMatchEvent({ type: "rename", old_player: player, new_player: newPlayer }));
               player.name = newPlayer.name;
               player.details = newPlayer.details;
             }
 
             if (substitute) {
-              state.history.push({
-                type: "rename",
-                old_name: generateFullName(substitute),
-                new_name: generateFullName(newPlayer),
-                date: new Date(),
-              });
+              state.history.push(generateMatchEvent({ type: "rename", old_player: substitute, new_player: newPlayer }));
 
               substitute.name = newPlayer.name;
               substitute.details = newPlayer.details;
@@ -61,7 +50,7 @@ export const usePlayersStore = create(
             if (player) {
               player.isDeleted = true;
 
-              state.history.push({ type: "delete", old_name: generateFullName(player), date: new Date() });
+              state.history.push(generateMatchEvent({ type: "delete", old_player: player }));
             }
           })
         ),
@@ -77,12 +66,7 @@ export const usePlayersStore = create(
               player.isReplacedBy = newPlayer.id;
               player.isDeleted = false;
 
-              state.history.push({
-                type: "replace",
-                old_name: generateFullName(player),
-                new_name: generateFullName(newPlayer),
-                date: new Date(),
-              });
+              state.history.push(generateMatchEvent({ type: "replace", old_player: player, new_player: newPlayer }));
             }
           })
         ),

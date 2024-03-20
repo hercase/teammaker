@@ -1,4 +1,4 @@
-import { Player } from "@/types";
+import { MatchEvent, Player } from "@/types";
 import { uniq, uniqueId } from "lodash";
 
 // n
@@ -38,3 +38,16 @@ export const validateName = (value: string) => {
   if (!value) return "Debes ingresar un nombre";
   if (!/^[a-zA-Z\s\(\)]+$/.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
 };
+
+interface GenerateMatchEvent {
+  type: MatchEvent["type"];
+  old_player: Player;
+  new_player?: Player;
+}
+
+export const generateMatchEvent = ({ type, old_player, new_player }: GenerateMatchEvent) => ({
+  type,
+  old_name: generateFullName(old_player),
+  ...(new_player && { new_name: generateFullName(new_player) }),
+  date: new Date(),
+});
