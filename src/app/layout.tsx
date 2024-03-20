@@ -32,7 +32,7 @@ const Layout = ({
       )}
     >
       <header className="grid place-items-center">
-        <Logo dark />
+        <Logo />
       </header>
       <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-900 to-primary-950 max-w-screen-lg mx-auto w-full rounded-t-md">
         {children}

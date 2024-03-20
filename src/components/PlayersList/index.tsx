@@ -30,7 +30,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
         <ShirtIcon color={color} />
       </div>
 
-      <ul className="divide-y divide-gray-200">
+      <ul className="divide-y divide-gray-200 dark:divide-gray-700">
         {players?.map((player) => (
           <FloatingMenu
             key={uniqueId(`${player.name}-${player.details}`)}
