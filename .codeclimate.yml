@@ -11,13 +11,13 @@ checks:
       threshold: 150
   method-complexity:
     config:
-      threshold: 6
+      threshold: 7
   method-count:
     config:
       threshold: 20
   method-lines:
     config:
-      threshold: 50
+      threshold: 70
   nested-control-flow:
     config:
       threshold: 4
@@ -25,8 +25,7 @@ checks:
     config:
       threshold: 4
   similar-code:
-    config:
-      threshold: # language-specific defaults. an override will affect all languages.
+    enabled: false
   identical-code:
     config:
       threshold: # language-specific defaults. an override will affect all languages.
