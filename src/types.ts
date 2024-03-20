@@ -4,6 +4,8 @@ export type Player = {
   id: string;
   name: string;
   details?: string;
+  isDeleted?: boolean;
+  isReplacedBy?: Player["id"];
 };
 
 export type Colors = {
@@ -13,8 +15,7 @@ export type Colors = {
 
 export type MatchEvent = {
   type: "substitute" | "delete" | "rename";
-  player: Player;
-  new_player?: Player;
+  player_id: Player["id"];
   date: Date;
 };
 
