@@ -14,8 +14,9 @@ export type Colors = {
 };
 
 export type MatchEvent = {
-  type: "substitute" | "delete" | "rename";
-  player_id: Player["id"];
+  type: "replace" | "delete" | "rename";
+  old_name: string;
+  new_name?: string;
   date: Date;
 };
 
@@ -39,13 +40,13 @@ export interface MatchStore {
 
 export interface PlayersStore {
   players: Player[];
-  substitutes: Player[];
+  bench: Player[];
   history: MatchEvent[];
   hasHydrated: boolean;
   renamePlayer: (id: string, player_name: string) => void;
   setHasHydrated: (state: boolean) => void;
   setPlayers: (players: Player[]) => void;
-  setSubstitutes: (substitutes: Player[]) => void;
+  setBench: (bench: Player[]) => void;
   removePlayer: (id: string) => void;
   replacePlayer: (old_id: string, player_name: string) => void;
   resetMatch: () => void;

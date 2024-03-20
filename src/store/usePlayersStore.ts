@@ -1,12 +1,12 @@
 import { PlayersStore } from "@/types";
-import { generatePlayer } from "@/utils";
+import { generateMatchEvent, generatePlayer } from "@/utils";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 const initialState = {
   players: [],
-  substitutes: [],
+  bench: [],
   history: [],
 };
 
@@ -19,23 +19,26 @@ export const usePlayersStore = create(
         set({ hasHydrated: state });
       },
       setPlayers: (players) => set(() => ({ players })),
-      setSubstitutes: (substitutes) => set(() => ({ substitutes })),
+      setBench: (bench) => set(() => ({ bench })),
       renamePlayer: (id: string, player_name: string) =>
         set(
           produce((state: PlayersStore) => {
-            const { name, details } = generatePlayer(player_name);
+            const newPlayer = generatePlayer(player_name);
 
             const player = state.players.find((p) => p.id === id);
-            const substitute = state.substitutes.find((p) => p.id === player?.isReplacedBy);
+            const substitute = state.bench.find((p) => p.id === player?.isReplacedBy);
 
             if (player && !substitute) {
-              player.name = name;
-              player.details = details;
+              state.history.push(generateMatchEvent({ type: "rename", old_player: player, new_player: newPlayer }));
+              player.name = newPlayer.name;
+              player.details = newPlayer.details;
             }
 
             if (substitute) {
-              substitute.name = name;
-              substitute.details = details;
+              state.history.push(generateMatchEvent({ type: "rename", old_player: substitute, new_player: newPlayer }));
+
+              substitute.name = newPlayer.name;
+              substitute.details = newPlayer.details;
             }
           })
         ),
@@ -46,7 +49,8 @@ export const usePlayersStore = create(
 
             if (player) {
               player.isDeleted = true;
-              state.history.push({ type: "delete", player_id: id, date: new Date() });
+
+              state.history.push(generateMatchEvent({ type: "delete", old_player: player }));
             }
           })
         ),
@@ -58,9 +62,11 @@ export const usePlayersStore = create(
             if (player) {
               const newPlayer = generatePlayer(player_name);
 
-              state.substitutes.push(newPlayer);
+              state.bench.push(newPlayer);
               player.isReplacedBy = newPlayer.id;
-              state.history.push({ type: "substitute", player_id: old_id, date: new Date() });
+              player.isDeleted = false;
+
+              state.history.push(generateMatchEvent({ type: "replace", old_player: player, new_player: newPlayer }));
             }
           })
         ),
@@ -69,19 +75,21 @@ export const usePlayersStore = create(
           produce((state: PlayersStore) => ({
             ...state,
             players: initialState.players,
-            substitutes: initialState.substitutes,
+            bench: initialState.bench,
             history: initialState.history,
           }))
         ),
-      exchangePlayers: (playerId1: string, playerId2: string) => set((state) => produce(state, (draft) => {
-          const index1 = draft.players.findIndex((p) => p.id === playerId1);
-          const index2 = draft.players.findIndex((p) => p.id === playerId2);
-      
-          if (index1 !== -1 && index2 !== -1) {
-            [draft.players[index1], draft.players[index2]] = [draft.players[index2], draft.players[index1]];
-          }
-        })),
-        
+      exchangePlayers: (playerId1: string, playerId2: string) =>
+        set((state) =>
+          produce(state, (draft) => {
+            const index1 = draft.players.findIndex((p) => p.id === playerId1);
+            const index2 = draft.players.findIndex((p) => p.id === playerId2);
+
+            if (index1 !== -1 && index2 !== -1) {
+              [draft.players[index1], draft.players[index2]] = [draft.players[index2], draft.players[index1]];
+            }
+          })
+        ),
     }),
     {
       name: "players-store",
