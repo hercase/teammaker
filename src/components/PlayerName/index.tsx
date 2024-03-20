@@ -11,6 +11,10 @@ interface PlayerNameProps {
 }
 
 const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
+  const { bench } = usePlayers();
+  const substitute = bench.find((p) => p.id === player.isReplacedBy);
+  const currentPlayers = substitute || player;
+
   const { exchangePlayers } = usePlayers();
   const { random } = useMatchStore();
   const ref = useRef<HTMLParagraphElement>(null);
@@ -53,10 +57,10 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
         className
       )}
     >
-      {player.name}
-      {player.details && (
+      {currentPlayers.name}
+      {currentPlayers.details && (
         <span className="flex text-[9px] font-semibold uppercase">
-          (<span className="block truncate max-w-12">{player.details}</span>)
+          (<span className="block truncate max-w-12">{currentPlayers.details}</span>)
         </span>
       )}
     </p>

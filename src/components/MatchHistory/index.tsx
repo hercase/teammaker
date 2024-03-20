@@ -16,7 +16,6 @@ const MatchHistory = () => {
     >
       {history.map(({ player_id, type, date }) => {
         const player = players.find((p) => p.id === player_id);
-
         const substitute = bench.find((p) => p.id === player?.isReplacedBy);
 
         if (!player) return null;
@@ -27,7 +26,7 @@ const MatchHistory = () => {
 
             <span className="flex items-center text-red-600 capitalize">
               <ArrowDownCircleIcon className="w-5 h-5 fill-red-600 " />
-              <PlayerName player={player} className="!text-red-600 p-0 w-auto" />
+              <PlayerName player={player} className="!text-red-600 !p-0 w-auto pointer-events-none" />
             </span>
 
             <span className="text-gray-600 dark:text-gray-400">
@@ -37,7 +36,7 @@ const MatchHistory = () => {
               <>
                 <span className="flex items-center">
                   <ArrowUpCircleIcon className="w-5 h-5 fill-green-600" />
-                  <PlayerName player={substitute} className="!text-green-600 p-0 w-auto" />
+                  <PlayerName player={substitute} className="!text-green-600 !p-0 w-auto pointer-events-none" />
                   <span>.</span>
                 </span>
               </>

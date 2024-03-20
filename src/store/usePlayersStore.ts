@@ -76,11 +76,8 @@ export const usePlayersStore = create(
       exchangePlayers: (playerId1: string, playerId2: string) =>
         set((state) =>
           produce(state, (draft) => {
-            console.log("draft", current(draft));
-            console.log("playerId1", playerId1);
-            console.log("playerId2", playerId2);
-            const index1 = draft.players.findIndex((p) => p.id === playerId1 || p.isReplacedBy === playerId2);
-            const index2 = draft.players.findIndex((p) => p.id === playerId2 || p.isReplacedBy === playerId1);
+            const index1 = draft.players.findIndex((p) => p.id === playerId1);
+            const index2 = draft.players.findIndex((p) => p.id === playerId2);
 
             if (index1 !== -1 && index2 !== -1) {
               [draft.players[index1], draft.players[index2]] = [draft.players[index2], draft.players[index1]];
