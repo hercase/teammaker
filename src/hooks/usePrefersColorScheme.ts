@@ -10,7 +10,7 @@ interface usePrefersColorSchemeReturn {
 }
 
 export function usePrefersColorScheme(): usePrefersColorSchemeReturn {
-  const [theme, setTheme] = useState(localStorage.theme);
+  const [theme, setTheme] = useState(window.localStorage.theme);
 
   const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
 
