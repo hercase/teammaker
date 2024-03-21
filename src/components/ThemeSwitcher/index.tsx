@@ -4,7 +4,10 @@ import { usePrefersColorScheme } from "@/hooks/usePrefersColorScheme";
 import { MoonIcon, SunIcon } from "@heroicons/react/20/solid";
 
 const ThemeSwitcher = () => {
-  const { isDarkMode, toggleColorScheme } = usePrefersColorScheme();
+  const { colorScheme, isDarkMode, toggleColorScheme } = usePrefersColorScheme();
+
+  if (colorScheme === null) return null;
+
   return (
     <button
       onClick={toggleColorScheme}
