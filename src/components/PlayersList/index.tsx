@@ -14,6 +14,8 @@ import {
 } from "@heroicons/react/20/solid";
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
+import { usePrefersColorScheme } from "@/hooks/usePrefersColorScheme";
+import { getContrastColor } from "@/utils";
 
 interface PlayersListProps {
   shirtPosition?: "left" | "right";
@@ -23,9 +25,11 @@ interface PlayersListProps {
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
   const { removePlayer, replacePlayer, renamePlayer } = usePlayers();
+  const { isDarkMode } = usePrefersColorScheme();
+  const borderColor = getContrastColor(color, isDarkMode);
 
   return (
-    <div className="relative w-1/2 bg-white rounded-md p-2 dark:bg-gray-800 border-l-4" style={{ borderColor: color }}>
+    <div className="relative w-1/2 bg-white rounded-md p-2 dark:bg-gray-800 border-l-4" style={{ borderColor }}>
       <div className={classNames("flex justify-start mb-2", { "justify-end": shirtPosition === "right" })}>
         <ShirtIcon color={color} />
       </div>

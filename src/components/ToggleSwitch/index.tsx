@@ -14,8 +14,8 @@ const ToggleSwitch: FC<ToggleSwitchProps> = ({ checked, disabled, onChange }) =>
     checked={checked}
     onChange={onChange}
     className={classNames(
-      checked ? "bg-indigo-600" : "bg-gray-200",
-      "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+      "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ring-0",
+      checked ? "bg-indigo-600" : "bg-gray-200 dark:bg-gray-600"
     )}
   >
     <span className="sr-only">Use setting</span>

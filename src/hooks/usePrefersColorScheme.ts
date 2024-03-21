@@ -2,27 +2,46 @@ import { useState, useEffect } from "react";
 
 export type ColorScheme = "light" | "dark";
 
-export interface PrefersColorSchemeOptions {
-  ssr?: boolean;
+interface usePrefersColorSchemeReturn {
+  colorScheme: ColorScheme;
+  isDarkMode: boolean;
+  isLightMode: boolean;
+  toggleColorScheme: () => void;
 }
 
-export function usePrefersColorScheme(options: PrefersColorSchemeOptions = {}): ColorScheme {
-  const { ssr = false } = options;
+export function usePrefersColorScheme(): usePrefersColorSchemeReturn {
+  const [theme, setTheme] = useState(localStorage.theme);
 
-  const [preferredColorScheme, setPreferredColorScheme] = useState<ColorScheme>(ssr ? "dark" : "light");
+  const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
+
+  const isDarkMode = theme === "dark";
+  const isLightMode = theme === "light";
+
+  const toggleColorScheme = (): void => {
+    setTheme(isDarkMode ? "light" : "dark");
+  };
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+
+    // save theme to local storage
+    localStorage.setItem("theme", theme);
+  }, [theme, colorScheme]);
 
   useEffect(() => {
     if (!window.matchMedia) {
-      setPreferredColorScheme("light");
+      setColorScheme("light");
       return;
     }
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-    setPreferredColorScheme(mediaQuery.matches ? "dark" : "light");
+    setColorScheme(mediaQuery.matches ? "dark" : "light");
 
     function onChange(event: MediaQueryListEvent): void {
-      setPreferredColorScheme(event.matches ? "dark" : "light");
+      setColorScheme(event.matches ? "dark" : "light");
     }
 
     mediaQuery.addEventListener("change", onChange);
@@ -32,5 +51,10 @@ export function usePrefersColorScheme(options: PrefersColorSchemeOptions = {}): 
     };
   }, []);
 
-  return preferredColorScheme;
+  return {
+    colorScheme,
+    isDarkMode,
+    isLightMode,
+    toggleColorScheme,
+  };
 }

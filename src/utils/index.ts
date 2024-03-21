@@ -1,5 +1,6 @@
 import { MatchEvent, Player } from "@/types";
 import { uniq, uniqueId } from "lodash";
+import tinycolor from "tinycolor2";
 
 // n
 export function generatePlayer(user_str: string) {
@@ -51,3 +52,11 @@ export const generateMatchEvent = ({ type, old_player, new_player }: GenerateMat
   ...(new_player && { new_name: generateFullName(new_player) }),
   date: new Date(),
 });
+
+export const getContrastColor = (hexcolor: string, isDarkMode: boolean) => {
+  const mainColor = isDarkMode ? tinycolor(hexcolor).lighten(10) : tinycolor(hexcolor).darken(15);
+  const contrastColor = mainColor.isDark() ? mainColor.brighten(30) : mainColor.darken(20);
+  const finalColor = contrastColor.desaturate(20).toHexString();
+
+  return finalColor;
+};
