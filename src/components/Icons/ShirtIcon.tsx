@@ -23,7 +23,7 @@ const ShirtIcon: FC<ShirtIconProps> = ({ color = "#2C3590", size = 42, ...rest }
         d="M406.905 40.89v452.246c0 5.953-4.826 10.779-10.779 10.779H256V8.084L406.905 40.89z"
         style={{
           fill: contrastColor,
-          opacity: 0.4,
+          opacity: 0.2,
         }}
       />
       <path
