@@ -8,7 +8,7 @@ interface ShirtIconProps {
 }
 
 const ShirtIcon: FC<ShirtIconProps> = ({ color = "#2C3590", size = 42, ...rest }) => {
-  const { isDarkMode } = usePrefersColorScheme({ ssr: true });
+  const { isDarkMode } = usePrefersColorScheme();
   const contrastColor = getContrastColor(color, isDarkMode);
 
   return (
