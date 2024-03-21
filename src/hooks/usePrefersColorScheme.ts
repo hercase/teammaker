@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 
 export type ColorScheme = "light" | "dark";
@@ -10,7 +12,7 @@ interface usePrefersColorSchemeReturn {
 }
 
 export function usePrefersColorScheme(): usePrefersColorSchemeReturn {
-  const [theme, setTheme] = useState(window.localStorage.theme);
+  const [theme, setTheme] = useState(localStorage?.theme);
 
   const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
 
