@@ -39,6 +39,11 @@ const Layout = ({
         </div>
       </header>
       <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-800 dark:from-primary-900 to-primary-950 max-w-screen-lg mx-auto w-full rounded-t-md">
+        {process.env.NODE_ENV === "development" && (
+          <div className="absolute top-0 left-0 p-1 bg-red-500 text-white text-xs font-bold">
+            <span>IMAGEN DE PRUEBA</span>
+          </div>
+        )}
         {children}
       </main>
     </body>
