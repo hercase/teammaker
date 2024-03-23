@@ -1,12 +1,17 @@
-import { useMatchStore } from "@/store";
+import { FC } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
-import usePlayers from "@/hooks/usePlayers";
 
-const InfoCard = () => {
-  const { date, location, organizer, random } = useMatchStore();
-  const { players } = usePlayers();
+interface InfoCardProps {
+  date: Date | null;
+  location: string;
+  organizer: string;
+  random: boolean;
+  playersLength: number;
+}
+
+const InfoCard: FC<InfoCardProps> = ({ date, location, organizer, random, playersLength }) => {
   return (
     <div className="col-span-1 flex shadow-sm rounded-md w-full mx-auto">
       <div className="flex-shrink-0 flex items-center justify-center px-4 bg-purple-600 dark:bg-purple-800 text-white text-sm font-medium rounded-l-md">
@@ -21,7 +26,7 @@ const InfoCard = () => {
             </p>
           )}
           <p className="text-gray-500 dark:text-gray-400">Creado por {organizer}</p>
-          <p className="text-gray-500 dark:text-gray-400">{players.length} Jugadores</p>
+          <p className="text-gray-500 dark:text-gray-400">{playersLength} Jugadores</p>
           {random && <p className="text-gray-500 dark:text-gray-400">Lista aleatoria 🎲</p>}
         </div>
       </div>

@@ -18,7 +18,7 @@ import { HandRaisedIcon } from "@heroicons/react/20/solid";
 const Match = () => {
   const router = useRouter();
   const alert = useAlert();
-  const { colors, date, random } = useMatchStore();
+  const { date, location, organizer, random, colors } = useMatchStore();
   const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
 
@@ -56,7 +56,13 @@ const Match = () => {
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col w-full">
         <div className="flex flex-col gap-5 p-4">
-          <InfoCard />
+          <InfoCard
+            date={date}
+            location={location}
+            organizer={organizer}
+            playersLength={players.length}
+            random={random}
+          />
 
           <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
             <PlayersList shirtPosition="right" players={teamA} color={colors.teamA} />
