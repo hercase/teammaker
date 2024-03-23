@@ -12,7 +12,7 @@ export async function getMatch(id: string) {
       _updatedAt,
       date,
       location,
-      organizer,
+      organizer->{nickname},
       players,
       random,
       colors  
