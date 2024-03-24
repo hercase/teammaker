@@ -1,11 +1,13 @@
-import React from "react";
+import { FC } from "react";
 import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/20/solid";
 import { format } from "date-fns";
-import usePlayers from "@/hooks/usePlayers";
+import { MatchEvent } from "@/types";
 
-const MatchHistory = () => {
-  const { history } = usePlayers();
+interface HistoryProps {
+  history: MatchEvent[];
+}
 
+const MatchHistory: FC<HistoryProps> = ({ history }) => {
   if (!history.length) return null;
 
   const renderText = (type: string) => {

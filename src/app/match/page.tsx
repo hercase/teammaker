@@ -19,7 +19,7 @@ const Match = () => {
   const router = useRouter();
   const alert = useAlert();
   const { date, location, organizer, random, colors } = useMatchStore();
-  const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
+  const { players, history, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const Match = () => {
             </div>
           )}
 
-          <MatchHistory />
+          <MatchHistory history={history} />
         </div>
         <div className="flex justify-center w-full gap-4 mt-4">
           <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
