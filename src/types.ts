@@ -53,6 +53,17 @@ export interface PlayersStore {
   exchangePlayers: (playerId1: string, playerId2: string) => void;
 }
 
+export interface MatchFields {
+  location: string;
+  date: Date | null;
+  organizer: string;
+  random: boolean;
+  colors: Colors;
+  players: Player[];
+  bench: Player[];
+  history: MatchEvent[];
+}
+
 export interface UIStore {
   showEditModal: boolean;
   setShowEditModal: (show: boolean) => void;

@@ -14,12 +14,13 @@ import usePlayers from "@/hooks/usePlayers";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { HandRaisedIcon } from "@heroicons/react/20/solid";
+import MatchCard from "@/components/MatchCard";
 
 const Match = () => {
   const router = useRouter();
   const alert = useAlert();
   const { date, location, organizer, random, colors } = useMatchStore();
-  const { players, history, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
+  const { players, bench, history, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
 
   useEffect(() => {
@@ -55,29 +56,16 @@ const Match = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col w-full">
-        <div className="flex flex-col gap-5 p-4">
-          <InfoCard
-            date={date}
-            location={location}
-            organizer={organizer}
-            playersLength={players.length}
-            random={random}
-          />
-
-          <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
-            <PlayersList shirtPosition="right" players={teamA} color={colors.teamA} />
-            <PlayersList shirtPosition="left" players={teamB} color={colors.teamB} />
-          </div>
-
-          {!random && (
-            <div className="flex gap-2 items-center text-gray-300">
-              <HandRaisedIcon className="w-5 h-5" />
-              <p className="text-sm">Arrastra los jugadores para ordenar o cambiar de equipo.</p>
-            </div>
-          )}
-
-          <MatchHistory history={history} />
-        </div>
+        <MatchCard
+          players={players}
+          bench={bench}
+          date={date}
+          location={location}
+          organizer={organizer}
+          random={random}
+          colors={colors}
+          history={history}
+        />
         <div className="flex justify-center w-full gap-4 mt-4">
           <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
           <Button variant="secondary" onClick={() => setShowEditModal(true)}>
