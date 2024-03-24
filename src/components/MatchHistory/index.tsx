@@ -22,7 +22,7 @@ const MatchHistory: FC<HistoryProps> = ({ history }) => {
     rounded-md p-2"
     >
       {history.map(({ old_name, new_name, type, date }) => (
-        <li key={format(date, "HH:mm:ss")} className="flex gap-1 items-center text-gray-600  text-xs">
+        <li key={format(date, "HH:mm:ss")} className="flex gap-1 items-center text-gray-600 text-xs flex-wrap">
           <span className="text-gray-400">{format(date, "dd/MM HH:mm")}</span>
 
           <span className="flex items-center text-red-600 capitalize gap-1">
