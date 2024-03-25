@@ -1,3 +1,4 @@
+import React from "react";
 import type { Preview } from "@storybook/react";
 import { withThemeByClassName } from "@storybook/addon-themes";
 
@@ -5,7 +6,6 @@ import "/src/app/globals.css";
 
 const preview: Preview = {
   parameters: {
-    layout: "centered",
     backgrounds: {
       default: "light",
       values: [
@@ -13,23 +13,16 @@ const preview: Preview = {
         { name: "dark", value: "#151d65" },
       ],
     },
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i,
-      },
-    },
+    controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
   },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-md mx-auto">
+        <Story />{" "}
+      </div>
+    ),
+    withThemeByClassName({ themes: { light: "", dark: "dark" }, defaultTheme: "light" }),
+  ],
 };
-
-export const decorators = [
-  withThemeByClassName({
-    themes: {
-      light: "",
-      dark: "dark",
-    },
-    defaultTheme: "light",
-  }),
-];
 
 export default preview;

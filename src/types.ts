@@ -20,28 +20,29 @@ export type MatchEvent = {
   date: Date;
 };
 
-export interface MatchInputs {
-  list: string;
-  location: string;
-  organizer: string;
-  date: Date | null;
-  random: boolean;
-  colors?: Colors;
+export interface PlayersFields {
+  players: Player[];
+  bench: Player[];
+  history: MatchEvent[];
 }
-export interface MatchStore {
+export interface MatchFields {
   location: string;
   date: Date | null;
   organizer: string;
   random: boolean;
   colors: Colors;
-  setColors: (colors: Colors) => void;
-  setMatch: (match: Omit<MatchInputs, "list">) => void;
 }
 
-export interface PlayersStore {
-  players: Player[];
-  bench: Player[];
-  history: MatchEvent[];
+export type MatchInputs = Omit<MatchFields, "colors"> & {
+  list: string;
+};
+
+export type MatchStore = MatchFields & {
+  setColors: (colors: Colors) => void;
+  setMatch: (match: Omit<MatchInputs, "list">) => void;
+};
+
+export type PlayersStore = PlayersFields & {
   hasHydrated: boolean;
   renamePlayer: (id: string, player_name: string) => void;
   setHasHydrated: (state: boolean) => void;
@@ -51,18 +52,7 @@ export interface PlayersStore {
   replacePlayer: (old_id: string, player_name: string) => void;
   resetMatch: () => void;
   exchangePlayers: (playerId1: string, playerId2: string) => void;
-}
-
-export interface MatchFields {
-  location: string;
-  date: Date | null;
-  organizer: string;
-  random: boolean;
-  colors: Colors;
-  players: Player[];
-  bench: Player[];
-  history: MatchEvent[];
-}
+};
 
 export interface UIStore {
   showEditModal: boolean;

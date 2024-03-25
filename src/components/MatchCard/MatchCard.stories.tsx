@@ -4,20 +4,14 @@ import MatchCard from ".";
 const meta = {
   title: "components/MatchCard",
   component: MatchCard,
+  argTypes: {
+    colors: {},
+  },
 } satisfies Meta<typeof MatchCard>;
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-/*   location: string;
-  date: Date | null;
-  organizer: string;
-  random: boolean;
-  colors: Colors;
-  players: Player[];
-  bench: Player[];
-  history: MatchEvent[];
-   */
 export const Default: Story = {
   args: {
     location: "Cancha de la esquina",
