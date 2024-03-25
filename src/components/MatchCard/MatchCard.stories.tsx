@@ -21,7 +21,7 @@ export const Default: Story = {
       nickname: "Juancho",
       email: "juan@gmail.com",
       phone: "123456789",
-    }
+    },
     random: false,
     colors: { teamA: "blue", teamB: "red" },
     players: [
