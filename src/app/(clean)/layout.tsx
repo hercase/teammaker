@@ -4,7 +4,7 @@ import classNames from "classnames";
 import Logo from "@/components/Logo";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 
-import "./globals.css";
+import "@/app/globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,21 +26,8 @@ const Layout = ({
   children: React.ReactNode;
 }>) => (
   <html lang="en">
-    <body
-      className={classNames(
-        inter.className,
-        "grid grid-rows-[4rem_1fr] h-screen text-white bg-primary-950 max-w-1200 mx-auto w-95vw"
-      )}
-    >
-      <header className="grid place-items-center relative max-w-screen-lg mx-auto w-full">
-        <Logo />
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <ThemeSwitcher />
-        </div>
-      </header>
-      <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-800 dark:from-primary-900 to-primary-950 max-w-screen-lg mx-auto w-full rounded-t-md">
-        {children}
-      </main>
+    <body className={classNames(inter.className, " h-screen text-white bg-primary-950 max-w-1200 mx-auto w-95vw")}>
+      <main className="flex flex-col items-center h-full max-w-screen-lg mx-auto w-full rounded-t-md">{children}</main>
     </body>
   </html>
 );
