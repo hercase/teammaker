@@ -28,8 +28,8 @@ const MatchCard = ({ players, date, location, organizer, random, colors, history
         />
 
         <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
-          <PlayersList shirtPosition="right" players={teamA} color={colors.teamA} />
-          <PlayersList shirtPosition="left" players={teamB} color={colors.teamB} />
+          <PlayersList shirtPosition="right" players={teamA} color={colors?.teamA} />
+          <PlayersList shirtPosition="left" players={teamB} color={colors?.teamB} />
         </div>
 
         {!random && (

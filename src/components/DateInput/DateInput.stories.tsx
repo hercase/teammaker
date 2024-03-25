@@ -11,7 +11,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    register: () => {},
     error: false,
     variant: "outline",
   },

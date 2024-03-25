@@ -30,10 +30,10 @@ export interface MatchFields {
   date: Date | null;
   organizer: string;
   random: boolean;
-  colors: Colors;
+  colors?: Colors;
 }
 
-export type MatchInputs = Omit<MatchFields, "colors"> & {
+export type MatchInputs = MatchFields & {
   list: string;
 };
 

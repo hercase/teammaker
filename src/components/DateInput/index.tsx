@@ -7,7 +7,7 @@ import { UseFormRegister } from "react-hook-form";
 interface DateInputProps {
   error: boolean;
   variant?: "outline";
-  register: UseFormRegister<MatchInputs>;
+  register?: UseFormRegister<MatchInputs>;
 }
 
 const DateInput: FC<DateInputProps> = ({ register, error, variant, ...rest }) => (
@@ -30,7 +30,7 @@ const DateInput: FC<DateInputProps> = ({ register, error, variant, ...rest }) =>
             error,
           "border border-primary-300": variant === "outline",
         })}
-        {...register("date", { required: true })}
+        {...register?.("date", { required: true })}
         {...rest}
       />
     </div>

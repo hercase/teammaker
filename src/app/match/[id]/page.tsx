@@ -1,4 +1,3 @@
-import InfoCard from "@/components/InfoCard";
 import MatchCard from "@/components/MatchCard";
 import { getMatch } from "@/sanity/queries";
 
