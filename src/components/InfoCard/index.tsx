@@ -2,11 +2,12 @@ import { FC } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
+import { Person } from "@/types";
 
 interface InfoCardProps {
   date: Date | null;
   location: string;
-  organizer: string;
+  organizer: Person;
   random: boolean;
   playersLength: number;
 }
@@ -24,7 +25,7 @@ const InfoCard: FC<InfoCardProps> = ({ date, location, organizer, random, player
             {format(date, "EEEE dd/MM - p", { locale: es })} hs
           </p>
         )}
-        <p className="text-gray-500 dark:text-gray-400">Creado por {organizer}</p>
+        <p className="text-gray-500 dark:text-gray-400">Creado por {organizer.nickname}</p>
         <p className="text-gray-500 dark:text-gray-400">{playersLength} Jugadores</p>
         {random && <p className="text-gray-500 dark:text-gray-400">Lista aleatoria 🎲</p>}
       </div>

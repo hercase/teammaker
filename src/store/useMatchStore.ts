@@ -1,4 +1,5 @@
-import { MatchInputs, MatchStore } from "@/types";
+import { MatchInputs } from "@/types";
+import { MatchStore } from "@/types/stores";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";

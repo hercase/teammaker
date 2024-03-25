@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useMatchStore } from "@/store";
+import { useMatchStore, useUiStore } from "@/store";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
 import { generatePlayers } from "@/utils";
@@ -17,6 +17,7 @@ import TextInput from "@/components/TextInput";
 
 const Create = () => {
   const router = useRouter();
+  const { profile } = useUiStore();
   const { organizer, random, location, setMatch } = useMatchStore();
   const { hasHydrated, players, setPlayers } = usePlayers();
 
@@ -44,7 +45,7 @@ const Create = () => {
 
     const players = data.random ? shuffle(names) : names;
 
-    setMatch({ location: data.location, date: data.date, organizer: data.organizer, random: data.random });
+    setMatch({ location: data.location, date: data.date, random: data.random });
     setPlayers(players);
   };
 
@@ -55,7 +56,6 @@ const Create = () => {
       <ListInput register={register} error={!!errors.list} onPaste={(clipText) => setValue("list", clipText)} />
       <div className="grid grid-cols-1 gap-2 mb-4">
         <TextInput name="location" label="Lugar" error={!!errors.location} register={register} />
-        <TextInput name="organizer" label="Organizador" error={!!errors.organizer} register={register} />
         <div className="flex gap-2">
           <DateInput register={register} error={!!errors.date} />
           <div className="flex flex-col">
