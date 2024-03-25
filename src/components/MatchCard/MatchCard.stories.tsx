@@ -16,7 +16,12 @@ export const Default: Story = {
   args: {
     location: "Cancha de la esquina",
     date: new Date(),
-    organizer: "Juan Perez",
+    organizer: {
+      name: "Juan",
+      nickname: "Juancho",
+      email: "juan@gmail.com",
+      phone: "123456789",
+    }
     random: false,
     colors: { teamA: "blue", teamB: "red" },
     players: [
