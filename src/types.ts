@@ -1,5 +1,12 @@
 import { ReactNode } from "react";
 
+export type Person = {
+  name: string;
+  nickname: string;
+  email: string;
+  phone: string;
+};
+
 export type Player = {
   id: string;
   name: string;
@@ -28,10 +35,12 @@ export interface PlayersFields {
 export interface MatchFields {
   location: string;
   date: Date | null;
-  organizer: string;
+  organizer: Person;
   random: boolean;
   colors?: Colors;
 }
+
+export type MatchType = MatchFields & PlayersFields;
 
 export type MatchInputs = MatchFields & {
   list: string;
@@ -76,4 +85,11 @@ export interface DialogStore {
   dialog: (options: Partial<AlertOptions>) => Promise<void>;
   handleClose: () => void;
   handleSubmit: () => void;
+}
+
+export interface SanityFields {
+  _id: string;
+  _type: string;
+  _createdAt: string;
+  _updatedAt: string;
 }

@@ -9,7 +9,6 @@ interface PageProps {
 
 export default async function Match({ params }: PageProps) {
   const match = await getMatch(params.id);
-  const { date, location, organizer, players, random, bench, colors, history } = match;
 
   if (!match) {
     return <div>Match not found</div>;
@@ -18,14 +17,14 @@ export default async function Match({ params }: PageProps) {
   return (
     <div className="flex flex-col w-full">
       <MatchCard
-        players={players}
-        bench={bench}
-        date={date}
-        location={location}
-        organizer={organizer.nickname}
-        random={random}
-        colors={colors}
-        history={history}
+        players={match.players}
+        bench={match.bench}
+        date={match.date}
+        location={match.location}
+        organizer={match.organizer}
+        random={match.random}
+        colors={match.colors}
+        history={match.history}
       />
     </div>
   );

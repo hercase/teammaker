@@ -6,9 +6,9 @@ import PlayersList from "@/components/PlayersList";
 import InfoCard from "@/components/InfoCard";
 import MatchHistory from "@/components/MatchHistory";
 import { HandRaisedIcon } from "@heroicons/react/20/solid";
-import { MatchFields, PlayersFields } from "@/types";
+import { MatchType } from "@/types";
 
-interface MatchCardProps extends MatchFields, PlayersFields {}
+interface MatchCardProps extends MatchType {}
 
 const MatchCard = ({ players, date, location, organizer, random, colors, history }: MatchCardProps) => {
   const half = Math.ceil(players?.length / 2);
@@ -22,7 +22,7 @@ const MatchCard = ({ players, date, location, organizer, random, colors, history
         <InfoCard
           date={date}
           location={location}
-          organizer={organizer}
+          organizer={organizer.nickname}
           playersLength={players.length}
           random={random}
         />
