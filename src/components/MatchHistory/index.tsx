@@ -7,7 +7,7 @@ interface HistoryProps {
   history: MatchEvent[];
 }
 
-const MatchHistory: FC<HistoryProps> = ({ history }) => {
+const MatchHistory: FC<HistoryProps> = ({ history = [] }) => {
   if (!history.length) return null;
 
   const renderText = (type: string) => {

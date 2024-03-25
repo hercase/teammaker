@@ -1,3 +1,5 @@
+"use client";
+
 import classNames from "classnames";
 import { FC, useState } from "react";
 import { useLayer } from "react-laag";
