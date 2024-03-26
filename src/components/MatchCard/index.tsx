@@ -22,7 +22,7 @@ const MatchCard = ({ players, date, location, organizer, random, colors, history
         <InfoCard
           date={date}
           location={location}
-          organizer={organizer.nickname}
+          organizer={organizer}
           playersLength={players.length}
           random={random}
         />
