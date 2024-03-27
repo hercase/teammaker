@@ -1,10 +1,11 @@
+import { Session } from "next-auth";
 import { ReactNode } from "react";
 
 export type Person = {
   name: string;
   nickname: string;
+  image: string;
   email: string;
-  phone: string;
 };
 
 export type Player = {

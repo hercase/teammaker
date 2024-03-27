@@ -34,9 +34,9 @@ const Header = () => {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <Menu.Items className="absolute right-0 !z-30 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-gray-900">
+            <Menu.Items className="absolute right-0 !z-30 mt-2 w-72 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-gray-900">
               <div className="px-4 py-3">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-5">
                   <Image
                     className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
                     src={session?.user?.image}

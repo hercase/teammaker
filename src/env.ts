@@ -12,6 +12,7 @@ function assertEnv(v: string | undefined): string {
 
 export const dataset = assertEnv("NEXT_PUBLIC_SANITY_DATASET");
 export const projectId = assertEnv("NEXT_PUBLIC_SANITY_PROJECT_ID");
+export const sanityAPIToken = assertEnv("SANITY_API_TOKEN");
 export const GoogleClientID = assertEnv("GOOGLE_CLIENT_ID");
 export const GoogleClientSecret = assertEnv("GOOGLE_CLIENT_SECRET");
 export const NextAuthSecret = assertEnv("NEXTAUTH_SECRET");
