@@ -12,6 +12,4 @@ export async function createPerson(data: Person): Promise<Person & SanityFields>
   return client.create({ _type: "person", ...data });
 }
 
-export async function getPerson(email: string): Promise<Person & SanityFields> {
-  return client.fetch(groq`*[_type == "person" && email == $email][0]`, { email });
-}
+export const GET_PERSON = groq`*[_type == "person" && email == $email][0]`;

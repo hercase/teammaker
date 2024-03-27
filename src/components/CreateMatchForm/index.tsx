@@ -51,7 +51,7 @@ const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
       random: data.random,
     };
 
-    await createMatch(match);
+    console.log(match);
   };
 
   return (

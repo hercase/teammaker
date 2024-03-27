@@ -1,6 +1,6 @@
 "use client";
 
-import { getPerson } from "@/services/person";
+import { getPerson } from "@/queries/person";
 import { useSession } from "next-auth/react";
 
 const useProfile = async () => {

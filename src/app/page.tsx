@@ -1,5 +1,5 @@
 import CreateMatchForm from "@/components/CreateMatchForm";
-import { getPerson } from "@/services/person";
+import { getPerson } from "@/queries/person";
 import { Person } from "@/types";
 import { getServerSession } from "next-auth";
 

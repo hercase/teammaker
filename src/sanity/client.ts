@@ -1,22 +1,15 @@
 import { createClient, type SanityClient } from "next-sanity";
 
-import { apiVersion, dataset, projectId } from "@/env";
+import { apiVersion, dataset, projectId, sanityAPIToken } from "@/env";
 
 export function getClient(token?: string): SanityClient {
   const client = createClient({
     projectId,
     dataset,
     apiVersion,
+    token: sanityAPIToken,
     useCdn: false,
   });
 
-  if (!token) {
-    return client;
-  }
-
-  return client.withConfig({
-    token,
-    useCdn: false,
-    ignoreBrowserTokenWarning: true,
-  });
+  return client;
 }
