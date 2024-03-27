@@ -1,5 +1,6 @@
 import MatchCard from "@/components/MatchCard";
-import { getMatch } from "@/sanity/queries";
+import { getMatch } from "@/services/match";
+import { redirect } from "next/navigation";
 
 interface PageProps {
   params: {
@@ -11,7 +12,8 @@ export default async function Match({ params }: PageProps) {
   const match = await getMatch(params.id);
 
   if (!match) {
-    return <div>Match not found</div>;
+    redirect("/");
+    r;
   }
 
   return (

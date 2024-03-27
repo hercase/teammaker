@@ -10,7 +10,7 @@ export function generatePlayer(user_str: string) {
   const [name, ...details] = onlyLetters.split(" ");
 
   return {
-    id: uniqueId("player_"),
+    _key: uniqueId("player_"),
     name,
     details: details.join(" "),
   };

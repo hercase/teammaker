@@ -1,27 +1,25 @@
 "use client";
 
-import React, { FC, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useMatchStore, useUiStore } from "@/store";
+import React, { FC } from "react";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
+import { useMatchStore } from "@/store";
 import { generatePlayers } from "@/utils";
 import { shuffle } from "lodash";
-import { MatchInputs, MatchType, Person } from "@/types";
+import { MatchFields, MatchInputs, Person, SanityFields } from "@/types";
 import { SubmitHandler, useForm, Controller } from "react-hook-form";
-import Spinner from "@/components/Spinner";
 import DateInput from "@/components/DateInput";
-import usePlayers from "@/hooks/usePlayers";
 import ListInput from "@/components/ListInput";
 import TextInput from "@/components/TextInput";
-import useProfile from "@/hooks/useProfile";
-import { createMatch } from "@/sanity/queries";
+import { createMatch } from "@/services/match";
+import { useRouter } from "next/navigation";
 
 interface CreateMatchFormProps {
-  organizer: Person;
+  organizer: Person & SanityFields;
 }
 
 const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
+  const router = useRouter();
   const { random, location } = useMatchStore();
   const {
     register,
@@ -31,7 +29,7 @@ const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
     formState: { errors },
   } = useForm<MatchInputs>({
     mode: "onBlur",
-    defaultValues: { location, organizer, random },
+    defaultValues: { location, random },
   });
 
   const onSubmit: SubmitHandler<MatchInputs> = async (data) => {
@@ -40,18 +38,30 @@ const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
     if (names.length < 2) return;
 
     const players = data.random ? shuffle(names) : names;
+    const lineup = players.map((player) => player._key);
 
-    const match: MatchType = {
-      organizer,
+    const match: MatchFields = {
+      lineup,
       players,
-      bench: [],
       history: [],
       location: data.location,
       date: data.date,
       random: data.random,
+      colors: { teamA: "#e3e3e3", teamB: "#151d65" },
+      maxPlayers: players.length,
     };
 
-    console.log(match);
+    const response = await createMatch({
+      ...match,
+      organizer: {
+        _ref: organizer?._id,
+        _type: organizer?._type,
+      },
+    });
+
+    if (response) {
+      router.push(`/match/${response._id}`);
+    }
   };
 
   return (

@@ -1,5 +1,5 @@
 import { GoogleClientID, GoogleClientSecret } from "@/env";
-import { createPerson, userExist } from "@/queries/person";
+import { createPerson } from "@/services/person";
 import NextAuth, { AuthOptions } from "next-auth";
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
 

@@ -1,19 +1,20 @@
-export const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2023-01-01";
+export const apiVersion = process.env.SANITY_API_VERSION || "2023-01-01";
 
 function assertEnv(v: string | undefined): string {
   const env = process.env[v as string];
 
   if (!env) {
-    throw new Error(`Missing environment variable: ${v}`);
+    console.error(`Missing environment variable: ${v}`);
+    return "";
   }
 
   return env;
 }
 
-export const dataset = assertEnv("NEXT_PUBLIC_SANITY_DATASET");
-export const projectId = assertEnv("NEXT_PUBLIC_SANITY_PROJECT_ID");
+export const dataset = assertEnv("SANITY_DATASET");
+export const projectId = assertEnv("SANITY_PROJECT_ID");
 export const sanityAPIToken = assertEnv("SANITY_API_TOKEN");
 export const GoogleClientID = assertEnv("GOOGLE_CLIENT_ID");
 export const GoogleClientSecret = assertEnv("GOOGLE_CLIENT_SECRET");
 export const NextAuthSecret = assertEnv("NEXTAUTH_SECRET");
-export const NextAuthURL = assertEnv("NEXTAUTH_URL");
+export const baseUrl = assertEnv("BASE_URL");

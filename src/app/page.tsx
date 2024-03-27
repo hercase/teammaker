@@ -1,20 +1,10 @@
 import CreateMatchForm from "@/components/CreateMatchForm";
-import { getPerson } from "@/queries/person";
-import { Person } from "@/types";
-import { getServerSession } from "next-auth";
-
-export const getProfile = async () => {
-  const session = await getServerSession();
-  const email = session?.user?.email as string;
-  const profile = await getPerson(email);
-
-  return profile;
-};
+import { getProfile } from "@/services/person";
 
 const Create = async () => {
   const profile = await getProfile();
 
-  return <CreateMatchForm organizer={profile as Person} />;
+  return <CreateMatchForm organizer={profile} />;
 };
 
 export default Create;

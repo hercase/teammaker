@@ -1,5 +1,16 @@
-import { Session } from "next-auth";
 import { ReactNode } from "react";
+
+export interface SanityFields {
+  _id: string;
+  _type: string;
+  _createdAt: string;
+  _updatedAt: string;
+}
+
+export interface SanityReference {
+  _ref: string;
+  _type: string;
+}
 
 export type Person = {
   name: string;
@@ -9,11 +20,9 @@ export type Person = {
 };
 
 export type Player = {
-  id: string;
+  _key: string;
   name: string;
   details?: string;
-  isDeleted?: boolean;
-  isReplacedBy?: Player["id"];
 };
 
 export type Colors = {
@@ -28,20 +37,16 @@ export type MatchEvent = {
   date: Date;
 };
 
-export interface PlayersFields {
-  players: Player[];
-  bench: Player[];
-  history: MatchEvent[];
-}
 export interface MatchFields {
+  lineup: (Player["_key"] | null)[];
+  players: Player[];
+  history: MatchEvent[];
   location: string;
   date: Date | null;
-  organizer: Person;
   random: boolean;
   colors?: Colors;
+  maxPlayers: number;
 }
-
-export type MatchType = MatchFields & PlayersFields;
 
 export type MatchInputs = MatchFields & {
   list: string;
@@ -64,11 +69,4 @@ export interface DialogStore {
   dialog: (options: Partial<AlertOptions>) => Promise<void>;
   handleClose: () => void;
   handleSubmit: () => void;
-}
-
-export interface SanityFields {
-  _id: string;
-  _type: string;
-  _createdAt: string;
-  _updatedAt: string;
 }
