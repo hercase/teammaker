@@ -1,3 +1,5 @@
+"use client";
+
 import { FC, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Player } from "@/types";

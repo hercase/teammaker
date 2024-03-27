@@ -3,7 +3,7 @@ import { FC } from "react";
 interface ColorPickerProps {
   label: string;
   color?: string;
-  onChange: (color: string) => void;
+  onChange?: (color: string) => void;
 }
 
 const ColorPicker: FC<ColorPickerProps> = ({ label, color, onChange }) => (

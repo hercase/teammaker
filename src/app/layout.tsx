@@ -3,8 +3,13 @@ import { Inter } from "next/font/google";
 import classNames from "classnames";
 import Logo from "@/components/Logo";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import SessionWrapper from "@/components/SessionWrapper";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
-import "./globals.css";
+import "@/app/globals.css";
+import Header from "@/components/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,34 +25,27 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-const Layout = ({
-  children,
-}: Readonly<{
+interface LayoutProps {
   children: React.ReactNode;
-}>) => (
-  <html lang="en">
-    <body
-      className={classNames(
-        inter.className,
-        "grid grid-rows-[4rem_1fr] h-screen text-white bg-primary-950 max-w-1200 mx-auto w-95vw"
-      )}
-    >
-      <header className="grid place-items-center relative max-w-screen-lg mx-auto w-full">
-        <Logo />
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <ThemeSwitcher />
-        </div>
-      </header>
-      <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-800 dark:from-primary-900 to-primary-950 max-w-screen-lg mx-auto w-full rounded-t-md">
-        {process.env.NODE_ENV === "development" && (
-          <div className="absolute top-0 left-0 p-1 bg-red-500 text-white text-xs font-bold">
-            <span>IMAGEN DE PRUEBA</span>
-          </div>
-        )}
-        {children}
-      </main>
-    </body>
-  </html>
-);
+}
+
+const Layout = async ({ children }: Readonly<LayoutProps>) => {
+  const session = await getServerSession(authOptions);
+
+  if (session == null) return redirect("api/auth/signin");
+
+  return (
+    <SessionWrapper>
+      <html lang="en" className={classNames(inter.className)}>
+        <body className="grid grid-rows-[4rem_1fr] h-screen text-white bg-primary-950 max-w-1200 mx-auto w-95vw">
+          <Header />
+          <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-800 dark:from-primary-900 to-primary-950 max-w-screen-lg mx-auto w-full rounded-t-md">
+            {children}
+          </main>
+        </body>
+      </html>
+    </SessionWrapper>
+  );
+};
 
 export default Layout;

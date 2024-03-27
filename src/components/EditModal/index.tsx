@@ -76,17 +76,21 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                   />
                   <div className="flex gap-2">
                     <DateInput variant="outline" register={register} error={!!errors.date} />
-                    {random && <div className="flex flex-col">
-                      <span className="label">Aleatorio</span>
-                      <div className="flex justify-center items-center mt-1 h-full">
-                        <Controller
-                          name="random"
-                          control={control}
-                          defaultValue={false}
-                          render={({ field }) => <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />}
-                        />
+                    {random && (
+                      <div className="flex flex-col">
+                        <span className="label">Aleatorio</span>
+                        <div className="flex justify-center items-center mt-1 h-full">
+                          <Controller
+                            name="random"
+                            control={control}
+                            defaultValue={false}
+                            render={({ field }) => (
+                              <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>}
+                    )}
                   </div>
                   <div>
                     <p className="label">Colores</p>

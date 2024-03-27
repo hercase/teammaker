@@ -14,11 +14,6 @@ const usePlayers = () => {
     ...store
   } = usePlayersStore();
 
-  const half = Math.ceil(players?.length / 2);
-
-  const teamA = players?.slice(0, half);
-  const teamB = players?.slice(-half);
-
   const removePlayer = (player: Player) => {
     alert({
       text: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
@@ -48,8 +43,6 @@ const usePlayers = () => {
   return {
     players,
     bench,
-    teamA,
-    teamB,
     removePlayer,
     replacePlayer,
     renamePlayer,

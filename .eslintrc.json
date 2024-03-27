@@ -15,14 +15,19 @@
     "prettier",
     "plugin:import/recommended",
     "plugin:import/typescript",
-    "plugin:css-import-order/recommended"
+    "plugin:css-import-order/recommended",
+    "plugin:storybook/recommended",
+    "plugin:storybook/recommended"
   ],
   "settings": {
     "react": {
       "version": "detect"
     },
     "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx"]
+      "@typescript-eslint/parser": [
+        ".ts",
+        ".tsx"
+      ]
     },
     "import/resolver": {
       "typescript": {
@@ -34,32 +39,72 @@
     "NodeJS": "readonly",
     "React": "readonly"
   },
-  "ignorePatterns": ["dist", ".eslintrc.cjs"],
+  "ignorePatterns": [
+    "dist",
+    ".eslintrc.cjs"
+  ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react-refresh", "@typescript-eslint", "prettier", "react", "import", "css-import-order"],
+  "plugins": [
+    "react-refresh",
+    "@typescript-eslint",
+    "prettier",
+    "react",
+    "import",
+    "css-import-order"
+  ],
   "rules": {
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
     "no-useless-escape": "off",
-    "curly": ["warn", "multi-line"],
+    "curly": [
+      "warn",
+      "multi-line"
+    ],
     "no-redeclare": 2,
     "no-use-before-define": 2,
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error", { "args": "none" }],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "none"
+      }
+    ],
     "no-undef": 2,
     "no-mixed-spaces-and-tabs": 1,
     "no-nested-ternary": 1,
     "no-var": 2,
     "import/no-unresolved": "error",
-    "semi": [2, "always"],
-    "keyword-spacing": ["error"],
-    "space-before-blocks": ["error"],
-    "object-curly-spacing": ["error", "always"],
-    "no-multiple-empty-lines": ["error"],
-    "space-infix-ops": ["error"],
-    "switch-colon-spacing": ["error"],
-    "padded-blocks": ["error", "never"],
-    "rest-spread-spacing": ["error", "never"],
+    "semi": [
+      2,
+      "always"
+    ],
+    "keyword-spacing": [
+      "error"
+    ],
+    "space-before-blocks": [
+      "error"
+    ],
+    "object-curly-spacing": [
+      "error",
+      "always"
+    ],
+    "no-multiple-empty-lines": [
+      "error"
+    ],
+    "space-infix-ops": [
+      "error"
+    ],
+    "switch-colon-spacing": [
+      "error"
+    ],
+    "padded-blocks": [
+      "error",
+      "never"
+    ],
+    "rest-spread-spacing": [
+      "error",
+      "never"
+    ],
     "space-before-function-paren": [
       "error",
       {
@@ -68,14 +113,38 @@
         "asyncArrow": "always"
       }
     ],
-    "template-curly-spacing": ["error", "never"],
-    "no-return-await": ["error"],
-    "no-undef-init": ["error"],
-    "no-useless-constructor": ["error"],
-    "no-useless-return": ["error"],
-    "prefer-const": ["warn"],
-    "yoda": ["error"],
-    "space-in-parens": ["error", "never"],
-    "arrow-body-style": ["error", "as-needed", { "requireReturnForObjectLiteral": false }]
+    "template-curly-spacing": [
+      "error",
+      "never"
+    ],
+    "no-return-await": [
+      "error"
+    ],
+    "no-undef-init": [
+      "error"
+    ],
+    "no-useless-constructor": [
+      "error"
+    ],
+    "no-useless-return": [
+      "error"
+    ],
+    "prefer-const": [
+      "warn"
+    ],
+    "yoda": [
+      "error"
+    ],
+    "space-in-parens": [
+      "error",
+      "never"
+    ],
+    "arrow-body-style": [
+      "error",
+      "as-needed",
+      {
+        "requireReturnForObjectLiteral": false
+      }
+    ]
   }
 }

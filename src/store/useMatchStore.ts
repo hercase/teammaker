@@ -1,4 +1,5 @@
-import { MatchInputs, MatchStore } from "@/types";
+import { MatchInputs } from "@/types";
+import { MatchStore } from "@/types/stores";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -15,6 +16,7 @@ export const useMatchStore = create(
   persist<MatchStore>(
     (set) => ({
       ...initialState,
+
       setColors: (colors = { teamA: "#e3e3e3", teamB: "#151d65" }) => {
         set(() => ({
           colors: { teamA: colors?.teamA, teamB: colors?.teamB },

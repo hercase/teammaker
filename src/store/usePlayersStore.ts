@@ -1,4 +1,4 @@
-import { PlayersStore } from "@/types";
+import { PlayersStore } from "@/types/stores";
 import { generateMatchEvent, generatePlayer } from "@/utils";
 import { produce } from "immer";
 import { create } from "zustand";
