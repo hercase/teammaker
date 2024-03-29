@@ -19,16 +19,7 @@ export default async function Match({ params }: PageProps) {
 
   return (
     <div className="flex flex-col w-full">
-      <MatchCard
-        players={match.players}
-        bench={match.bench}
-        date={match.date}
-        location={match.location}
-        organizer={organizer}
-        random={match.random}
-        colors={match.colors}
-        history={match.history}
-      />
+      <MatchCard match={match} organizer={organizer} />
     </div>
   );
 }

@@ -7,4 +7,10 @@ export const GET_PERSONS = groq`*[_type == "person"]`;
 // Match
 export const GET_MATCH_BY_ID = groq`*[_type == "match" && _id == $id][0]`;
 export const GET_MATCHES = groq`*[_type == "match"]`;
-export const GET_MATCHES_BY_ORGANIZER = groq`*[_type == "match" && organizer._ref == $organizerId]`;
+export const GET_MATCHES_BY_ORGANIZER = groq`*[_type == "match" && organizer._ref == $organizerId]{
+  _id,
+  date,
+  location,
+  random,
+  maxPlayers
+}`;

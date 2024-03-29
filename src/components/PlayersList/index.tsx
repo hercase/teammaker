@@ -44,36 +44,29 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
               <>
                 <span
                   className={classNames(
-                    "text-xs font-bold text-gray-600 opacity-60 absolute left-2 top-1/2 transform -translate-y-1/2",
-                    {
-                      "opacity-20": player.isDeleted,
-                    }
+                    "text-xs font-bold text-gray-600 opacity-60 absolute left-2 top-1/2 transform -translate-y-1/2"
                   )}
                 >
                   {index + 1}.
                 </span>
-                {player.isDeleted && !player.isReplacedBy && <span className="w-full p-1 py-2">-</span>}
 
-                {!player.isDeleted && <PlayerName player={player} />}
+                <PlayerName player={player} />
 
                 <EllipsisVerticalIcon className="h-5 w-5 absolute right-1 top-1/2 transform -translate-y-1/2 hidden group-hover:block" />
               </>
             }
           >
             <MenuOption
-              disabled={player.isDeleted}
               onClick={() => renamePlayer(player)}
               icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600 dark:fill-secondary-400" />}
               label="Renombrar"
             />
             <MenuOption
-              disabled={!!player.isReplacedBy}
               onClick={() => replacePlayer(player)}
               icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800 dark:fill-primary-400" />}
               label="Reemplazar"
             />
             <MenuOption
-              disabled={player.isDeleted || !!player.isReplacedBy}
               onClick={() => removePlayer(player)}
               icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800 dark:fill-red-400" />}
               label="Dar de baja"

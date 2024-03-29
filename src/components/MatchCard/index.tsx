@@ -10,18 +10,22 @@ import { MatchType } from "@/types";
 
 interface MatchCardProps extends MatchType {}
 
-const MatchCard = ({ players, date, location, organizer, random, colors, history }: MatchCardProps) => {
-  const half = Math.ceil(players?.length / 2);
+const MatchCard = ({ match, organizer }: MatchCardProps) => {
+  const { lineup, players, random, colors, history } = match;
 
-  const teamA = players?.slice(0, half);
-  const teamB = players?.slice(-half);
+  const half = Math.ceil(lineup?.length / 2);
+
+  const teamA = lineup?.slice(0, half).map((id) => players.find((player) => player._id === id));
+  const teamB = lineup?.slice(half).map((id) => players.find((player) => player._id === id));
+
+  console.log("🚀 ~ teamB:", teamB);
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col gap-5 p-4">
         <InfoCard
-          date={date}
-          location={location}
+          date={match.date}
+          location={match.location}
           organizer={organizer}
           playersLength={players.length}
           random={random}
