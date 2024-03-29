@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getClient } from "@/sanity/client";
 import { snakeCase } from "lodash";
-import { GET_PERSON_BY_EMAIL } from "@/sanity/queries";
+import { GET_PERSON_BY_EMAIL, GET_PERSON_BY_ID } from "@/sanity/queries";
 
 const client = getClient();
 
@@ -9,11 +9,21 @@ const client = getClient();
 export const GET = async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
-  const person = await client.fetch(GET_PERSON_BY_EMAIL, { email });
+  const id = searchParams.get("id");
 
-  if (!person) return NextResponse.json({ error: "Person not found" }, { status: 404 });
+  if (email) {
+    const person = await client.fetch(GET_PERSON_BY_EMAIL, { email });
 
-  return NextResponse.json(person);
+    if (!person) return NextResponse.json({ error: "Person not found" }, { status: 404 });
+    return NextResponse.json(person);
+  }
+
+  if (id) {
+    const person = await client.fetch(GET_PERSON_BY_ID, { id });
+
+    if (!person) return NextResponse.json({ error: "Person not found" }, { status: 404 });
+    return NextResponse.json(person);
+  }
 };
 
 // POST /api/person
