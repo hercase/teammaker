@@ -3,7 +3,7 @@
 import React, { FC } from "react";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
-import { useMatchStore } from "@/store";
+import { useMatchStore, useUiStore } from "@/store";
 import { generatePlayers } from "@/utils";
 import { shuffle } from "lodash";
 import { MatchFields, MatchInputs, Person, SanityFields } from "@/types";
@@ -13,6 +13,7 @@ import ListInput from "@/components/ListInput";
 import TextInput from "@/components/TextInput";
 import { createMatch } from "@/services/match";
 import { useRouter } from "next/navigation";
+import Spinner from "../Spinner";
 
 interface CreateMatchFormProps {
   organizer: Person & SanityFields;
@@ -20,7 +21,9 @@ interface CreateMatchFormProps {
 
 const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
   const router = useRouter();
+  const { isLoading, setIsLoading } = useUiStore();
   const { random, location } = useMatchStore();
+
   const {
     register,
     handleSubmit,
@@ -33,6 +36,7 @@ const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
   });
 
   const onSubmit: SubmitHandler<MatchInputs> = async (data) => {
+    setIsLoading(true);
     const names = generatePlayers(data.list);
 
     if (names.length < 2) return;
@@ -61,6 +65,7 @@ const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
 
     if (response) {
       router.push(`/match/${response._id}`);
+      setIsLoading(false);
     }
   };
 
@@ -86,7 +91,9 @@ const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
       </div>
 
       <div className="flex justify-center w-full">
-        <Button type="submit">Crear equipos</Button>
+        <Button type="submit" className="w-40" disabled={isLoading}>
+          {isLoading ? <Spinner className="w-4 h-4" /> : "Crear partido"}
+        </Button>
       </div>
     </form>
   );
