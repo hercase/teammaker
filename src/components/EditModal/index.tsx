@@ -1,6 +1,5 @@
 import { Fragment, FC } from "react";
-import { useMatchStore } from "@/store";
-import { MatchInputs } from "@/types";
+import { MatchFields, MatchInputs } from "@/types";
 import { Dialog, Transition } from "@headlessui/react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
@@ -10,12 +9,13 @@ import TextInput from "@/components/TextInput";
 import ToggleSwitch from "../ToggleSwitch";
 
 interface EditModalProps {
+  match: MatchFields;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
-  const { organizer, location, date, colors, random, setMatch, setColors } = useMatchStore();
+const EditModal: FC<EditModalProps> = ({ match, isOpen, setIsOpen }) => {
+  const { location, date, colors, random } = match;
 
   const {
     register,
@@ -28,18 +28,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
   });
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
-    setMatch({
-      location: data.location,
-      date: data.date,
-      random: data.random,
-      organizer,
-    });
-
-    setColors({
-      teamA: data.colors?.teamA,
-      teamB: data.colors?.teamB,
-    });
-
+    console.log(data);
     setIsOpen(false);
   };
 
