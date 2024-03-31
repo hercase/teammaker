@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import classNames from "classnames";
-import Logo from "@/components/Logo";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
 import SessionWrapper from "@/components/SessionWrapper";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
