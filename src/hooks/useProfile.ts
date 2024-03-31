@@ -1,6 +1,6 @@
 "use client";
 
-import { getPerson } from "@/queries/person";
+import { getPersonByEmail } from "@/services/person";
 import { useSession } from "next-auth/react";
 
 const useProfile = async () => {
@@ -9,7 +9,7 @@ const useProfile = async () => {
 
   if (!email) return null;
 
-  const profile = await getPerson(email);
+  const profile = await getPersonByEmail(email);
 
   return profile;
 };
