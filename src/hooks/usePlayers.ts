@@ -17,7 +17,7 @@ const usePlayers = () => {
   const removePlayer = (player: Player) => {
     alert({
       text: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
-      cb: () => _removePlayer(player.id),
+      cb: () => _removePlayer(player._key),
     });
   };
 
@@ -27,7 +27,7 @@ const usePlayers = () => {
       input: "text",
       inputValidator: validateName,
 
-      cb: (user: string) => _replacePlayer(player.id, user),
+      cb: (user: string) => _replacePlayer(player._key, user),
     });
   };
 
@@ -36,7 +36,7 @@ const usePlayers = () => {
       text: `Ingresa el nuevo nombre para ${player.name}`,
       input: "text",
       inputValidator: validateName,
-      cb: (user: string) => _renamePlayer(player.id, user),
+      cb: (user: string) => _renamePlayer(player._key, user),
     });
   };
 

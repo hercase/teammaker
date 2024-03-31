@@ -14,7 +14,12 @@ export const Default: Story = {
     playersLength: 10,
     date: new Date(),
     location: "Cancha de fútbol 5",
-    organizer: "Tomas",
+    organizer: {
+      name: "Juan Perez",
+      email: "",
+      nickname: "Juan",
+      image: "https://randomuser.me",
+    },
     random: false,
   },
 };

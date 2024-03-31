@@ -4,9 +4,6 @@ import MatchCard from ".";
 const meta = {
   title: "components/MatchCard",
   component: MatchCard,
-  argTypes: {
-    colors: {},
-  },
 } satisfies Meta<typeof MatchCard>;
 export default meta;
 
@@ -14,25 +11,25 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    location: "Cancha de la esquina",
-    date: new Date(),
+    match: {
+      lineup: ["1", "2", "3"],
+      players: [
+        { _key: "1", name: "Juan", details: "Portero" },
+        { _key: "2", name: "Pedro", details: "Defensa" },
+        { _key: "3", name: "Pablo", details: "Delantero" },
+      ],
+      location: "Cancha de la esquina",
+      date: new Date(),
+      random: false,
+      colors: { teamA: "blue", teamB: "red" },
+      history: [{ type: "replace", old_name: "Juan", new_name: "Juanito", date: new Date() }],
+      maxPlayers: 10,
+    },
     organizer: {
       name: "Juan",
       nickname: "Juancho",
       email: "juan@gmail.com",
-      phone: "123456789",
+      image: "https://randomuser.me",
     },
-    random: false,
-    colors: { teamA: "blue", teamB: "red" },
-    players: [
-      { id: "1", name: "Juan", details: "Portero" },
-      { id: "2", name: "Pedro", details: "Defensa" },
-      { id: "3", name: "Pablo", details: "Delantero" },
-    ],
-    bench: [
-      { id: "4", name: "Jose", details: "Defensa" },
-      { id: "5", name: "Luis", details: "Delantero" },
-    ],
-    history: [{ type: "replace", old_name: "Juan", new_name: "Juanito", date: new Date() }],
   },
 };
