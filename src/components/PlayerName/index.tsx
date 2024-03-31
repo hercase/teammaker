@@ -5,7 +5,7 @@ import { useDrag, useDrop } from "react-dnd";
 import { Player } from "@/types";
 import classNames from "classnames";
 import usePlayers from "@/hooks/usePlayers";
-import { useMatchStore } from "@/store";
+import { useUiStore } from "@/store";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
 
 interface PlayerNameProps {
@@ -20,7 +20,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
   const currentPlayers = substitute || player;
 
   const { exchangePlayers } = usePlayers();
-  const { random } = useMatchStore();
+  const { random } = useUiStore();
   const ref = useRef<HTMLParagraphElement>(null);
 
   const [{ isDragging }, drag] = useDrag(() => ({

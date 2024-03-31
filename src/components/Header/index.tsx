@@ -39,7 +39,7 @@ const Header = () => {
                 <div className="flex items-center gap-5">
                   <Image
                     className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300"
-                    src={session?.user?.image}
+                    src={session?.user?.image || ""}
                     alt=""
                     width={40}
                     height={40}
@@ -50,36 +50,34 @@ const Header = () => {
                   </div>
                 </div>
               </div>
-              {/* <div className="py-1">
-                <Menu.Item>
-                  {({ active }) => (
-                    <a
-                      href="#"
-                      className={classNames(
-                        active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                        "block px-4 py-2 text-sm"
-                      )}
-                    >
-                      Cambiar a tema claro
-                    </a>
-                  )}
-                </Menu.Item> 
-              </div>*/}
-              <div className="py-1">
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      onClick={() => signOut()}
-                      className={classNames(
-                        active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                        "block w-full px-4 py-2 text-left text-sm"
-                      )}
-                    >
-                      Cerrar sesión
-                    </button>
-                  )}
-                </Menu.Item>
-              </div>
+
+              <Menu.Item>
+                {({ active }) => (
+                  <a
+                    href="/matches"
+                    className={classNames(
+                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                      "block px-4 py-2 text-sm"
+                    )}
+                  >
+                    Mis partidos
+                  </a>
+                )}
+              </Menu.Item>
+
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() => signOut()}
+                    className={classNames(
+                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                      "block w-full px-4 py-2 text-left text-sm"
+                    )}
+                  >
+                    Cerrar sesión
+                  </button>
+                )}
+              </Menu.Item>
             </Menu.Items>
           </Transition>
         </Menu>

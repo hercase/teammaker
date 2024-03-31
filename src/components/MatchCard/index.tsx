@@ -6,19 +6,22 @@ import PlayersList from "@/components/PlayersList";
 import InfoCard from "@/components/InfoCard";
 import MatchHistory from "@/components/MatchHistory";
 import { HandRaisedIcon } from "@heroicons/react/20/solid";
-import { MatchType } from "@/types";
+import { MatchFields, Person } from "@/types";
 
-interface MatchCardProps extends MatchType {}
+interface MatchCardProps {
+  match: MatchFields;
+  organizer: Person;
+}
 
 const MatchCard = ({ match, organizer }: MatchCardProps) => {
   const { lineup, players, random, colors, history } = match;
 
   const half = Math.ceil(lineup?.length / 2);
 
-  const teamA = lineup?.slice(0, half).map((id) => players.find((player) => player._id === id));
-  const teamB = lineup?.slice(half).map((id) => players.find((player) => player._id === id));
+  const playerNames = players.filter((player) => lineup?.includes(player._key));
 
-  console.log("🚀 ~ teamB:", teamB);
+  const teamA = playerNames.slice(0, half);
+  const teamB = playerNames.slice(half);
 
   return (
     <DndProvider backend={HTML5Backend}>

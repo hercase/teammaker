@@ -3,7 +3,7 @@
 import React, { FC } from "react";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
-import { useMatchStore, useUiStore } from "@/store";
+import { useUiStore } from "@/store";
 import { generatePlayers } from "@/utils";
 import { shuffle } from "lodash";
 import { MatchFields, MatchInputs, Person, SanityFields } from "@/types";
@@ -21,8 +21,7 @@ interface CreateMatchFormProps {
 
 const CreateMatchForm: FC<CreateMatchFormProps> = ({ organizer }) => {
   const router = useRouter();
-  const { isLoading, setIsLoading } = useUiStore();
-  const { random, location } = useMatchStore();
+  const { isLoading, setIsLoading, location, random } = useUiStore();
 
   const {
     register,
