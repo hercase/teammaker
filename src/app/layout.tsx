@@ -6,10 +6,9 @@ import ThemeSwitcher from "@/components/ThemeSwitcher";
 import SessionWrapper from "@/components/SessionWrapper";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import Header from "@/components/Header";
 
 import "@/app/globals.css";
-import Header from "@/components/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,7 +29,7 @@ interface LayoutProps {
 }
 
 const Layout = async ({ children }: Readonly<LayoutProps>) => {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
   if (session == null) return redirect("api/auth/signin");
 
