@@ -17,4 +17,4 @@ export const sanityAPIToken = assertEnv("SANITY_API_TOKEN");
 export const GoogleClientID = assertEnv("GOOGLE_CLIENT_ID");
 export const GoogleClientSecret = assertEnv("GOOGLE_CLIENT_SECRET");
 export const NextAuthSecret = assertEnv("NEXTAUTH_SECRET");
-export const baseUrl = assertEnv("BASE_URL");
+export const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
