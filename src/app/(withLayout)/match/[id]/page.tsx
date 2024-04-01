@@ -11,11 +11,10 @@ interface PageProps {
 
 export default async function Match({ params }: PageProps) {
   const match = await getMatch(params.id);
+
   const organizer = await getPersonById(match.organizer._ref);
 
-  if (!match) {
-    redirect("/");
-  }
+  if (!match) redirect("/");
 
   return (
     <div className="flex flex-col w-full">
