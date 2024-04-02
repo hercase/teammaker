@@ -38,7 +38,7 @@ const Header = () => {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <Menu.Items className="absolute right-0 !z-30 mt-2 w-72 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-gray-900">
+              <Menu.Items className="absolute right-0 !z-30 mt-2 w-72 origin-top-right divide-y divide-gray-100/10 rounded-md primary-bg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-gray-900">
                 <div className="px-4 py-3">
                   <div className="flex items-center gap-5">
                     <Image
@@ -48,39 +48,23 @@ const Header = () => {
                       width={40}
                       height={40}
                     />
-                    <div>
+                    <div className="primary-text">
                       <p className="text-sm">{session?.user?.name}</p>
-                      <p className="truncate text-xs text-gray-900">{session?.user?.email}</p>
+                      <p className="truncate text-xs">{session?.user?.email}</p>
                     </div>
                   </div>
                 </div>
 
                 <Menu.Item>
-                  {({ active }) => (
-                    <a
-                      href="/matches"
-                      className={classNames(
-                        active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                        "block px-4 py-2 text-sm"
-                      )}
-                    >
-                      Mis partidos
-                    </a>
-                  )}
+                  <a href="/matches" className="primary-text block px-4 py-2 text-sm">
+                    Mis partidos
+                  </a>
                 </Menu.Item>
 
                 <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      onClick={() => signOut()}
-                      className={classNames(
-                        active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                        "block w-full px-4 py-2 text-left text-sm"
-                      )}
-                    >
-                      Cerrar sesión
-                    </button>
-                  )}
+                  <button onClick={() => signOut()} className="block w-full px-4 py-2 text-left text-sm primary-text">
+                    Cerrar sesión
+                  </button>
                 </Menu.Item>
               </Menu.Items>
             </Transition>

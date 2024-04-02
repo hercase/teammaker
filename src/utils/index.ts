@@ -1,8 +1,9 @@
 import { MatchEvent, Player } from "@/types";
+import { format, formatRelative } from "date-fns";
+import { es } from "date-fns/locale";
 import { uniq, uniqueId } from "lodash";
 import tinycolor from "tinycolor2";
 
-// n
 export function generatePlayer(user_str: string) {
   // regex to filter only letters and spaces, remove special characters and numbers, and end initial and final spaces
   const onlyLetters = user_str.replace(/[^a-zA-Z\s]/g, "").trim();
@@ -53,3 +54,7 @@ export const getContrastColor = (hexcolor: string, isDarkMode: boolean) => {
 
   return finalColor;
 };
+
+export const formatMatchDate = (date: Date | string) => format(date, "EEEE dd/MM HH:mm", { locale: es });
+
+export const formatMatchDistance = (date: Date | string) => formatRelative(new Date(date), new Date(), { locale: es });

@@ -3,8 +3,16 @@
 @tailwind utilities;
 
 @layer components {
+  .primary-bg {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+
+  .primary-text {
+    @apply text-gray-800 dark:text-gray-100;
+  }
+
   .input {
-    @apply border-gray-300 text-gray-500 rounded-md w-full h-8 px-2 dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-400 dark:border-gray-700 dark:focus:ring-gray-500;
+    @apply rounded-md w-full h-8 px-2 primary-text primary-bg;
   }
 
   .label {
