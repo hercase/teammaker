@@ -3,6 +3,7 @@ import MatchListItem from "@/components/MatchListItem/indext";
 import { getMatchesByOrganizer } from "@/services/match";
 import { getProfile } from "@/services/person";
 import { isBefore, isAfter } from "date-fns";
+import { sortBy } from "lodash";
 import Link from "next/link";
 
 const Divider = ({ label }: { label: string }) => (
@@ -20,8 +21,9 @@ export default async function Matches() {
   const profile = await getProfile();
   const matches = await getMatchesByOrganizer(profile._id);
 
-  const futureMatches = matches?.filter((match) => isAfter(new Date(match.date), new Date()));
-  const pastMatches = matches?.filter((match) => isBefore(new Date(match.date), new Date()));
+  const sortedMatches = sortBy(matches, (match) => new Date(match.date));
+  const futureMatches = sortedMatches?.filter((match) => isAfter(new Date(match.date), new Date()));
+  const pastMatches = sortedMatches?.filter((match) => isBefore(new Date(match.date), new Date()));
 
   return (
     <div className="m-4 px-4 w-full">
@@ -50,7 +52,7 @@ export default async function Matches() {
             <>
               <Divider label="Pasados" />
 
-              <ul role="list" className="flex flex-col gap-y-2 opacity-70">
+              <ul role="list" className="flex flex-col gap-y-2 opacity-80">
                 {pastMatches?.map((match) => <MatchListItem key={match._id} match={match} />)}
               </ul>
             </>

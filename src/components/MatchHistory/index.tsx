@@ -30,7 +30,7 @@ const MatchHistory: FC<HistoryProps> = ({ history = [] }) => {
             <span>{old_name}</span>
           </span>
 
-          <span className="text-gray-600 dark:text-gray-400">{renderText(type)}</span>
+          <span className="text-gray-600">{renderText(type)}</span>
 
           {new_name && (
             <>

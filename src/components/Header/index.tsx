@@ -1,11 +1,9 @@
 "use client";
 
 import Logo from "@/components/Logo";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { Bars3Icon } from "@heroicons/react/20/solid";
-import classNames from "classnames";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,7 +17,6 @@ const Header = () => {
         <Logo />
       </Link>
       <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-4">
-        <ThemeSwitcher />
         {session && (
           <Menu as="div" className="relative inline-block text-left">
             <div>

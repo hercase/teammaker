@@ -25,10 +25,9 @@ const Button: FC<ButtonProps> = ({
     className,
     {
       "text-sm px-3 py-1.5": small,
-      "bg-primary-600 hover:bg-primary-700 dark:bg-primary-800 dark:hover:bg-primary-900": variant === "primary",
-      "bg-secondary-600 hover:bg-secondary-700 dark:bg-secondary-800 dark:hover:bg-secondary-900":
-        variant === "secondary",
-      "bg-red-600 hover:bg-red-700 dark:bg-red-800 dark:hover:bg-red-900": variant === "danger",
+      "bg-primary-600 hover:bg-primary-700  ": variant === "primary",
+      "bg-secondary-500 hover:bg-secondary-600  ": variant === "secondary",
+      "bg-red-600 hover:bg-red-700  ": variant === "danger",
       "pointer-events-none opacity-50": disabled,
     }
   );

@@ -1,6 +1,5 @@
 import React from "react";
 import type { Preview } from "@storybook/react";
-import { withThemeByClassName } from "@storybook/addon-themes";
 
 import "/src/app/globals.css";
 
@@ -21,7 +20,6 @@ const preview: Preview = {
         <Story />{" "}
       </div>
     ),
-    withThemeByClassName({ themes: { light: "", dark: "dark" }, defaultTheme: "light" }),
   ],
 };
 

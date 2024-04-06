@@ -13,7 +13,6 @@ import {
 } from "@heroicons/react/20/solid";
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
-import { usePrefersColorScheme } from "@/hooks/usePrefersColorScheme";
 import { getContrastColor } from "@/utils";
 
 interface PlayersListProps {
@@ -24,8 +23,7 @@ interface PlayersListProps {
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
   const { removePlayer, replacePlayer, renamePlayer } = usePlayers();
-  const { isDarkMode } = usePrefersColorScheme();
-  const borderColor = getContrastColor(color, isDarkMode);
+  const borderColor = getContrastColor(color);
 
   return (
     <div className="relative w-1/2 primary-bg rounded-md p-2 border-l-4" style={{ borderColor }}>
@@ -33,12 +31,12 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
         <ShirtIcon color={color} />
       </div>
 
-      <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+      <ul className="divide-y divide-gray-200 ">
         {players?.map((player, index) => (
           <FloatingMenu
             key={uniqueId(`${player.name}-${player.details}`)}
             className={classNames(
-              "relative flex gap-1 font-display text-[16px] capitalize justify-center items-center text-gray-600 w-full group dark:text-gray-400"
+              "relative flex gap-1 font-display text-[16px] capitalize justify-center items-center text-gray-600 w-full group "
             )}
             trigger={
               <>
@@ -58,17 +56,17 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
           >
             <MenuOption
               onClick={() => renamePlayer(player)}
-              icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600 dark:fill-secondary-400" />}
+              icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600 " />}
               label="Renombrar"
             />
             <MenuOption
               onClick={() => replacePlayer(player)}
-              icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800 dark:fill-primary-400" />}
+              icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800 " />}
               label="Reemplazar"
             />
             <MenuOption
               onClick={() => removePlayer(player)}
-              icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800 dark:fill-red-400" />}
+              icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800 " />}
               label="Dar de baja"
             />
           </FloatingMenu>

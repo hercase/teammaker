@@ -10,9 +10,8 @@ const Alert = withReactContent(Swal).mixin({
   padding: "1rem",
   confirmButtonColor: "#2d28c8",
   customClass: {
-    popup: "text-sm dark:bg-gray-800 dark:text-gray-300",
-    input:
-      "border-gray-300 text-gray-500 rounded-md h-8 px-2 border border-primary-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300",
+    popup: "text-sm  ",
+    input: "border-gray-300 text-gray-500 rounded-md h-8 px-2 border border-primary-300   ",
   },
 });
 

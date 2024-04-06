@@ -39,7 +39,7 @@ const FloatingMenu: FC<FloatingMenuProps> = ({ trigger, children, className }) =
           {isOpen && (
             <ul
               className="bg-white text-gray-600 border border-gray-200 rounded-md shadow-lg z-10
-            dark:bg-gray-800"
+            "
               {...layerProps}
             >
               {children}
@@ -61,7 +61,7 @@ interface MenuOptionProps {
 const MenuOption: FC<MenuOptionProps> = ({ icon, label, disabled, onClick }) => (
   <li
     className={classNames(
-      "flex items-center gap-2 px-5 py-2 text-sm leading-6 text-gray-900 border-b border-gray-200 last-of-type:border-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400",
+      "flex items-center gap-2 px-5 py-2 text-sm leading-6 text-gray-900 border-b border-gray-200 last-of-type:border-none cursor-pointer hover:bg-gray-100  ",
       {
         "opacity-50 cursor-not-allowed": disabled,
       }

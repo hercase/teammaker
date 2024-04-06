@@ -4,11 +4,11 @@
 
 @layer components {
   .primary-bg {
-    @apply bg-gray-100 dark:bg-gray-800;
+    @apply bg-gray-100;
   }
 
   .primary-text {
-    @apply text-gray-800 dark:text-gray-100;
+    @apply text-gray-800;
   }
 
   .input {
@@ -16,7 +16,7 @@
   }
 
   .label {
-    @apply font-normal text-sm text-gray-400 dark:text-gray-300;
+    @apply font-normal text-sm text-gray-400;
   }
 }
 
