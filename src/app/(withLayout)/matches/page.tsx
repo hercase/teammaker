@@ -12,7 +12,7 @@ const Divider = ({ label }: { label: string }) => (
       <div className="w-full border-t border-gray-300" />
     </div>
     <div className="relative flex justify-start">
-      <span className=" pr-3 text-base font-semibold leading-6 text-gray-100">{label}</span>
+      <span className=" pr-3 text-base font-semibold leading-6">{label}</span>
     </div>
   </div>
 );
@@ -26,9 +26,9 @@ export default async function Matches() {
   const pastMatches = sortedMatches?.filter((match) => isBefore(new Date(match.date), new Date()));
 
   return (
-    <div className="m-4 px-4 w-full">
+    <div className="p-6 w-full bg-white h-full text-gray-900 rounded-md">
       <div className="pb-5 sm:flex sm:items-center sm:justify-between mb-4">
-        <h3 className="text-base font-semibold leading-6 text-gray-100">Mis partidos</h3>
+        <h2 className="text-2xl font-bold leading-4">Mis partidos</h2>
         <div className="mt-3 flex sm:ml-4 sm:mt-0">
           <Button small variant="secondary">
             <Link href="/">Crear nuevo</Link>
@@ -38,24 +38,25 @@ export default async function Matches() {
 
       {matches?.length === 0 ? (
         <div className="flex items-center justify-center h-96">
-          <p className="text-base font-semibold text-gray-100">No tienes partidos creados</p>
+          <p className="text-base font-semibold">No tienes partidos creados</p>
         </div>
       ) : (
         <div className="flex flex-col gap-y-4">
           <Divider label="Próximos" />
-
-          <ul role="list" className="flex flex-col gap-y-2">
-            {futureMatches?.map((match) => <MatchListItem key={match._id} match={match} />)}
-          </ul>
-
-          {pastMatches?.length !== 0 && (
-            <>
-              <Divider label="Pasados" />
-
-              <ul role="list" className="flex flex-col gap-y-2 opacity-80">
-                {pastMatches?.map((match) => <MatchListItem key={match._id} match={match} />)}
-              </ul>
-            </>
+          {futureMatches?.length === 0 ? (
+            <p className="text-sm font-light text-gray-500">No tienes partidos próximos.</p>
+          ) : (
+            <ul role="list" className="flex flex-col gap-y-2">
+              {futureMatches?.map((match) => <MatchListItem key={match._id} match={match} />)}
+            </ul>
+          )}
+          <Divider label="Pasados" />
+          {pastMatches?.length === 0 ? (
+            <p className="text-sm font-light text-gray-500">No tienes partidos pasados.</p>
+          ) : (
+            <ul role="list" className="flex flex-col gap-y-2 opacity-80">
+              {pastMatches?.map((match) => <MatchListItem key={match._id} match={match} />)}
+            </ul>
           )}
         </div>
       )}
