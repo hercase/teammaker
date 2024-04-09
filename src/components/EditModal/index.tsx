@@ -62,8 +62,8 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child as={Fragment} {...transitions}>
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 dark:text-gray-300 p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white   p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 ">
                   Editar
                 </Dialog.Title>
                 <form className="flex flex-col gap-6 mt-4 text-gray-500" onSubmit={handleSubmit(onSubmit)}>
@@ -76,17 +76,21 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                   />
                   <div className="flex gap-2">
                     <DateInput variant="outline" register={register} error={!!errors.date} />
-                    {random && <div className="flex flex-col">
-                      <span className="label">Aleatorio</span>
-                      <div className="flex justify-center items-center mt-1 h-full">
-                        <Controller
-                          name="random"
-                          control={control}
-                          defaultValue={false}
-                          render={({ field }) => <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />}
-                        />
+                    {random && (
+                      <div className="flex flex-col">
+                        <span className="label">Aleatorio</span>
+                        <div className="flex justify-center items-center mt-1 h-full">
+                          <Controller
+                            name="random"
+                            control={control}
+                            defaultValue={false}
+                            render={({ field }) => (
+                              <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>}
+                    )}
                   </div>
                   <div>
                     <p className="label">Colores</p>

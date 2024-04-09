@@ -15,10 +15,9 @@ const Button: FC<ButtonProps> = ({ type = "button", children, variant = "primary
     "button px-4 py-2 rounded-md text-white flex items-center justify-center transition-colors duration-300 ease-in-out",
     className,
     {
-      "bg-primary-700 hover:bg-primary-800 dark:bg-primary-800 dark:hover:bg-primary-900": variant === "primary",
-      "bg-secondary-700 hover:bg-secondary-800 dark:bg-secondary-800 dark:hover:bg-secondary-900":
-        variant === "secondary",
-      "bg-red-700 hover:bg-red-800 dark:bg-red-800 dark:hover:bg-red-900": variant === "danger",
+      "bg-primary-700 hover:bg-primary-800  ": variant === "primary",
+      "bg-secondary-500 hover:bg-secondary-600  ": variant === "secondary",
+      "bg-red-700 hover:bg-red-800  ": variant === "danger",
       "pointer-events-none opacity-50": disabled,
     }
   );
