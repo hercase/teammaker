@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/20/solid";
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
+import { usePrefersColorScheme } from "@/hooks/usePrefersColorScheme";
 import { getContrastColor } from "@/utils";
 
 interface PlayersListProps {
@@ -23,20 +24,21 @@ interface PlayersListProps {
 
 const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#151d65", players }) => {
   const { removePlayer, replacePlayer, renamePlayer } = usePlayers();
-  const borderColor = getContrastColor(color);
+  const { isDarkMode } = usePrefersColorScheme();
+  const borderColor = getContrastColor(color, isDarkMode);
 
   return (
-    <div className="relative w-1/2 bg-white rounded-md p-2  border-l-4" style={{ borderColor }}>
+    <div className="relative w-1/2 bg-white rounded-md p-2 dark:bg-gray-800 border-l-4" style={{ borderColor }}>
       <div className={classNames("flex justify-start mb-2", { "justify-end": shirtPosition === "right" })}>
         <ShirtIcon color={color} />
       </div>
 
-      <ul className="divide-y divide-gray-200 ">
+      <ul className="divide-y divide-gray-200 dark:divide-gray-700">
         {players?.map((player, index) => (
           <FloatingMenu
             key={uniqueId(`${player.name}-${player.details}`)}
             className={classNames(
-              "relative flex gap-1 font-display text-[16px] capitalize justify-center items-center text-gray-600 w-full group "
+              "relative flex gap-1 font-display text-[16px] capitalize justify-center items-center text-gray-600 w-full group dark:text-gray-400"
             )}
             trigger={
               <>
@@ -61,19 +63,19 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
             <MenuOption
               disabled={player.isDeleted}
               onClick={() => renamePlayer(player)}
-              icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600 " />}
+              icon={<PencilSquareIcon className="h-5 w-5 fill-secondary-600 dark:fill-secondary-400" />}
               label="Renombrar"
             />
             <MenuOption
               disabled={!!player.isReplacedBy}
               onClick={() => replacePlayer(player)}
-              icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800 " />}
+              icon={<ArrowsUpDownIcon className="h-5 w-5 fill-primary-800 dark:fill-primary-400" />}
               label="Reemplazar"
             />
             <MenuOption
               disabled={player.isDeleted || !!player.isReplacedBy}
               onClick={() => removePlayer(player)}
-              icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800 " />}
+              icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800 dark:fill-red-400" />}
               label="Dar de baja"
             />
           </FloatingMenu>

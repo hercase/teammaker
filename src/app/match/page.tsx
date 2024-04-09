@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useMatchStore, useUiStore } from "@/store";
 import PlayersList from "@/components/PlayersList";
 import { useRouter } from "next/navigation";
@@ -16,9 +16,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { HandRaisedIcon } from "@heroicons/react/20/solid";
 
 const Match = () => {
-  const ToCaptureRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
   const alert = useAlert();
   const { colors, date, random } = useMatchStore();
   const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
@@ -57,7 +55,7 @@ const Match = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col w-full">
-        <div ref={ToCaptureRef} className="flex flex-col gap-5 p-4">
+        <div className="flex flex-col gap-5 p-4">
           <InfoCard />
 
           <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
@@ -76,7 +74,9 @@ const Match = () => {
         </div>
         <div className="flex justify-center w-full gap-4 mt-4">
           <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
-          <Button variant="secondary" onClick={() => setShowEditModal(true)}>Editar</Button>
+          <Button variant="secondary" onClick={() => setShowEditModal(true)}>
+            Editar
+          </Button>
         </div>
         <EditModal isOpen={showEditModal} setIsOpen={setShowEditModal} />
       </div>
