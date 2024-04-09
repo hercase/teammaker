@@ -1,4 +1,3 @@
-import { usePrefersColorScheme } from "@/hooks/usePrefersColorScheme";
 import { getContrastColor } from "@/utils";
 import { FC } from "react";
 
@@ -8,8 +7,7 @@ interface ShirtIconProps {
 }
 
 const ShirtIcon: FC<ShirtIconProps> = ({ color = "#2C3590", size = 42, ...rest }) => {
-  const { isDarkMode } = usePrefersColorScheme();
-  const contrastColor = getContrastColor(color, isDarkMode);
+  const contrastColor = getContrastColor(color);
 
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" {...rest}>

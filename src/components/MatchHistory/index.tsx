@@ -16,7 +16,7 @@ const MatchHistory = () => {
 
   return (
     <ul
-      className="flex flex-col justify-between bg-white dark:bg-gray-800
+      className="flex flex-col justify-between bg-white
     rounded-md p-2"
     >
       {history.map(({ old_name, new_name, type, date }) => (
@@ -28,7 +28,7 @@ const MatchHistory = () => {
             <span>{old_name}</span>
           </span>
 
-          <span className="text-gray-600 dark:text-gray-400">{renderText(type)}</span>
+          <span className="text-gray-600">{renderText(type)}</span>
 
           {new_name && (
             <>
