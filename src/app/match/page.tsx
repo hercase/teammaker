@@ -13,15 +13,14 @@ import useAlert from "@/hooks/useAlert";
 import usePlayers from "@/hooks/usePlayers";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { HandRaisedIcon, ShareIcon } from "@heroicons/react/20/solid";
-import html2canvas from "html2canvas";
+import { HandRaisedIcon } from "@heroicons/react/20/solid";
 
 const Match = () => {
   const ToCaptureRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const alert = useAlert();
-  const { colors, date, random, location } = useMatchStore();
+  const { colors, date, random } = useMatchStore();
   const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
 
@@ -53,29 +52,6 @@ const Match = () => {
     router.push("/");
   };
 
-  const captureScreenshot = async () => {
-    if (!ToCaptureRef.current) return;
-
-    const canvasPromise = await html2canvas(ToCaptureRef.current, {
-      useCORS: true,
-      width: 600,
-      windowWidth: 600,
-      height: 900,
-      windowHeight: 900,
-      backgroundColor: "#07143f",
-    });
-
-    const dataUrl = canvasPromise.toDataURL("image/png");
-
-    if (navigator.share) {
-      navigator.share({
-        title: `${location} - ${date}`,
-        text: "Team Maker",
-        url: dataUrl,
-      });
-    }
-  };
-
   if (!hasHydrated) return <Spinner />;
 
   return (
@@ -100,10 +76,7 @@ const Match = () => {
         </div>
         <div className="flex justify-center w-full gap-4 mt-4">
           <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
-          <Button onClick={() => setShowEditModal(true)}>Editar</Button>
-          <Button variant="secondary" onClick={captureScreenshot}>
-            <ShareIcon className="w-5 h-5" />
-          </Button>
+          <Button variant="secondary" onClick={() => setShowEditModal(true)}>Editar</Button>
         </div>
         <EditModal isOpen={showEditModal} setIsOpen={setShowEditModal} />
       </div>
