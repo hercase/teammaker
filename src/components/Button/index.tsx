@@ -4,7 +4,7 @@ import { FC } from "react";
 type ButtonProps = {
   type?: "button" | "submit" | "reset";
   children: React.ReactNode;
-  variant?: "primary" | "secondary" | "danger";
+  variant?: "primary" | "secondary" | "terciary" | "danger";
   disabled?: boolean;
   className?: string;
   onClick?: () => void;
@@ -17,6 +17,7 @@ const Button: FC<ButtonProps> = ({ type = "button", children, variant = "primary
     {
       "bg-primary-600 hover:bg-primary-700  ": variant === "primary",
       "bg-secondary-600 hover:bg-secondary-700  ": variant === "secondary",
+      "bg-terciary-600 hover:bg-terciary-700  ": variant === "terciary",
       "bg-red-700 hover:bg-red-800  ": variant === "danger",
       "pointer-events-none opacity-50": disabled,
     }

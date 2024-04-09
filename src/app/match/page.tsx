@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMatchStore, useUiStore } from "@/store";
 import PlayersList from "@/components/PlayersList";
 import { useRouter } from "next/navigation";
@@ -13,12 +13,15 @@ import useAlert from "@/hooks/useAlert";
 import usePlayers from "@/hooks/usePlayers";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { HandRaisedIcon } from "@heroicons/react/20/solid";
+import { HandRaisedIcon, ShareIcon } from "@heroicons/react/20/solid";
+import html2canvas from "html2canvas";
 
 const Match = () => {
+  const ToCaptureRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
   const alert = useAlert();
-  const { colors, date, random } = useMatchStore();
+  const { colors, date, random, location } = useMatchStore();
   const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
 
@@ -50,12 +53,35 @@ const Match = () => {
     router.push("/");
   };
 
+  const captureScreenshot = async () => {
+    if (!ToCaptureRef.current) return;
+
+    const canvasPromise = await html2canvas(ToCaptureRef.current, {
+      useCORS: true,
+      width: 600,
+      windowWidth: 600,
+      height: 900,
+      windowHeight: 900,
+      backgroundColor: "#07143f",
+    });
+
+    const dataUrl = canvasPromise.toDataURL("image/png");
+
+    if (navigator.share) {
+      navigator.share({
+        title: `${location} - ${date}`,
+        text: "Team Maker",
+        url: dataUrl,
+      });
+    }
+  };
+
   if (!hasHydrated) return <Spinner />;
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col w-full">
-        <div className="flex flex-col gap-5 p-4">
+        <div ref={ToCaptureRef} className="flex flex-col gap-5 p-4">
           <InfoCard />
 
           <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
@@ -74,8 +100,9 @@ const Match = () => {
         </div>
         <div className="flex justify-center w-full gap-4 mt-4">
           <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
-          <Button variant="secondary" onClick={() => setShowEditModal(true)}>
-            Editar
+          <Button onClick={() => setShowEditModal(true)}>Editar</Button>
+          <Button variant="secondary" onClick={captureScreenshot}>
+            <ShareIcon className="w-5 h-5" />
           </Button>
         </div>
         <EditModal isOpen={showEditModal} setIsOpen={setShowEditModal} />
