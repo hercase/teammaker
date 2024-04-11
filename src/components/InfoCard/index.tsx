@@ -25,7 +25,7 @@ const InfoCard: FC<InfoCardProps> = ({ date, location, organizer, random, player
         <p className="text-gray-500">
           {playersLength} / {maxPlayers} jugadores
         </p>
-        {random && <p className="text-gray-500">Lista aleatoria 🎲</p>}
+        {random && <p className="text-gray-600">Lista aleatoria 🎲</p>}
       </div>
     </div>
   </div>
