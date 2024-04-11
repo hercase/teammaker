@@ -12,7 +12,7 @@
   }
 
   .input {
-    @apply rounded-md w-full h-8 px-2 primary-text primary-bg;
+    @apply border-gray-300 text-gray-500 rounded-md w-full h-8 px-2;
   }
 
   .label {

@@ -26,7 +26,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
   const borderColor = getContrastColor(color);
 
   return (
-    <div className="relative w-1/2 primary-bg rounded-md p-2 border-l-4" style={{ borderColor }}>
+    <div className="relative w-1/2 bg-white rounded-md p-2  border-l-4" style={{ borderColor }}>
       <div className={classNames("flex justify-start mb-2", { "justify-end": shirtPosition === "right" })}>
         <ShirtIcon color={color} />
       </div>

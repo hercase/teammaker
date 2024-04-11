@@ -48,7 +48,7 @@ export const generateMatchEvent = ({ type, old_player, new_player }: GenerateMat
 });
 
 export const getContrastColor = (hexcolor: string) => {
-  const mainColor = tinycolor(hexcolor).darken(15);
+  const mainColor = tinycolor(hexcolor);
   const contrastColor = mainColor.isDark() ? mainColor.brighten(40) : mainColor.darken(50);
   const finalColor = contrastColor.desaturate(20).toHexString();
 

@@ -14,7 +14,7 @@ interface InfoCardProps {
 
 const InfoCard: FC<InfoCardProps> = ({ date, location, organizer, random, playersLength, maxPlayers }) => (
   <div className="col-span-1 flex shadow-sm rounded-md w-full mx-auto">
-    <div className="flex-shrink-0 flex items-center justify-center px-4 bg-secondary-500 text-white text-sm font-medium rounded-l-md">
+    <div className="flex-shrink-0 flex items-center justify-center px-4 bg-secondary-600 text-white text-sm font-medium rounded-l-md">
       <InformationCircleIcon className="h-6 w-6" aria-hidden="true" />
     </div>
     <div className="flex-1 flex items-center justify-between rounded-r-md truncate primary-bg">

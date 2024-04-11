@@ -18,7 +18,7 @@ const MatchHistory: FC<HistoryProps> = ({ history = [] }) => {
 
   return (
     <ul
-      className="flex flex-col justify-between bg-white dark:bg-gray-800
+      className="flex flex-col justify-between bg-white
     rounded-md p-2"
     >
       {history.map(({ old_name, new_name, type, date }) => (
