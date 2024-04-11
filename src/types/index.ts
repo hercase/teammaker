@@ -30,6 +30,14 @@ export type Colors = {
   teamB?: string;
 };
 
+export interface SimpleMatch {
+  _id: string;
+  date: string;
+  location: string;
+  random: boolean;
+  maxPlayers: number;
+}
+
 export type MatchEvent = {
   type: "replace" | "delete" | "rename";
   old_name: string;

@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-interface LayoutProps {
+export interface LayoutProps {
   children: React.ReactNode;
 }
 

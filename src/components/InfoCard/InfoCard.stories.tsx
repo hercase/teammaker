@@ -12,6 +12,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     playersLength: 10,
+    maxPlayers: 12,
     date: new Date(),
     location: "Cancha de fútbol 5",
     organizer: {

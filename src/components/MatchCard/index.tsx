@@ -5,7 +5,6 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import PlayersList from "@/components/PlayersList";
 import InfoCard from "@/components/InfoCard";
 import MatchHistory from "@/components/MatchHistory";
-import { HandRaisedIcon } from "@heroicons/react/20/solid";
 import { MatchFields, Person } from "@/types";
 
 interface MatchCardProps {

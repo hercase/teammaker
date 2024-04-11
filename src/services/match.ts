@@ -1,5 +1,5 @@
 import { baseUrl } from "@/env";
-import { MatchFields, SanityFields, SanityReference } from "@/types";
+import { MatchFields, SanityFields, SanityReference, SimpleMatch } from "@/types";
 
 interface Args extends MatchFields {
   organizer: SanityReference;
@@ -22,15 +22,7 @@ export const getMatch = async (id: string) => {
 
   return match.json();
 };
-interface Match {
-  _id: string;
-  date: string;
-  location: string;
-  random: boolean;
-  maxPlayers: number;
-}
-
-export const getMatchesByOrganizer = async (organizerId: string): Promise<Match[] | null> => {
+export const getMatchesByOrganizer = async (organizerId: string): Promise<SimpleMatch[] | null> => {
   const matches = await fetch(`${baseUrl}/api/matches?organizerId=${organizerId}`, { method: "GET" });
 
   if (!matches.ok) return null;

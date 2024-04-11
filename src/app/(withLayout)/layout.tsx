@@ -1,10 +1,7 @@
 import Header from "@/components/Header";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
+import { LayoutProps } from "@/app/layout";
 
 const Layout = async ({ children }: Readonly<LayoutProps>) => {
   const session = await getServerSession();

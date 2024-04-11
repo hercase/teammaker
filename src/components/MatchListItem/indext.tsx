@@ -1,11 +1,11 @@
-import { MatchFields } from "@/types";
+import { FC } from "react";
+import { SimpleMatch } from "@/types";
 import { formatMatchDistance } from "@/utils";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
-import { FC } from "react";
 
 interface MatchListItemProps {
-  match: MatchFields & { _id: string };
+  match: SimpleMatch;
 }
 
 const MatchListItem: FC<MatchListItemProps> = ({ match }) => (

@@ -5,12 +5,7 @@ import { uniqueId } from "lodash";
 import classNames from "classnames";
 import ShirtIcon from "@/components/Icons/ShirtIcon";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
-import {
-  ArrowDownCircleIcon,
-  ArrowsUpDownIcon,
-  EllipsisVerticalIcon,
-  PencilSquareIcon,
-} from "@heroicons/react/20/solid";
+import { ArrowDownCircleIcon, ArrowsUpDownIcon, PencilSquareIcon } from "@heroicons/react/20/solid";
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
 import { getContrastColor } from "@/utils";
