@@ -14,7 +14,7 @@ interface MatchCardProps {
 }
 
 const MatchCard = ({ match, organizer }: MatchCardProps) => {
-  const { lineup, players, random, colors, history } = match;
+  const { lineup, players, random, colors, history, date, location, maxPlayers } = match;
 
   const half = Math.ceil(lineup?.length / 2);
 
@@ -27,10 +27,11 @@ const MatchCard = ({ match, organizer }: MatchCardProps) => {
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col gap-5 p-4">
         <InfoCard
-          date={match.date}
-          location={match.location}
+          date={date}
+          location={location}
           organizer={organizer}
           playersLength={players.length}
+          maxPlayers={maxPlayers}
           random={random}
         />
 
@@ -39,12 +40,14 @@ const MatchCard = ({ match, organizer }: MatchCardProps) => {
           <PlayersList shirtPosition="left" players={teamB} color={colors?.teamB} />
         </div>
 
+        {/* 
         {!random && (
           <div className="flex gap-2 items-center text-gray-300">
             <HandRaisedIcon className="w-5 h-5" />
             <p className="text-sm">Arrastra los jugadores para ordenar o cambiar de equipo.</p>
           </div>
         )}
+         */}
 
         <MatchHistory history={history} />
       </div>

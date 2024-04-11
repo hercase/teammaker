@@ -34,6 +34,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
       <ul className="divide-y divide-gray-200 ">
         {players?.map((player, index) => (
           <FloatingMenu
+            disabled
             key={uniqueId(`${player.name}-${player.details}`)}
             className={classNames(
               "relative flex gap-1 font-display text-[16px] capitalize justify-center items-center text-gray-600 w-full group "
@@ -49,8 +50,6 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
                 </span>
 
                 <PlayerName player={player} />
-
-                <EllipsisVerticalIcon className="h-5 w-5 absolute right-1 top-1/2 transform -translate-y-1/2 hidden group-hover:block" />
               </>
             }
           >
