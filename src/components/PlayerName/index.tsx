@@ -1,10 +1,12 @@
+"use client";
+
 import { FC, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Player } from "@/types";
 import classNames from "classnames";
 import usePlayers from "@/hooks/usePlayers";
-import { useMatchStore } from "@/store";
 import { ArrowPathIcon } from "@heroicons/react/20/solid";
+import { usePersistedStore } from "@/store/usePersistedStore";
 
 interface PlayerNameProps {
   player: Player;
@@ -12,36 +14,32 @@ interface PlayerNameProps {
   className?: string;
 }
 
-const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
-  const { bench } = usePlayers();
-  const substitute = bench.find((p) => p.id === player.isReplacedBy);
-  const currentPlayers = substitute || player;
-
+const PlayerName: FC<PlayerNameProps> = ({ player, isReplacement, className }) => {
   const { exchangePlayers } = usePlayers();
-  const { random } = useMatchStore();
+  const { random } = usePersistedStore();
   const ref = useRef<HTMLParagraphElement>(null);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "player",
-    item: { id: player.id },
+    item: { id: player._key },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-    canDrag: !random,
+    canDrag: false, // TODO: Implement drag functionality
   }));
 
   const [{ isOver }, drop] = useDrop({
     accept: "player",
     drop: (item: { id: string }) => {
-      if (player.id) {
-        exchangePlayers(item.id, player.id);
+      if (player._key) {
+        exchangePlayers(item.id, player._key);
       }
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
     }),
-    canDrop: (item: { id: string }) => item.id !== player.id,
+    canDrop: (item: { id: string }) => item.id !== player._key,
   });
 
   drag(drop(ref));
@@ -59,11 +57,11 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
         className
       )}
     >
-      {player.isReplacedBy && <ArrowPathIcon className="h-3 w-3 fill-secondary-600" />}
-      {currentPlayers.name}
-      {currentPlayers.details && (
+      {isReplacement && <ArrowPathIcon className="h-3 w-3 fill-secondary-600" />}
+      {player.name}
+      {player.details && (
         <span className="flex text-[9px] font-semibold uppercase">
-          (<span className="block truncate max-w-12">{currentPlayers.details}</span>)
+          (<span className="block truncate max-w-12">{player.details}</span>)
         </span>
       )}
     </p>

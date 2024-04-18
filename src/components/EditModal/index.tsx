@@ -1,6 +1,5 @@
 import { Fragment, FC } from "react";
-import { useMatchStore } from "@/store";
-import { MatchInputs } from "@/types";
+import { MatchFields, MatchInputs } from "@/types";
 import { Dialog, Transition } from "@headlessui/react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
@@ -10,12 +9,13 @@ import TextInput from "@/components/TextInput";
 import ToggleSwitch from "../ToggleSwitch";
 
 interface EditModalProps {
+  match: MatchFields;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
-  const { organizer, location, date, colors, random, setMatch, setColors } = useMatchStore();
+const EditModal: FC<EditModalProps> = ({ match, isOpen, setIsOpen }) => {
+  const { location, date, colors, random } = match;
 
   const {
     register,
@@ -28,18 +28,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
   });
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
-    setMatch({
-      location: data.location,
-      date: data.date,
-      random: data.random,
-      organizer,
-    });
-
-    setColors({
-      teamA: data.colors?.teamA,
-      teamB: data.colors?.teamB,
-    });
-
+    console.log(data);
     setIsOpen(false);
   };
 
@@ -62,8 +51,8 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child as={Fragment} {...transitions}>
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 dark:text-gray-300 p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white   p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 ">
                   Editar
                 </Dialog.Title>
                 <form className="flex flex-col gap-6 mt-4 text-gray-500" onSubmit={handleSubmit(onSubmit)}>
@@ -76,17 +65,21 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                   />
                   <div className="flex gap-2">
                     <DateInput variant="outline" register={register} error={!!errors.date} />
-                    {random && <div className="flex flex-col">
-                      <span className="label">Aleatorio</span>
-                      <div className="flex justify-center items-center mt-1 h-full">
-                        <Controller
-                          name="random"
-                          control={control}
-                          defaultValue={false}
-                          render={({ field }) => <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />}
-                        />
+                    {random && (
+                      <div className="flex flex-col">
+                        <span className="label">Aleatorio</span>
+                        <div className="flex justify-center items-center mt-1 h-full">
+                          <Controller
+                            name="random"
+                            control={control}
+                            defaultValue={false}
+                            render={({ field }) => (
+                              <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>}
+                    )}
                   </div>
                   <div>
                     <p className="label">Colores</p>

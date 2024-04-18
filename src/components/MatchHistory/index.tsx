@@ -1,11 +1,13 @@
-import React from "react";
+import { FC } from "react";
 import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/20/solid";
-import { format } from "date-fns";
-import usePlayers from "@/hooks/usePlayers";
+import { MatchEvent } from "@/types";
+import { formatMatchDate } from "@/utils";
 
-const MatchHistory = () => {
-  const { history } = usePlayers();
+interface HistoryProps {
+  history: MatchEvent[];
+}
 
+const MatchHistory: FC<HistoryProps> = ({ history = [] }) => {
   if (!history.length) return null;
 
   const renderText = (type: string) => {
@@ -16,19 +18,19 @@ const MatchHistory = () => {
 
   return (
     <ul
-      className="flex flex-col justify-between bg-white dark:bg-gray-800
+      className="flex flex-col justify-between bg-white
     rounded-md p-2"
     >
       {history.map(({ old_name, new_name, type, date }) => (
-        <li key={format(date, "HH:mm:ss")} className="flex gap-1 items-center text-gray-600  text-xs">
-          <span className="text-gray-400">{format(date, "dd/MM HH:mm")}</span>
+        <li key={formatMatchDate(date)} className="flex gap-1 items-center text-gray-600 text-xs flex-wrap">
+          <span className="text-gray-400">{}</span>
 
           <span className="flex items-center text-red-600 capitalize gap-1">
             <ArrowDownCircleIcon className="w-4 h-4" />
             <span>{old_name}</span>
           </span>
 
-          <span className="text-gray-600 dark:text-gray-400">{renderText(type)}</span>
+          <span className="text-gray-600">{renderText(type)}</span>
 
           {new_name && (
             <>

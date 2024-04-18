@@ -1,8 +1,23 @@
-import { PlayersStore } from "@/types";
+import { MatchEvent, Player } from "@/types";
 import { generateMatchEvent, generatePlayer } from "@/utils";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
+interface PlayersStore {
+  players: Player[];
+  bench: Player[];
+  history: MatchEvent[];
+  hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
+  setPlayers: (players: Player[]) => void;
+  setBench: (bench: Player[]) => void;
+  renamePlayer: (id: string, player_name: string) => void;
+  removePlayer: (id: string) => void;
+  replacePlayer: (old_id: string, player_name: string) => void;
+  resetMatch: () => void;
+  exchangePlayers: (playerId1: string, playerId2: string) => void;
+}
 
 const initialState = {
   players: [],
@@ -25,31 +40,21 @@ export const usePlayersStore = create(
           produce((state: PlayersStore) => {
             const newPlayer = generatePlayer(player_name);
 
-            const player = state.players.find((p) => p.id === id);
-            const substitute = state.bench.find((p) => p.id === player?.isReplacedBy);
+            const player = state.players.find((p) => p._key === id);
 
-            if (player && !substitute) {
+            if (player) {
               state.history.push(generateMatchEvent({ type: "rename", old_player: player, new_player: newPlayer }));
               player.name = newPlayer.name;
               player.details = newPlayer.details;
-            }
-
-            if (substitute) {
-              state.history.push(generateMatchEvent({ type: "rename", old_player: substitute, new_player: newPlayer }));
-
-              substitute.name = newPlayer.name;
-              substitute.details = newPlayer.details;
             }
           })
         ),
       removePlayer: (id: string) =>
         set(
           produce((state: PlayersStore) => {
-            const player = state.players.find((p) => p.id === id);
+            const player = state.players.find((p) => p._key === id);
 
             if (player) {
-              player.isDeleted = true;
-
               state.history.push(generateMatchEvent({ type: "delete", old_player: player }));
             }
           })
@@ -57,14 +62,12 @@ export const usePlayersStore = create(
       replacePlayer: (old_id: string, player_name: string) =>
         set(
           produce((state: PlayersStore) => {
-            const player = state.players.find((p) => p.id === old_id);
+            const player = state.players.find((p) => p._key === old_id);
 
             if (player) {
               const newPlayer = generatePlayer(player_name);
 
               state.bench.push(newPlayer);
-              player.isReplacedBy = newPlayer.id;
-              player.isDeleted = false;
 
               state.history.push(generateMatchEvent({ type: "replace", old_player: player, new_player: newPlayer }));
             }
@@ -82,8 +85,8 @@ export const usePlayersStore = create(
       exchangePlayers: (playerId1: string, playerId2: string) =>
         set((state) =>
           produce(state, (draft) => {
-            const index1 = draft.players.findIndex((p) => p.id === playerId1);
-            const index2 = draft.players.findIndex((p) => p.id === playerId2);
+            const index1 = draft.players.findIndex((p) => p._key === playerId1);
+            const index2 = draft.players.findIndex((p) => p._key === playerId2);
 
             if (index1 !== -1 && index2 !== -1) {
               [draft.players[index1], draft.players[index2]] = [draft.players[index2], draft.players[index1]];

@@ -14,15 +14,10 @@ const usePlayers = () => {
     ...store
   } = usePlayersStore();
 
-  const half = Math.ceil(players?.length / 2);
-
-  const teamA = players?.slice(0, half);
-  const teamB = players?.slice(-half);
-
   const removePlayer = (player: Player) => {
     alert({
       text: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
-      cb: () => _removePlayer(player.id),
+      cb: () => _removePlayer(player._key),
     });
   };
 
@@ -32,7 +27,7 @@ const usePlayers = () => {
       input: "text",
       inputValidator: validateName,
 
-      cb: (user: string) => _replacePlayer(player.id, user),
+      cb: (user: string) => _replacePlayer(player._key, user),
     });
   };
 
@@ -41,15 +36,13 @@ const usePlayers = () => {
       text: `Ingresa el nuevo nombre para ${player.name}`,
       input: "text",
       inputValidator: validateName,
-      cb: (user: string) => _renamePlayer(player.id, user),
+      cb: (user: string) => _renamePlayer(player._key, user),
     });
   };
 
   return {
     players,
     bench,
-    teamA,
-    teamB,
     removePlayer,
     replacePlayer,
     renamePlayer,

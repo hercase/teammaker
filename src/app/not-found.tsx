@@ -1,24 +1,21 @@
 import Link from "next/link";
 
 const NotFound = () => (
-  <section className="flex items-center h-screen p-16">
-    <div className="container flex flex-col items-center ">
-      <div className="flex flex-col gap-6 max-w-md text-center">
-        <h2 className="font-extrabold text-8xl text-gray-100 ">
-          <span className="sr-only">Error</span>404
-        </h2>
-        <p className="text-2xl text-gray-300">Lo sentimos, no pudimos encontrar esta página.</p>
+  <main className="grid h-screen place-items-center bg-primary-950 px-6 py-24 sm:py-32 lg:px-8">
+    <div className="text-center">
+      <p className="text-base font-semibold text-indigo-300">404</p>
+      <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-100 sm:text-5xl">Pagina no encontrada</h1>
+      <p className="mt-6 text-base leading-7 text-gray-400">Perdon, pero la pagina que buscas no existe.</p>
+      <div className="mt-10 flex items-center justify-center gap-x-6">
         <Link
           href="/"
-          passHref
-          className="px-8 py-4 text-lg font-medium rounded bg-purple-600 text-gray-50 hover:text-gray-200 uppercase
-          "
+          className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           Volver al inicio
         </Link>
       </div>
     </div>
-  </section>
+  </main>
 );
 
 export default NotFound;
