@@ -15,6 +15,7 @@ export default function WelcomeModal() {
     event.preventDefault();
     setOpen(false);
     setOrganizer(inputRef.current?.value || "");
+    window.location.reload();
   };
 
   if (organizer) return null;
