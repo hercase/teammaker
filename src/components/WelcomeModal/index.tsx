@@ -45,9 +45,9 @@ export default function WelcomeModal() {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform transition-all isolate overflow-hidden bg-primary-950 px-6 py-16 shadow-2xl rounded-3xl">
+              <Dialog.Panel className="relative transform transition-all isolate overflow-hidden bg-primary-950 px-6 sm:px-12 py-16 shadow-2xl rounded-3xl">
                 <div className="flex justify-center mb-10">
-                  <Logo size="large" />
+                  <Logo animated size="large" />
                 </div>
                 <p className="flex flex-col mx-auto mt-2 max-w-xl text-lg leading-8 text-gray-300">
                   <span>Crear equipos nunca fue tan fácil. </span>
