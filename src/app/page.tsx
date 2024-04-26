@@ -17,7 +17,7 @@ import TextInput from "@/components/TextInput";
 
 const Create = () => {
   const router = useRouter();
-  const { random, location, setMatch } = useMatchStore();
+  const { organizer, random, location, setMatch } = useMatchStore();
   const { hasHydrated, players, setPlayers } = usePlayers();
 
   const {
@@ -28,7 +28,7 @@ const Create = () => {
     formState: { errors },
   } = useForm<MatchInputs>({
     mode: "onBlur",
-    defaultValues: { location, random },
+    defaultValues: { organizer, location, random },
   });
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const Create = () => {
 
     const players = data.random ? shuffle(names) : names;
 
-    setMatch({ location: data.location, date: data.date, random: data.random });
+    setMatch({ location: data.location, date: data.date, organizer, random: data.random });
     setPlayers(players);
   };
 

@@ -24,15 +24,17 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
     formState: { errors },
   } = useForm<MatchInputs>({
     mode: "onBlur",
-    defaultValues: { location, colors, date, random },
+    defaultValues: { organizer, location, colors, date, random },
   });
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
+    console.log("🚀 ~ data:", data);
+
     setMatch({
+      organizer: data.organizer,
       location: data.location,
       date: data.date,
       random: data.random,
-      organizer,
     });
 
     setColors({
@@ -69,6 +71,14 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                 <form className="flex flex-col gap-6 mt-4 text-gray-500" onSubmit={handleSubmit(onSubmit)}>
                   <TextInput
                     variant="outline"
+                    name="organizer"
+                    label="Organizador"
+                    error={!!errors.organizer}
+                    register={register}
+                  />
+
+                  <TextInput
+                    variant="outline"
                     name="location"
                     label="Lugar"
                     error={!!errors.location}
@@ -76,17 +86,21 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                   />
                   <div className="flex gap-2">
                     <DateInput variant="outline" register={register} error={!!errors.date} />
-                    {random && <div className="flex flex-col">
-                      <span className="label">Aleatorio</span>
-                      <div className="flex justify-center items-center mt-1 h-full">
-                        <Controller
-                          name="random"
-                          control={control}
-                          defaultValue={false}
-                          render={({ field }) => <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />}
-                        />
+                    {random && (
+                      <div className="flex flex-col">
+                        <span className="label">Aleatorio</span>
+                        <div className="flex justify-center items-center mt-1 h-full">
+                          <Controller
+                            name="random"
+                            control={control}
+                            defaultValue={false}
+                            render={({ field }) => (
+                              <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />
+                            )}
+                          />
+                        </div>
                       </div>
-                    </div>}
+                    )}
                   </div>
                   <div>
                     <p className="label">Colores</p>

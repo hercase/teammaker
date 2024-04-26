@@ -3,11 +3,9 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import usePlayers from "@/hooks/usePlayers";
-import useLocalStorage from "@/hooks/useLocalStorage";
 
 const InfoCard = () => {
-  const [organizer] = useLocalStorage("organizer", "");
-  const { date, location, random } = useMatchStore();
+  const { organizer, date, location, random } = useMatchStore();
   const { players } = usePlayers();
   return (
     <div className="col-span-1 flex shadow-sm rounded-md w-full mx-auto">

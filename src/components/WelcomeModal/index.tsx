@@ -4,18 +4,17 @@ import { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import Logo from "../Logo";
-import useLocalStorage from "@/hooks/useLocalStorage";
+import { useMatchStore } from "@/store";
 
 export default function WelcomeModal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(true);
-  const [organizer, setOrganizer] = useLocalStorage("organizer", "");
+  const { organizer, setOrganizer } = useMatchStore();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setOpen(false);
     setOrganizer(inputRef.current?.value || "");
-    window.location.reload();
   };
 
   if (organizer) return null;
