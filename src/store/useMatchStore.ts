@@ -15,6 +15,9 @@ export const useMatchStore = create(
   persist<MatchStore>(
     (set) => ({
       ...initialState,
+      setOrganizer: (organizer: string) => {
+        set(() => ({ organizer }));
+      },
       setColors: (colors = { teamA: "#e3e3e3", teamB: "#151d65" }) => {
         set(() => ({
           colors: { teamA: colors?.teamA, teamB: colors?.teamB },

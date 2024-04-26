@@ -16,6 +16,7 @@ const useLocalStorage: UseLocalStorage = (key, initialValue) => {
       }
     }
   });
+
   const setValue = (value: string | ((value: string) => string)) => {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value;

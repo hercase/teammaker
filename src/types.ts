@@ -34,6 +34,7 @@ export interface MatchStore {
   organizer: string;
   random: boolean;
   colors: Colors;
+  setOrganizer: (organizer: string) => void;
   setColors: (colors: Colors) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
 }

@@ -5,7 +5,7 @@ import { InformationCircleIcon } from "@heroicons/react/20/solid";
 import usePlayers from "@/hooks/usePlayers";
 
 const InfoCard = () => {
-  const { date, location, organizer, random } = useMatchStore();
+  const { organizer, date, location, random } = useMatchStore();
   const { players } = usePlayers();
   return (
     <div className="col-span-1 flex shadow-sm rounded-md w-full mx-auto">
