@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import classNames from "classnames";
 import Logo from "@/components/Logo";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import WelcomeModal from "@/components/WelcomeModal";
 
 import "./globals.css";
 
@@ -29,7 +30,7 @@ const Layout = ({
     <body
       className={classNames(
         inter.className,
-        "grid grid-rows-[4rem_1fr] h-screen text-white bg-primary-950 max-w-1200 mx-auto w-95vw"
+        "grid grid-rows-[4rem_1fr] h-screen text-white bg-primary-950 maxx-w-1200 mx-auto w-95vw"
       )}
     >
       <header className="grid place-items-center relative max-w-screen-lg mx-auto w-full">
@@ -41,6 +42,7 @@ const Layout = ({
       <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-800 dark:from-primary-900 to-primary-950 max-w-screen-lg mx-auto w-full rounded-t-md">
         {children}
       </main>
+      <WelcomeModal />
     </body>
   </html>
 );

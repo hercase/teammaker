@@ -23,7 +23,6 @@ export type MatchEvent = {
 export interface MatchInputs {
   list: string;
   location: string;
-  organizer: string;
   date: Date | null;
   random: boolean;
   colors?: Colors;
@@ -31,7 +30,6 @@ export interface MatchInputs {
 export interface MatchStore {
   location: string;
   date: Date | null;
-  organizer: string;
   random: boolean;
   colors: Colors;
   setColors: (colors: Colors) => void;
