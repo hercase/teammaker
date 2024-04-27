@@ -28,13 +28,6 @@ export function generatePlayers(str: string) {
 
 export const generateFullName = (player: Player) => `${player.name} ${player.details ? `(${player.details})` : ""}`;
 
-export const trucanteString = (str: string, maxChar: number) => {
-  if (str.length > maxChar) {
-    return str.substring(0, maxChar) + "...";
-  }
-  return str;
-};
-
 export const validateName = (value: string) => {
   if (!value) return "Debes ingresar un nombre";
   if (!/^[a-zA-Z\s\(\)]+$/.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";

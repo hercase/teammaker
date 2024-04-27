@@ -4,9 +4,11 @@ import { Player } from "@/types";
 import classNames from "classnames";
 import usePlayers from "@/hooks/usePlayers";
 import { useMatchStore } from "@/store";
+import { ArrowPathIcon } from "@heroicons/react/20/solid";
 
 interface PlayerNameProps {
   player: Player;
+  isReplacement?: string;
   className?: string;
 }
 
@@ -57,6 +59,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
         className
       )}
     >
+      {player.isReplacedBy && <ArrowPathIcon className="h-3 w-3 fill-secondary-600" />}
       {currentPlayers.name}
       {currentPlayers.details && (
         <span className="flex text-[9px] font-semibold uppercase">
