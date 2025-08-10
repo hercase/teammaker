@@ -7,7 +7,6 @@ import ShirtIcon from "@/components/Icons/ShirtIcon";
 import FloatingMenu, { MenuOption } from "@/components/FloatingMenu";
 import {
   ArrowDownCircleIcon,
-  ArrowPathIcon,
   ArrowsUpDownIcon,
   EllipsisVerticalIcon,
   PencilSquareIcon,
@@ -35,7 +34,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
       </div>
 
       <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-        {players?.map((player) => (
+        {players?.map((player, index) => (
           <FloatingMenu
             key={uniqueId(`${player.name}-${player.details}`)}
             className={classNames(
@@ -43,17 +42,21 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
             )}
             trigger={
               <>
+                <span
+                  className={classNames(
+                    "text-xs font-bold text-gray-600 opacity-60 absolute left-2 top-1/2 transform -translate-y-1/2",
+                    {
+                      "opacity-20": player.isDeleted,
+                    }
+                  )}
+                >
+                  {index + 1}.
+                </span>
                 {player.isDeleted && !player.isReplacedBy && <span className="w-full p-1 py-2">-</span>}
-
-                {player.isReplacedBy && (
-                  <>
-                    <ArrowPathIcon className="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 fill-secondary-600" />
-                  </>
-                )}
 
                 {!player.isDeleted && <PlayerName player={player} />}
 
-                <EllipsisVerticalIcon className="h-5 w-5 absolute right-2 top-1/2 transform -translate-y-1/2 hidden group-hover:block" />
+                <EllipsisVerticalIcon className="h-5 w-5 absolute right-1 top-1/2 transform -translate-y-1/2 hidden group-hover:block" />
               </>
             }
           >

@@ -75,6 +75,7 @@
     "prefer-const": ["warn"],
     "yoda": ["error"],
     "space-in-parens": ["error", "never"],
-    "arrow-body-style": ["error", "as-needed", { "requireReturnForObjectLiteral": false }]
+    "arrow-body-style": ["error", "as-needed", { "requireReturnForObjectLiteral": false }],
+    "react/no-unknown-property": ["off"]
   }
 }

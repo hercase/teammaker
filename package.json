@@ -12,6 +12,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
+    "@vercel/og": "^0.6.2",
     "classnames": "^2.5.1",
     "date-fns": "^3.3.1",
     "framer-motion": "^11.1.7",
