@@ -70,7 +70,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                 </Dialog.Title>
                 <form className="flex flex-col gap-6 mt-4 text-gray-500" onSubmit={handleSubmit(onSubmit)}>
                   <TextInput
-                    variant="outline"
+                    variant="outline-solid"
                     name="organizer"
                     label="Organizador"
                     error={!!errors.organizer}
@@ -78,14 +78,14 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                   />
 
                   <TextInput
-                    variant="outline"
+                    variant="outline-solid"
                     name="location"
                     label="Lugar"
                     error={!!errors.location}
                     register={register}
                   />
                   <div className="flex gap-2">
-                    <DateInput variant="outline" register={register} error={!!errors.date} />
+                    <DateInput variant="outline-solid" register={register} error={!!errors.date} />
                     {random && (
                       <div className="flex flex-col">
                         <span className="label">Aleatorio</span>
