@@ -16,9 +16,9 @@ const Button: FC<ButtonProps> = ({ type = "button", children, variant = "primary
     className,
     {
       "bg-primary-700 hover:bg-primary-800 dark:bg-primary-800 dark:hover:bg-primary-900": variant === "primary",
-      "bg-secondary-700 hover:bg-secondary-800 dark:bg-secondary-800 dark:hover:bg-secondary-900":
+      "bg-secondary-600 hover:bg-secondary-700 dark:bg-secondary-700 dark:hover:bg-secondary-800":
         variant === "secondary",
-      "bg-error-700 hover:bg-error-800 dark:bg-error-800 dark:hover:bg-error-900": variant === "danger",
+      "bg-error-600 hover:bg-error-700 dark:bg-error-700 dark:hover:bg-error-800": variant === "danger",
       "pointer-events-none opacity-50": disabled,
     }
   );

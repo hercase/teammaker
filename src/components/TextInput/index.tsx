@@ -21,7 +21,7 @@ const TextInput: FC<TextInputProps> = ({ label, name, error = false, variant, re
         id={label}
         type="text"
         className={classNames("input border outline-hidden", {
-          "text-error-600 ring-2 ring-inset ring-error-600 placeholder:text-error-300 focus:ring-2 focus:ring-inset focus:ring-error-500":
+          "text-error-600 ring-2 ring-inset ring-error-600 placeholder:text-error-800 dark:placeholder:text-error-500 focus:ring-2 focus:ring-inset focus:ring-error-500":
             error,
           "border border-primary-300": variant === "outline-solid",
         })}
