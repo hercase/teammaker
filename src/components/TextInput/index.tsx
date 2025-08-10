@@ -7,7 +7,7 @@ interface TextInputProps {
   label: string;
   name: keyof MatchInputs;
   error?: boolean;
-  variant?: "outline";
+  variant?: "outline-solid";
   register: UseFormRegister<MatchInputs>;
 }
 
@@ -20,10 +20,10 @@ const TextInput: FC<TextInputProps> = ({ label, name, error = false, variant, re
       <input
         id={label}
         type="text"
-        className={classNames("input border-1 outline-none", {
+        className={classNames("input border outline-hidden", {
           "text-red-600 ring-2 ring-inset ring-red-600 placeholder:text-red-300 focus:ring-2 focus:ring-inset focus:ring-red-500":
             error,
-          "border border-primary-300": variant === "outline",
+          "border border-primary-300": variant === "outline-solid",
         })}
         {...register(name, { required: true })}
         {...rest}

@@ -64,19 +64,19 @@ export default function WelcomeModal() {
                     type="name"
                     autoComplete="name"
                     required
-                    className="min-w-0 flex-auto rounded-md border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-white/20 sm:text-sm sm:leading-6 outline-none"
+                    className="min-w-0 flex-auto rounded-md border-0 bg-white/5 px-3.5 py-2 text-white shadow-xs ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-white/20 sm:text-sm sm:leading-6 outline-hidden"
                     placeholder="Ingresá tu nombre o apodo"
                   />
                   <button
                     type="submit"
-                    className="flex-none rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    className="flex-none rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-xs hover:bg-gray-100 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   >
                     <CheckIcon className="w-5 h-5" />
                   </button>
                 </form>
                 <svg
                   viewBox="0 0 1024 1024"
-                  className="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-x-1/2"
+                  className="absolute left-1/2 top-1/2 -z-10 h-256 w-5xl -translate-x-1/2"
                   aria-hidden="true"
                 >
                   <circle

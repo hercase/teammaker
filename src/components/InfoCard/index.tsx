@@ -8,8 +8,8 @@ const InfoCard = () => {
   const { organizer, date, location, random } = useMatchStore();
   const { players } = usePlayers();
   return (
-    <div className="col-span-1 flex shadow-sm rounded-md w-full mx-auto">
-      <div className="flex-shrink-0 flex items-center justify-center px-4 bg-purple-600 dark:bg-purple-800 text-white text-sm font-medium rounded-l-md">
+    <div className="col-span-1 flex shadow-xs rounded-md w-full mx-auto">
+      <div className="shrink-0 flex items-center justify-center px-4 bg-purple-600 dark:bg-purple-800 text-white text-sm font-medium rounded-l-md">
         <InformationCircleIcon className="h-6 w-6" aria-hidden="true" />
       </div>
       <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate dark:bg-gray-800 dark:border-gray-700 ">

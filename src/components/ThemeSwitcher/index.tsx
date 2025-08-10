@@ -11,7 +11,7 @@ const ThemeSwitcher = () => {
   return (
     <button
       onClick={toggleColorScheme}
-      className="p-2 rounded-md bg-primary-700 text-white dark:bg-primary-800 dark:hover:bg-primary-900 !cursor-pointer"
+      className="p-2 rounded-md bg-primary-700 text-white dark:bg-primary-800 dark:hover:bg-primary-900 cursor-pointer!"
     >
       {isDarkMode ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
     </button>

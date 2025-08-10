@@ -33,13 +33,13 @@ const Layout = ({
         "grid grid-rows-[4rem_1fr] h-screen text-white bg-primary-950 maxx-w-1200 mx-auto w-95vw"
       )}
     >
-      <header className="grid place-items-center relative max-w-screen-lg mx-auto w-full">
+      <header className="grid place-items-center relative max-w-(--breakpoint-lg) mx-auto w-full">
         <Logo />
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
           <ThemeSwitcher />
         </div>
       </header>
-      <main className="flex flex-col items-center h-full bg-gradient-to-b from-primary-800 dark:from-primary-900 to-primary-950 max-w-screen-lg mx-auto w-full rounded-t-md">
+      <main className="flex flex-col items-center h-full bg-linear-to-b from-primary-800 dark:from-primary-900 to-primary-950 max-w-(--breakpoint-lg) mx-auto w-full rounded-t-md">
         {children}
       </main>
       <WelcomeModal />
