@@ -72,7 +72,7 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
             <MenuOption
               disabled={player.isDeleted || !!player.isReplacedBy}
               onClick={() => removePlayer(player)}
-              icon={<ArrowDownCircleIcon className="h-5 w-5 fill-red-800 dark:fill-red-400" />}
+              icon={<ArrowDownCircleIcon className="h-5 w-5 fill-error-800 dark:fill-error-400" />}
               label="Dar de baja"
             />
           </FloatingMenu>

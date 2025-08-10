@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -26,6 +26,18 @@
   --color-secondary-800: #115e54;
   --color-secondary-900: #134e47;
   --color-secondary-950: #042f2a;
+
+  --color-error-50: #fff6f6;
+  --color-error-100: #ffeaea;
+  --color-error-200: #ffd6d6;
+  --color-error-300: #ffbcbc;
+  --color-error-400: #ff9e9e;
+  --color-error-500: #ff7a7a;
+  --color-error-600: #f25c5c;
+  --color-error-700: #d94a4a;
+  --color-error-800: #b53a3a;
+  --color-error-900: #8e2c2c;
+  --color-error-950: #5a1818;
 }
 
 /*

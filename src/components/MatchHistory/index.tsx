@@ -23,7 +23,7 @@ const MatchHistory = () => {
         <li key={format(date, "HH:mm:ss")} className="flex gap-1 items-center text-gray-600  text-xs">
           <span className="text-gray-400">{format(date, "dd/MM HH:mm")}</span>
 
-          <span className="flex items-center text-red-600 capitalize gap-1">
+          <span className="flex items-center text-error-600 capitalize gap-1">
             <ArrowDownCircleIcon className="w-4 h-4" />
             <span>{old_name}</span>
           </span>
@@ -32,7 +32,7 @@ const MatchHistory = () => {
 
           {new_name && (
             <>
-              <span className="flex items-center text-green-600 capitalize gap-1">
+              <span className="flex items-center text-secondary-600 capitalize gap-1">
                 <ArrowUpCircleIcon className="w-4 h-4" />
                 <span>{new_name}</span>
                 <span>.</span>

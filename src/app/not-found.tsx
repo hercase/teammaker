@@ -11,7 +11,7 @@ const NotFound = () => (
         <Link
           href="/"
           passHref
-          className="px-8 py-4 text-lg font-medium rounded bg-purple-600 text-gray-50 hover:text-gray-200 uppercase
+          className="px-8 py-4 text-lg font-medium rounded bg-primary-600 text-gray-50 hover:text-gray-200 uppercase
           "
         >
           Volver al inicio

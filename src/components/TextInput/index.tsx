@@ -13,7 +13,7 @@ interface TextInputProps {
 
 const TextInput: FC<TextInputProps> = ({ label, name, error = false, variant, register, ...rest }) => (
   <div className="label flex flex-col gap-2 w-full">
-    <label className={classNames({ "text-red-500": error })} htmlFor={name}>
+    <label className={classNames({ "text-error-500": error })} htmlFor={name}>
       {label}
     </label>
     <div className="relative">
@@ -21,7 +21,7 @@ const TextInput: FC<TextInputProps> = ({ label, name, error = false, variant, re
         id={label}
         type="text"
         className={classNames("input border outline-hidden", {
-          "text-red-600 ring-2 ring-inset ring-red-600 placeholder:text-red-300 focus:ring-2 focus:ring-inset focus:ring-red-500":
+          "text-error-600 ring-2 ring-inset ring-error-600 placeholder:text-error-300 focus:ring-2 focus:ring-inset focus:ring-error-500":
             error,
           "border border-primary-300": variant === "outline-solid",
         })}
