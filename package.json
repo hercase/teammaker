@@ -19,7 +19,6 @@
     "lodash": "^4.17.21",
     "next": "^15",
     "react": "^19",
-    "react-datepicker": "^6.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19",
