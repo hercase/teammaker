@@ -110,7 +110,10 @@ const CreateMatchForm: FC = () => {
         <TextInput
           name="location"
           label="Lugar"
-          placeholder="Quintana y Salta"
+          /* Describes what goes in the box, not an example of it. "Quintana y Salta" is where the
+             group actually plays, so an empty field looked filled in — and, once marked invalid,
+             filled in and rejected at the same time. */
+          placeholder="Cancha o dirección"
           error={!!errors.location}
           value={watch("location")}
           onClear={() => setValue("location", "", { shouldValidate: true })}
