@@ -42,7 +42,7 @@ export type KitMode = Kit["mode"];
 export type MatchEvent = {
   // Optional because matches persisted before this existed have events without one.
   id?: string;
-  type: "replace" | "delete" | "rename";
+  type: "replace" | "delete" | "rename" | "restore";
   old_name: string;
   new_name?: string;
   date: Date;
@@ -56,6 +56,8 @@ export interface MatchInputs {
   date: string | Date | null;
   random: boolean;
   kit: Kit;
+  // What the pitch costs, in pesos, or null when nobody said. The picture divides it by whoever plays.
+  price: number | null;
 }
 export interface MatchStore {
   location: string;
@@ -63,7 +65,8 @@ export interface MatchStore {
   organizer: string;
   random: boolean;
   kit: Kit;
-  remember: (fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "random">>) => void;
+  price: number | null;
+  remember: (fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "random" | "price">>) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
 }
 
@@ -77,6 +80,8 @@ export interface PlayersStore {
   setPlayers: (players: Player[]) => void;
   setBench: (bench: Player[]) => void;
   removePlayer: (id: string) => void;
+  // The undo of removePlayer: the person is back on the team and the history says so.
+  restorePlayer: (id: string) => void;
   replacePlayer: (old_id: string, player_name: string) => void;
   resetMatch: () => void;
   exchangePlayers: (playerId1: string, playerId2: string) => void;

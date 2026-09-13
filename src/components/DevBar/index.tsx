@@ -18,6 +18,7 @@ import {
   USUAL_LIST,
   USUAL_LOCATION,
   USUAL_ORGANIZER,
+  USUAL_PRICE,
 } from "@/fixtures";
 
 interface DevActionProps {
@@ -91,7 +92,7 @@ const DevBar = () => {
   }: LoadOptions = {}) => {
     const players = generatePlayers(list);
 
-    setMatch({ location: USUAL_LOCATION, organizer: USUAL_ORGANIZER, date, random, kit });
+    setMatch({ location: USUAL_LOCATION, organizer: USUAL_ORGANIZER, date, random, kit, price: USUAL_PRICE });
     setPlayers(random ? shuffle(players) : players);
     router.push("/match");
 

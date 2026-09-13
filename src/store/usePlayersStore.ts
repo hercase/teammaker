@@ -1,4 +1,11 @@
-import { firstSurname, generateMatchEvent, generatePlayer, MAX_DETAILS_CHARS, clampName, shortenFullName } from "@/utils";
+import {
+  firstSurname,
+  generateMatchEvent,
+  generatePlayer,
+  MAX_DETAILS_CHARS,
+  clampName,
+  shortenFullName,
+} from "@/utils";
 import { MatchEvent, Player, PlayersStore } from "@/types";
 import { produce } from "immer";
 import { create } from "zustand";
@@ -51,6 +58,19 @@ export const usePlayersStore = create(
               player.isDeleted = true;
 
               state.history.push(generateMatchEvent({ type: "delete", old_player: player }));
+            }
+          })
+        ),
+      restorePlayer: (id: string) =>
+        set(
+          produce((state: PlayersStore) => {
+            const player = state.players.find((p) => p.id === id);
+
+            if (player?.isDeleted && !player.isReplacedBy) {
+              player.isDeleted = false;
+
+              // The drop-out stays in the history: both things happened.
+              state.history.push(generateMatchEvent({ type: "restore", old_player: player }));
             }
           })
         ),

@@ -335,7 +335,7 @@ test("el menú de fila: abre desde el ⋮, renombra, se cierra con Escape y no s
     .getByRole("button", { name: /^Opciones de/ })
     .first()
     .click();
-  await expect(page.getByRole("menuitem")).toHaveCount(3);
+  await expect(page.getByRole("menuitem")).toHaveCount(4);
   await page.getByRole("menuitem", { name: "Renombrar" }).click();
   const input = page.locator('[data-testid="dialog-input"]');
   await expect(input).toBeVisible();
@@ -347,7 +347,7 @@ test("el menú de fila: abre desde el ⋮, renombra, se cierra con Escape y no s
     .getByRole("button", { name: /^Opciones de/ })
     .first()
     .click();
-  await expect(page.getByRole("menuitem")).toHaveCount(3);
+  await expect(page.getByRole("menuitem")).toHaveCount(4);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("menuitem")).toHaveCount(0);
 
@@ -535,4 +535,61 @@ test("el card del partido lleva el tinte violeta y su texto sigue legible sobre 
   expect(m.title).toBeGreaterThanOrEqual(4.5);
   expect(m.muted).toBeGreaterThanOrEqual(4.5);
   expect(m.icons).toBeGreaterThanOrEqual(3);
+});
+
+// ─── lo que trae el mensaje, y lo que pasa después de armar ──────────────────
+
+const REAL_MESSAGE =
+  "Partido de los miercoles \n\n⏳Miércoles 18.30hrs\n🏟️ Cancha: Quintana y Salta\n\n⬇️ Esta semana:\n\n1. Lucho\n2. Mura\n3. Mauro\n4. Lihue\n5. Eze \n6. Patru\n7. Mati\n8. Nacho\n9. Fede Camino\n10. Mati R\n11. Keis\n12.  Max";
+
+test("pegar un mensaje real llena Lugar y Fecha y arma doce jugadores, no dieciséis", async ({ page }) => {
+  const errors = watchConsole(page);
+  await page.evaluate((m) => navigator.clipboard.writeText(m), REAL_MESSAGE);
+  await page.getByRole("button", { name: "Pegar lista desde el portapapeles" }).click();
+  await expect(page.locator("#location")).toHaveValue("Quintana y Salta");
+  await expect(page.locator("#date")).toHaveValue(/^\d{4}-\d{2}-\d{2}T18:30$/);
+  await page.locator("#organizer").fill("Hernán");
+  await page.locator("#price").fill("24000");
+  await page.getByRole("button", { name: "Crear equipos" }).click();
+  await page.waitForURL(`**${MATCH}`);
+  await expect(rows(page)).toHaveCount(12);
+  /* $ 24.000 over twelve is $ 2.000 a head, on the card. */
+  await expect(page.getByText(/2\.000 cada uno/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("una baja dice qué equipo quedó corto y ajusta la cuota, y Volver a sumar lo deshace", async ({ page }) => {
+  const errors = watchConsole(page);
+  await page.evaluate((m) => navigator.clipboard.writeText(m), REAL_MESSAGE);
+  await page.getByRole("button", { name: "Pegar lista desde el portapapeles" }).click();
+  await page.locator("#organizer").fill("Hernán");
+  await page.locator("#price").fill("24000");
+  await page.getByRole("button", { name: "Crear equipos" }).click();
+  await page.waitForURL(`**${MATCH}`);
+
+  await page.getByRole("button", { name: /^Opciones de Mura/ }).click();
+  await page.getByRole("menuitem", { name: "Dar de baja" }).click();
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(page.getByText(/Falta uno en/)).toBeVisible();
+  /* Eleven left: $ 24.000 / 11 rounds up to $ 2.182. */
+  await expect(page.getByText(/2\.182 cada uno/)).toBeVisible();
+
+  await page.getByRole("button", { name: /^Opciones de Mura/ }).click();
+  await page.getByRole("menuitem", { name: "Volver a sumar" }).click();
+  await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
+  await expect(page.getByText(/2\.000 cada uno/)).toBeVisible();
+  await expect(page.getByText(/volvió a sumarse/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("Nueva lista propone la fecha del próximo partido y recuerda el precio", async ({ page }) => {
+  await page.evaluate((m) => navigator.clipboard.writeText(m), REAL_MESSAGE);
+  await page.getByRole("button", { name: "Pegar lista desde el portapapeles" }).click();
+  await page.locator("#organizer").fill("Hernán");
+  await page.locator("#price").fill("24000");
+  await page.getByRole("button", { name: "Crear equipos" }).click();
+  await page.waitForURL(`**${MATCH}`);
+  await page.goto(HOME);
+  await expect(page.locator("#date")).toHaveValue(/T18:30$/);
+  await expect(page.locator("#price")).toHaveValue("24000");
 });

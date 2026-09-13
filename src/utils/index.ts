@@ -202,3 +202,30 @@ export const generateMatchEvent = ({ type, old_player, new_player }: GenerateMat
   ...(new_player && { new_name: generateFullName(new_player) }),
   date: new Date(),
 });
+
+/*
+  Pesos, the way the group writes them: "$ 2.000", no cents. The price is what the pitch costs; the
+  share is what each person on it puts in, rounded up so the organiser is not left short by a
+  peso per head.
+*/
+const PESOS = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+
+export const formatMoney = (amount: number): string => PESOS.format(amount);
+
+export function pricePerPlayer(price: number | null | undefined, playing: number): number | null {
+  if (!price || price <= 0 || playing <= 0) return null;
+
+  return Math.ceil(price / playing);
+}
+
+/*
+  "24000", "24.000" and "$24.000" are all the same price; an empty box is no price, not zero.
+  Takes unknown because react-hook-form hands the converter whatever the field holds, and before
+  anything is typed that is the null it was born with — Number(null) is 0, which is how an empty
+  box came to say "0" and look like something that had to be filled in.
+*/
+export function parsePrice(value: unknown): number | null {
+  const digits = String(value ?? "").replace(/\D/g, "");
+
+  return digits ? Number(digits) : null;
+}

@@ -15,6 +15,12 @@ interface TextInputProps {
   value?: string;
   onClear?: () => void;
   register: UseFormRegister<MatchInputs>;
+  // The price is the one field that is optional and numeric; everything else is required text.
+  // inputMode brings up the number keyboard on a phone; the type stays "text" because a number
+  // input draws spinner arrows nobody wants and reports an empty box as 0.
+  inputMode?: "text" | "numeric";
+  required?: boolean;
+  valueAs?: (value: string) => unknown;
 }
 
 /*
@@ -38,8 +44,26 @@ interface TextInputProps {
   and the ref from the input underneath, so typing is unchanged. Defaulted to "" so the field is
   controlled from the first render and never switches modes.
 */
-const TextInput: FC<TextInputProps> = ({ label, name, error = false, value, onClear, register, ...rest }) => (
-  <TextField className="flex w-full flex-col gap-2" value={value ?? ""} isInvalid={error} validationBehavior="aria">
+const TextInput: FC<TextInputProps> = ({
+  label,
+  name,
+  error = false,
+  value,
+  onClear,
+  register,
+  required = true,
+  valueAs,
+  ...rest
+}) => (
+  /* isRequired draws HeroUI's asterisk on the label; with validationBehavior="aria" that is all it
+     does, react-hook-form still decides what is missing. */
+  <TextField
+    className="flex w-full flex-col gap-2"
+    value={value ?? ""}
+    isInvalid={error}
+    isRequired={required}
+    validationBehavior="aria"
+  >
     <Label htmlFor={name}>{label}</Label>
 
     <div className="relative">
@@ -49,7 +73,7 @@ const TextInput: FC<TextInputProps> = ({ label, name, error = false, value, onCl
         id={name}
         type="text"
         className={classNames("min-h-11 w-full", { "pr-11": onClear && value })}
-        {...register(name, { required: true })}
+        {...register(name, { required, setValueAs: valueAs })}
         {...rest}
       />
 

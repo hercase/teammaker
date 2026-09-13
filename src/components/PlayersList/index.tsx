@@ -8,11 +8,13 @@ import {
   ArrowDownCircleIcon,
   ArrowPathIcon,
   ArrowsUpDownIcon,
+  ArrowUpCircleIcon,
   EllipsisVerticalIcon,
   PencilSquareIcon,
 } from "@heroicons/react/20/solid";
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
+import { countPlaying } from "@/utils";
 import { kitColor, kitEdge, kitLabel } from "@/utils/kit";
 
 interface PlayersListProps {
@@ -22,12 +24,11 @@ interface PlayersListProps {
 }
 
 const PlayersList: FC<PlayersListProps> = ({ side, kit, players }) => {
-  const { removePlayer, replacePlayer, renamePlayer } = usePlayers();
+  const { removePlayer, restorePlayer, replacePlayer, renamePlayer } = usePlayers();
   const color = kitColor(kit, side);
   const edge = kitEdge(kit, side);
   const label = kitLabel(kit, side);
-  // Someone who dropped out without a replacement is not playing, so the head should not count them.
-  const playing = (players ?? []).filter((player) => !(player.isDeleted && !player.isReplacedBy)).length;
+  const playing = countPlaying(players ?? []);
 
   return (
     /* The kit colours the whole outline of the panel, not just one edge, so each team reads as its
@@ -105,6 +106,18 @@ const PlayersList: FC<PlayersListProps> = ({ side, kit, players }) => {
                 onClick={() => removePlayer(player)}
                 icon={<ArrowDownCircleIcon className="h-5 w-5 fill-error-400" />}
                 label="Dar de baja"
+              />
+              {/*
+                The undo. On a phone "Dar de baja" is one tap on the wrong row, and the only way
+                back used to be Reemplazar with the same name, which wrote a false substitution
+                into the history. Offered where the mistake was made and only there: on a row
+                that is out and has no substitute.
+              */}
+              <MenuOption
+                disabled={!player.isDeleted || !!player.isReplacedBy}
+                onClick={() => restorePlayer(player.id)}
+                icon={<ArrowUpCircleIcon className="h-5 w-5 fill-secondary-400" />}
+                label="Volver a sumar"
               />
             </FloatingMenu>
           </li>

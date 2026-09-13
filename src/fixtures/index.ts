@@ -30,6 +30,9 @@ export const USUAL_LOCATION = "Quintana y Salta";
 
 export const USUAL_ORGANIZER = "Hernán";
 
+// What the pitch costs on a Wednesday, so the picture shows a share per head while developing.
+export const USUAL_PRICE = 24000;
+
 // The store keeps whatever the datetime-local input produced, so fixtures use that same shape.
 const DATE_TIME_LOCAL = "yyyy-MM-dd'T'HH:mm";
 

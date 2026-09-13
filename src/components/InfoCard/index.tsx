@@ -1,7 +1,9 @@
 import { Card, Chip } from "@heroui/react";
 import { useMatchStore } from "@/store";
 import { formatKickoff } from "@/utils/date";
-import { ArrowsRightLeftIcon, CalendarDaysIcon, MapPinIcon, UserIcon } from "@heroicons/react/20/solid";
+import { ArrowsRightLeftIcon, BanknotesIcon, CalendarDaysIcon, MapPinIcon, UserIcon } from "@heroicons/react/20/solid";
+import usePlayers from "@/hooks/usePlayers";
+import { countPlaying, formatMoney, pricePerPlayer } from "@/utils";
 
 /*
   HeroUI's Card, not a div with our panel recipe on it. Card.Title and Card.Description already
@@ -25,9 +27,16 @@ const TINT =
   "radial-gradient(ellipse 80% 130% at 0% 0%, color-mix(in oklab, var(--color-primary-600) 40%, transparent), transparent 70%)";
 
 const InfoCard = () => {
-  const { organizer, date, location, random } = useMatchStore();
+  const { organizer, date, location, random, price } = useMatchStore();
+  const { players } = usePlayers();
 
   const when = formatKickoff(date);
+  /*
+    "La cancha sale X, son Y cada uno" is the message that always follows the teams in the group;
+    here it is on the picture, and Y follows whoever is actually playing when the picture is taken.
+  */
+  const playing = countPlaying(players ?? []);
+  const share = pricePerPlayer(price, playing);
 
   return (
     <Card className="w-full" style={{ backgroundImage: TINT }}>
@@ -51,6 +60,18 @@ const InfoCard = () => {
             <Card.Description className="flex items-center gap-2 text-foreground">
               <CalendarDaysIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="first-letter:uppercase">{when}</span>
+            </Card.Description>
+          )}
+          {share && price && (
+            <Card.Description className="flex items-center gap-2 text-foreground">
+              <BanknotesIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>
+                {formatMoney(share)} cada uno
+                <span className="text-muted">
+                  {" "}
+                  · {formatMoney(price)} entre {playing}
+                </span>
+              </span>
             </Card.Description>
           )}
           {organizer && (

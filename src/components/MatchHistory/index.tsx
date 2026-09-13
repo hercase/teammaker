@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+import classNames from "classnames";
 import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/20/solid";
 import { format } from "date-fns";
 import usePlayers from "@/hooks/usePlayers";
@@ -31,6 +32,7 @@ const MatchHistory = () => {
     if (type === "replace") return "reemplazado por";
     if (type === "rename") return "renombrado a";
     if (type === "delete") return "se dio de baja.";
+    if (type === "restore") return "volvió a sumarse.";
   };
 
   return (
@@ -45,8 +47,18 @@ const MatchHistory = () => {
 
           {/* min-w-0 + truncate so one long name cannot stretch the line: the name itself is
               already cut short when the Player is made, so this only bites on a narrow phone. */}
-          <span className="flex min-w-0 items-center gap-1 capitalize text-error-400">
-            <ArrowDownCircleIcon className="h-4 w-4 shrink-0" />
+          {/* Cyan means came in, rose means went out — the same two meanings the team list uses. */}
+          <span
+            className={classNames("flex min-w-0 items-center gap-1 capitalize", {
+              "text-secondary-400": type === "restore",
+              "text-error-400": type !== "restore",
+            })}
+          >
+            {type === "restore" ? (
+              <ArrowUpCircleIcon className="h-4 w-4 shrink-0" />
+            ) : (
+              <ArrowDownCircleIcon className="h-4 w-4 shrink-0" />
+            )}
             <EventName>{old_name}</EventName>
           </span>
 

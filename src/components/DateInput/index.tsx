@@ -44,6 +44,7 @@ const DateInput: FC<DateInputProps> = ({ register, error, value, requireFuture =
     className="flex w-full flex-col gap-2"
     value={asFieldValue(value)}
     isInvalid={error}
+    isRequired
     validationBehavior="aria"
   >
     <Label htmlFor="date">Fecha</Label>

@@ -9,6 +9,7 @@ import { DEFAULT_KIT } from "@/utils/kit";
 import { generatePlayers } from "@/utils";
 import { parseMessage } from "@/utils/message";
 import { proposeKickoff } from "@/utils/date";
+import { parsePrice } from "@/utils";
 import usePlayers from "@/hooks/usePlayers";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
@@ -24,7 +25,7 @@ import TextInput from "@/components/TextInput";
   field still came up blank on every reload.
 */
 const CreateMatchForm: FC = () => {
-  const { organizer, random, location, date, kit, setMatch, remember } = useMatchStore();
+  const { organizer, random, location, date, kit, price, setMatch, remember } = useMatchStore();
   const { setPlayers } = usePlayers();
 
   const {
@@ -47,7 +48,7 @@ const CreateMatchForm: FC = () => {
       the group plays on a schedule and the date wheel is the slowest field on a phone. It is a
       proposal: whatever the pasted message says overrides it, and so does the person.
     */
-    defaultValues: { organizer, location, random, kit: kit ?? DEFAULT_KIT, date: proposeKickoff(date) },
+    defaultValues: { organizer, location, random, kit: kit ?? DEFAULT_KIT, date: proposeKickoff(date), price },
   });
 
   /*
@@ -69,6 +70,7 @@ const CreateMatchForm: FC = () => {
   const typedLocation = watch("location");
   const chosenKit = watch("kit");
   const chosenRandom = watch("random");
+  const typedPrice = watch("price");
 
   /*
     Remembered as they are chosen, not on submit. Someone who writes their name and closes the tab
@@ -76,8 +78,14 @@ const CreateMatchForm: FC = () => {
     this group always plays, not a decision to be re-made every week.
   */
   useEffect(() => {
-    remember({ organizer: typedName, location: typedLocation, kit: chosenKit, random: chosenRandom });
-  }, [typedName, typedLocation, chosenKit, chosenRandom, remember]);
+    remember({
+      organizer: typedName,
+      location: typedLocation,
+      kit: chosenKit,
+      random: chosenRandom,
+      price: typedPrice,
+    });
+  }, [typedName, typedLocation, chosenKit, chosenRandom, typedPrice, remember]);
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
     const names = generatePlayers(data.list);
@@ -90,6 +98,7 @@ const CreateMatchForm: FC = () => {
       organizer: data.organizer,
       random: data.random,
       kit: data.kit,
+      price: data.price,
     });
     setPlayers(data.random ? shuffle(names) : names);
   };
@@ -148,6 +157,18 @@ const CreateMatchForm: FC = () => {
         />
 
         <DateInput register={register} error={!!errors.date} value={watch("date")} />
+
+        {/* Optional. The picture divides it by whoever plays, which is the message that otherwise
+            follows the teams in the group by hand. */}
+        <TextInput
+          name="price"
+          label="Precio de la cancha"
+          inputMode="numeric"
+          required={false}
+          valueAs={parsePrice}
+          value={typedPrice == null || Number.isNaN(typedPrice) ? "" : String(typedPrice)}
+          register={register}
+        />
 
         {/* No defaultValue: like the switch, it would win over the form's defaultValues and throw
             away the kit the last match was saved with. */}

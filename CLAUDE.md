@@ -343,13 +343,45 @@ horizontal overflow. Two measurement traps: `getComputedStyle` returns `oklch()`
 through a 1×1 canvas; and a colour with alpha must be composited over its real ground before it is
 read, or a 30% border reports 6:1 where the truth is 1.7:1.
 
+### The WhatsApp message
+
+`parseMessage` in `src/utils/message.ts` is how a pasted list is read, and `generatePlayers` and
+`countPlayers` both go through it. **A player is a line that starts with a number.** Read line by
+line as names, one real message produced 16 players out of 12: "Partido", "Miércoles", "Cancha" and
+"Esta semana" were on the teams. The lines that are not numbered are read for the day and time
+("⏳Miércoles 18.30hrs" is the coming Wednesday at 18:30, counted from now) and for the pitch
+("🏟️ Cancha: Quintana y Salta"); a paste — the Pegar button or the phone's own menu, caught on the
+wrapper because React Aria filters DOM props — fills Lugar and Fecha where they are still empty,
+and never from typing. A list with no numbering at all still works the old way, every line a name.
+WhatsApp puts U+2060 WORD JOINER between the number and the name (42 in one message); it is neither
+whitespace nor a letter, and it is stripped first with the other zero-width characters. The three
+real messages the rule was written against are in `message.test.ts`; keep them.
+
+The form opens with a proposed date: the coming occurrence of the last match's weekday and hour
+(`proposeKickoff`). The group plays on a schedule and the date wheel is the slowest field on a
+phone. The message's date overrides it; so does the person.
+
+### What the match screen says after the teams exist
+
+- **"Falta uno en Claras"** under the teams when a drop-out leaves the sides uneven, in the same
+  voice as the bibs line. Two small numbers in the headers were the only thing saying so, and it is
+  the one thing the group has to act on before kick-off.
+- **Volver a sumar** in the row menu, for a player who is out and has no substitute: the undo of
+  Dar de baja. It used to be Reemplazar with the same name, which wrote a false substitution into
+  the history. Both events stay in the history, because both happened. `countPlaying` is the one
+  place that decides who is on the pitch; the headers, that line and the price all use it.
+- **Precio de la cancha** is optional and the only numeric field. It is a *text* input with
+  `inputMode="numeric"`: a number input drew spinner arrows and reported an empty box as 0. It
+  starts empty and has no placeholder, because anything in the box reads as something to fill in.
+  `parsePrice` takes unknown: react-hook-form hands the converter `null` before anything is typed,
+  and `Number(null)` is 0, which is exactly how the box came to say "0". The card shows
+  "$ 2.000 cada uno · $ 24.000 entre 12", recalculated from whoever is playing; it is remembered
+  between matches like the pitch and the kit.
+- Required fields carry HeroUI's asterisk (`isRequired` on the TextField). With
+  `validationBehavior="aria"` that is all it does; react-hook-form still decides what is missing.
+
 ## Still open
 
-- **The WhatsApp parser.** Real messages carry metadata lines ("Partido", "Miércoles 20hs", the
-  pitch address) that currently become players: one real message produced 16 players instead of 12.
-  The rule that validates against all three sample messages is *a player is only a line that starts
-  with a number*, and the metadata lines should fill the location and date instead. Also strip
-  U+2060 WORD JOINER, which appears 42 times in one real message.
 - An open question never answered: should "Fede Camino" stop being split into name + surname
   altogether?
 - On a narrow phone a replaced player with a long surname still truncates in the on-screen list

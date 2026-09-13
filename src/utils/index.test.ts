@@ -2,14 +2,18 @@ import { describe, expect, it } from "vitest";
 import {
   clampName,
   countPlayers,
+  countPlaying,
   duplicateTags,
   firstSurname,
+  formatMoney,
+  parsePrice,
   generateMatchEvent,
   generatePlayer,
   generatePlayers,
   MAX_DETAILS_CHARS,
   MAX_FULL_NAME_CHARS,
   MAX_NAME_CHARS,
+  pricePerPlayer,
   shortenFullName,
   splitTeams,
   validateName,
@@ -358,5 +362,51 @@ describe("shortenFullName", () => {
 
   it("keeps a compound surname whole", () => {
     expect(shortenFullName("Ezequiel (Di Stefano)")).toBe("Ezequiel (Di Stefano)");
+  });
+});
+
+describe("countPlaying", () => {
+  it("counts a substitute once and leaves a drop-out out", () => {
+    const players = [
+      { id: "1", name: "Lucho" },
+      { id: "2", name: "Mura", isDeleted: true },
+      { id: "3", name: "Mauro", isDeleted: false, isReplacedBy: "9" },
+    ];
+
+    expect(countPlaying(players)).toBe(2);
+  });
+});
+
+describe("pricePerPlayer", () => {
+  it("divides the pitch by whoever plays, rounding up", () => {
+    expect(pricePerPlayer(25000, 12)).toBe(2084);
+    expect(pricePerPlayer(24000, 12)).toBe(2000);
+  });
+
+  it("has nothing to say without a price or without players", () => {
+    expect(pricePerPlayer(null, 12)).toBeNull();
+    expect(pricePerPlayer(0, 12)).toBeNull();
+    expect(pricePerPlayer(24000, 0)).toBeNull();
+  });
+});
+
+describe("formatMoney", () => {
+  it("writes pesos the way the group does", () => {
+    expect(formatMoney(2084).replace(/\s/g, " ")).toBe("$ 2.084");
+  });
+});
+
+describe("parsePrice", () => {
+  it("reads pesos however they are typed", () => {
+    expect(parsePrice("24000")).toBe(24000);
+    expect(parsePrice("24.000")).toBe(24000);
+    expect(parsePrice("$ 24.000")).toBe(24000);
+  });
+
+  it("treats an empty box as no price, not zero", () => {
+    expect(parsePrice("")).toBeNull();
+    expect(parsePrice("  ")).toBeNull();
+    expect(parsePrice(null)).toBeNull();
+    expect(parsePrice(undefined)).toBeNull();
   });
 });

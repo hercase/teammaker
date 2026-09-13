@@ -10,6 +10,7 @@ const initialState = {
   organizer: "",
   random: false,
   kit: DEFAULT_KIT,
+  price: null,
 };
 
 export const useMatchStore = create(
@@ -40,6 +41,7 @@ export const useMatchStore = create(
             organizer: match.organizer,
             random: match.random,
             kit: parseKit(match.kit),
+            price: match.price ?? null,
           }))
         );
       },
