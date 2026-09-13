@@ -1,7 +1,7 @@
 import { usePlayersStore } from "@/store";
 import { Player } from "@/types";
 import useAlert from "@/hooks/useAlert";
-import { validateName } from "@/utils";
+import { splitTeams, validateName } from "@/utils";
 
 const usePlayers = () => {
   const alert = useAlert();
@@ -14,10 +14,7 @@ const usePlayers = () => {
     ...store
   } = usePlayersStore();
 
-  const half = Math.ceil(players?.length / 2);
-
-  const teamA = players?.slice(0, half);
-  const teamB = players?.slice(-half);
+  const { teamA, teamB } = splitTeams(players ?? []);
 
   const removePlayer = (player: Player) => {
     alert({

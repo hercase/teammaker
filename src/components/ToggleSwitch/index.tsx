@@ -14,11 +14,11 @@ const ToggleSwitch: FC<ToggleSwitchProps> = ({ checked, disabled, onChange }) =>
     checked={checked}
     onChange={onChange}
     className={classNames(
-      "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border border-gray-700 dark:border-gray-700 transition-colors duration-200 ease-in-out focus:outline-hidden ring-0",
-      checked ? "bg-primary-600" : "bg-gray-400 dark:bg-gray-8b00"
+      "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border border-gray-700 transition-colors duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400",
+      checked ? "bg-primary-600" : "bg-gray-400"
     )}
   >
-    <span className="sr-only">Use setting</span>
+    <span className="sr-only">Lista aleatoria</span>
     <span
       aria-hidden="true"
       className={classNames(

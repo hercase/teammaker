@@ -28,8 +28,6 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
   });
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
-    console.log("🚀 ~ data:", data);
-
     setMatch({
       organizer: data.organizer,
       location: data.location,

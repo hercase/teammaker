@@ -34,7 +34,13 @@ const ListInput: FC<ListInputProps> = ({ register, error, onPaste, ...rest }) =>
         })}
         {...rest}
       />
-      <Button type="button" variant="secondary" className="absolute bottom-5 right-5" onClick={() => handlePaste()}>
+      <Button
+        type="button"
+        variant="secondary"
+        aria-label="Pegar lista desde el portapapeles"
+        className="absolute bottom-5 right-5"
+        onClick={() => handlePaste()}
+      >
         <ClipboardDocumentIcon className="h-5 w-5" />
       </Button>
     </div>

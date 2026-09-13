@@ -8,11 +8,20 @@ type ButtonProps = {
   disabled?: boolean;
   className?: string;
   onClick?: () => void;
+  "aria-label"?: string;
 };
 
-const Button: FC<ButtonProps> = ({ type = "button", children, variant = "primary", disabled, className, onClick }) => {
+const Button: FC<ButtonProps> = ({
+  type = "button",
+  children,
+  variant = "primary",
+  disabled,
+  className,
+  onClick,
+  "aria-label": ariaLabel,
+}) => {
   const btnClasses = classNames(
-    "button px-4 py-2 rounded-md text-white flex items-center justify-center transition-colors duration-300 ease-in-out",
+    "button px-4 py-2 rounded-md text-white flex items-center justify-center transition-colors duration-300 ease-in-out touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400",
     className,
     {
       "bg-primary-700 hover:bg-primary-800 dark:bg-primary-800 dark:hover:bg-primary-900": variant === "primary",
@@ -24,7 +33,7 @@ const Button: FC<ButtonProps> = ({ type = "button", children, variant = "primary
   );
 
   return (
-    <button type={type} className={btnClasses} disabled={disabled} onClick={onClick}>
+    <button type={type} className={btnClasses} disabled={disabled} onClick={onClick} aria-label={ariaLabel}>
       {children}
     </button>
   );

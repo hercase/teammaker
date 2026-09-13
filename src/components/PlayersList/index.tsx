@@ -1,6 +1,5 @@
 import { FC } from "react";
 import { Player } from "@/types";
-import { uniqueId } from "lodash";
 
 import classNames from "classnames";
 import ShirtIcon from "@/components/Icons/ShirtIcon";
@@ -37,7 +36,8 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
       <ul className="divide-y divide-gray-200 dark:divide-gray-700">
         {players?.map((player) => (
           <FloatingMenu
-            key={uniqueId(`${player.name}-${player.details}`)}
+            key={player.id}
+            label={`Opciones de ${player.name}`}
             className={classNames(
               "relative flex gap-1 font-display text-[16px] capitalize justify-center items-center text-gray-600 w-full group dark:text-gray-400"
             )}
@@ -53,7 +53,10 @@ const PlayersList: FC<PlayersListProps> = ({ shirtPosition = "left", color = "#1
 
                 {!player.isDeleted && <PlayerName player={player} />}
 
-                <EllipsisVerticalIcon className="h-5 w-5 absolute right-2 top-1/2 transform -translate-y-1/2 hidden group-hover:block" />
+                <EllipsisVerticalIcon
+                  aria-hidden="true"
+                  className="h-5 w-5 absolute right-2 top-1/2 -translate-y-1/2 opacity-60 transition-opacity group-hover:opacity-100"
+                />
               </>
             }
           >

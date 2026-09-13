@@ -6,9 +6,10 @@ interface FloatingMenuProps {
   trigger: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  label: string;
 }
 
-const FloatingMenu: FC<FloatingMenuProps> = ({ trigger, children, className }) => {
+const FloatingMenu: FC<FloatingMenuProps> = ({ trigger, children, className, label }) => {
   const [isOpen, setOpen] = useState(false);
 
   // helper function to close the menu
@@ -29,7 +30,14 @@ const FloatingMenu: FC<FloatingMenuProps> = ({ trigger, children, className }) =
 
   return (
     <>
-      <button className={className} {...triggerProps} onClick={() => setOpen(!isOpen)}>
+      <button
+        className={className}
+        aria-label={label}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        {...triggerProps}
+        onClick={() => setOpen(!isOpen)}
+      >
         {trigger}
       </button>
       {renderLayer(

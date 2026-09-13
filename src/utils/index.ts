@@ -1,29 +1,35 @@
 import { MatchEvent, Player } from "@/types";
-import { uniq, uniqueId } from "lodash";
 import tinycolor from "tinycolor2";
 
-// n
-export function generatePlayer(user_str: string) {
-  // regex to filter only letters and spaces, remove special characters and numbers, and end initial and final spaces
-  const onlyLetters = user_str.replace(/[^a-zA-Z\s]/g, "").trim();
+// \p{L} with the u flag covers accents and ñ, which the previous [a-zA-Z] range stripped
+const NON_NAME_CHARS = /[^\p{L}\s]/gu;
 
+export function generatePlayer(user_str: string): Player {
+  const onlyLetters = user_str.replace(NON_NAME_CHARS, "").replace(/\s+/g, " ").trim();
   const [name, ...details] = onlyLetters.split(" ");
 
   return {
-    id: uniqueId("player_"),
+    id: crypto.randomUUID(),
     name,
     details: details.join(" "),
   };
 }
 
-export function generatePlayers(str: string) {
-  const separetedByLine = str.split("\n");
-  const lettersOnly = separetedByLine.map((p) => p.replace(/[0-9.]/g, "").trim());
-  const uniquePlayers = uniq(lettersOnly).filter((p) => p !== "");
+export function generatePlayers(str: string): Player[] {
+  return str
+    .split("\n")
+    .map((line) => generatePlayer(line))
+    .filter((player) => player.name !== "");
+}
 
-  const playersList: Player[] = uniquePlayers.map((p) => generatePlayer(p));
+// teamB starts where teamA ends. Using slice(-half) overlaps by one on odd-sized lists.
+export function splitTeams(players: Player[]): { teamA: Player[]; teamB: Player[] } {
+  const half = Math.ceil(players.length / 2);
 
-  return playersList;
+  return {
+    teamA: players.slice(0, half),
+    teamB: players.slice(half),
+  };
 }
 
 export const generateFullName = (player: Player) => `${player.name} ${player.details ? `(${player.details})` : ""}`;
@@ -36,8 +42,8 @@ export const trucanteString = (str: string, maxChar: number) => {
 };
 
 export const validateName = (value: string) => {
-  if (!value) return "Debes ingresar un nombre";
-  if (!/^[a-zA-Z\s\(\)]+$/.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
+  if (!value?.trim()) return "Debes ingresar un nombre";
+  if (!/^[\p{L}\s()]+$/u.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
 };
 
 interface GenerateMatchEvent {

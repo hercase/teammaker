@@ -4,6 +4,7 @@ import classNames from "classnames";
 import Logo from "@/components/Logo";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import WelcomeModal from "@/components/WelcomeModal";
+import DevBar from "@/components/DevBar";
 
 import "./globals.css";
 
@@ -11,14 +12,14 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Team Maker",
-  description: "Vos tambien podes crear equipos rápidamente y compartilos de con tus amigos!",
+  description: "Vos también podés crear equipos rápidamente y compartirlos con tus amigos!",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  colorScheme: "dark",
+  themeColor: "#151d65",
 };
 
 const Layout = ({
@@ -26,11 +27,11 @@ const Layout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => (
-  <html lang="en">
+  <html lang="es">
     <body
       className={classNames(
         inter.className,
-        "grid grid-rows-[4rem_1fr] h-screen text-white bg-primary-950 maxx-w-1200 mx-auto w-95vw"
+        "grid grid-rows-[4rem_1fr] min-h-dvh text-white bg-primary-950 mx-auto"
       )}
     >
       <header className="grid place-items-center relative max-w-(--breakpoint-lg) mx-auto w-full">
@@ -43,6 +44,7 @@ const Layout = ({
         {children}
       </main>
       <WelcomeModal />
+      {process.env.NODE_ENV === "development" && <DevBar />}
     </body>
   </html>
 );

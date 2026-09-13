@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check": "tsc --noEmit && next lint"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "tsc --noEmit && next lint && vitest run"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.18",
@@ -51,6 +53,8 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^7",
+    "vitest": "^5.0.0"
   }
 }

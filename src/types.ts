@@ -24,13 +24,14 @@ export interface MatchInputs {
   list: string;
   location: string;
   organizer: string;
-  date: Date | null;
+  // datetime-local inputs hand back a "yyyy-MM-ddTHH:mm" string, and that is what gets persisted.
+  date: string | Date | null;
   random: boolean;
   colors?: Colors;
 }
 export interface MatchStore {
   location: string;
-  date: Date | null;
+  date: string | Date | null;
   organizer: string;
   random: boolean;
   colors: Colors;
