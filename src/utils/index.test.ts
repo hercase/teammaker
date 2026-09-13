@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { generatePlayer, generatePlayers, splitTeams, validateName } from "@/utils";
+import {
+  clampName,
+  countPlayers,
+  duplicateTags,
+  generateMatchEvent,
+  generatePlayer,
+  generatePlayers,
+  MAX_DETAILS_CHARS,
+  MAX_FULL_NAME_CHARS,
+  MAX_NAME_CHARS,
+  splitTeams,
+  validateName,
+} from "@/utils";
 import { DUPLICATE_NAMES_LIST, expiredDate, nextWednesdayAt, ODD_LIST, USUAL_LIST } from "@/fixtures";
 
 describe("generatePlayer", () => {
@@ -135,5 +147,135 @@ describe("nextWednesdayAt", () => {
 describe("expiredDate", () => {
   it("lands a week in the past", () => {
     expect(expiredDate(new Date(2026, 8, 16, 18, 30))).toBe("2026-09-09T18:30");
+  });
+});
+
+describe("duplicateTags", () => {
+  const labelled = (...labels: string[]) => labels.map((label, i) => ({ id: `id-${i}`, label }));
+
+  it("numbers players who end up with the exact same name", () => {
+    expect(duplicateTags(labelled("Mati", "Nacho", "Mati"))).toEqual({ "id-0": 1, "id-2": 2 });
+  });
+
+  it("leaves unique names alone", () => {
+    expect(duplicateTags(labelled("Lucho", "Mura", "Mauro"))).toEqual({});
+  });
+
+  it("treats a name with details as a different person", () => {
+    expect(duplicateTags(labelled("Mati", "Mati R"))).toEqual({});
+  });
+
+  it("numbers three of a kind in list order", () => {
+    expect(duplicateTags(labelled("Eze", "Eze", "Eze"))).toEqual({ "id-0": 1, "id-1": 2, "id-2": 3 });
+  });
+});
+
+describe("generateMatchEvent", () => {
+  const player = { id: "p1", name: "Mauro", details: "" };
+
+  it("gives every event its own id, even two in the same second", () => {
+    const a = generateMatchEvent({ type: "delete", old_player: player });
+    const b = generateMatchEvent({ type: "delete", old_player: player });
+
+    expect(a.id).not.toBe(b.id);
+  });
+});
+
+/*
+  A real substitution in the group chat produced "Ezequiel (Hernandez Palomero De La Mancha)",
+  which on a phone pushed the row menu off the edge of the card. Names are cut where they are made,
+  so the teams, the history and the screenshot never disagree about what someone is called.
+*/
+describe("clampName", () => {
+  it("leaves a name that fits exactly as it is", () => {
+    expect(clampName("Hernandez", 18)).toBe("Hernandez");
+    expect(clampName("x".repeat(18), 18)).toBe("x".repeat(18));
+  });
+
+  it("drops whole words rather than ending mid-syllable", () => {
+    expect(clampName("Hernandez Palomero De La Mancha", 18)).toBe("Hernandez…");
+  });
+
+  it("cuts a single long word where it lands, having no boundary to fall back on", () => {
+    expect(clampName("Bartolomeodelosmilagros", 14)).toBe("Bartolomeodelo…");
+  });
+
+  it("leaves no space hanging before the ellipsis", () => {
+    expect(clampName("Ana Belen Rodriguez", 10)).toBe("Ana Belen…");
+  });
+
+  it("has nothing to do to an empty string", () => {
+    expect(clampName("", 14)).toBe("");
+  });
+});
+
+describe("generatePlayer with very long names", () => {
+  it("caps the first name", () => {
+    const player = generatePlayer("Maximilianoalejandro");
+
+    expect(player.name).toHaveLength(MAX_NAME_CHARS + 1); // the ellipsis is one character
+    expect(player.name.endsWith("…")).toBe(true);
+  });
+
+  it("caps the details and keeps the first name whole", () => {
+    const player = generatePlayer("Ezequiel Hernandez Palomero De La Mancha");
+
+    expect(player.name).toBe("Ezequiel");
+    expect(player.details).toBe("Hernandez…");
+    expect(player.details?.length ?? 0).toBeLessThanOrEqual(MAX_DETAILS_CHARS + 1);
+  });
+
+  it("leaves an ordinary two-word name untouched", () => {
+    const player = generatePlayer("Fede Camino");
+
+    expect(player.name).toBe("Fede");
+    expect(player.details).toBe("Camino");
+  });
+
+  it("caps a name pasted as a whole paragraph", () => {
+    const player = generatePlayer("1. " + "Juan ".repeat(40));
+
+    expect(player.name.length).toBeLessThanOrEqual(MAX_NAME_CHARS + 1);
+    expect(player.details?.length ?? 0).toBeLessThanOrEqual(MAX_DETAILS_CHARS + 1);
+  });
+});
+
+describe("countPlayers", () => {
+  it("agrees with generatePlayers on the usual list", () => {
+    expect(countPlayers(USUAL_LIST)).toBe(generatePlayers(USUAL_LIST).length);
+  });
+
+  it("does not count a line that would produce no player", () => {
+    const list = "1. Lucho\n⚽⚽⚽\n18:30\n2. Mura";
+
+    expect(countPlayers(list)).toBe(2);
+    expect(countPlayers(list)).toBe(generatePlayers(list).length);
+  });
+
+  it("counts nothing in an empty box", () => {
+    expect(countPlayers("")).toBe(0);
+    expect(countPlayers("\n\n\n")).toBe(0);
+  });
+});
+
+describe("validateName length", () => {
+  it("accepts a name that fits", () => {
+    expect(validateName("Ezequiel Hernandez")).toBeUndefined();
+  });
+
+  /*
+    Typed by hand, rather than pasted, so it is worth saying out loud: silently swallowing two
+    thirds of what someone just wrote into a rename box reads as the app losing the keystrokes.
+  */
+  it("says so rather than silently trimming a name typed into a dialog", () => {
+    expect(validateName("Ezequiel Hernandez Palomero De La Mancha")).toMatch(String(MAX_FULL_NAME_CHARS));
+  });
+
+  it("accepts exactly the maximum", () => {
+    expect(validateName("a".repeat(MAX_FULL_NAME_CHARS))).toBeUndefined();
+  });
+
+  it("does not count the spaces someone left around the name", () => {
+    expect(validateName(`  ${"a".repeat(MAX_FULL_NAME_CHARS)}  `)).toBeUndefined();
   });
 });

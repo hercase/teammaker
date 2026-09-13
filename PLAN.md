@@ -20,7 +20,7 @@ referencias `file:line` de cada bug están en el spec.
 
 - [x] **1. Tests y corrección.** Vitest + tests que reproducen los bugs, después los fixes.
 - [x] **2. Mobile y accesibilidad.** Menú alcanzable en touch, targets de 44px, zoom, focus.
-- [ ] **3. Solo oscuro.** Sacar el switcher y las ~40 clases `dark:`, tokens semánticos.
+- [x] **3. Solo oscuro.** Sacar el switcher y las ~40 clases `dark:`, tokens semánticos.
 - [ ] **4. Kit.** Unión discriminada `Kit`, `KitSelector`, migración del store con zod.
 - [x] **5. Barra de dev.** Fixture de la lista habitual, compartido con los tests.
 - [ ] **6. Pegado, compartir, lista habitual.** Parseo del mensaje de WhatsApp.

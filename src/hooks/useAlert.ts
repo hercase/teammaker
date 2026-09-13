@@ -1,35 +1,30 @@
-import Swal from "sweetalert2";
-import withReactContent, { ReactSweetAlertOptions } from "sweetalert2-react-content";
+import { useCallback } from "react";
+import { useDialogStore } from "@/store";
 
-interface AlertOptions extends ReactSweetAlertOptions {
+interface AlertOptions {
+  text: string;
+  input?: "text";
+  inputValidator?: (value: string) => string | undefined;
   cb: (value: string) => void;
 }
 
-const Alert = withReactContent(Swal).mixin({
-  confirmButtonText: "Confirmar",
-  padding: "1rem",
-  confirmButtonColor: "#2d28c8",
-  customClass: {
-    popup: "text-sm dark:bg-gray-800 dark:text-gray-300",
-    input:
-      "border-gray-300 text-gray-500 rounded-md h-8 px-2 border border-primary-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300",
-  },
-});
+/*
+  Same call signature the sweetalert2 version had, so every caller stayed untouched. What changed
+  is that the dialog is now a React component using the app's own tokens, instead of a library
+  rendering outside React with a second design system written into customClass strings.
 
+  Memoised because callers put it in effect dependency arrays. A fresh arrow function on every
+  render made the "el partido ya finalizó" effect fire on every render, so dismissing that dialog
+  and touching anything at all brought it straight back.
+*/
 const useAlert = () => {
-  const customAlert = ({ cb, ...rest }: AlertOptions) => {
-    // @ts-expect-error: showCancelButton is not in the type definition
-    Alert.fire({
-      ...rest,
-      showCancelButton: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        cb(result.value);
-      }
-    });
-  };
+  const open = useDialogStore((state) => state.open);
 
-  return customAlert;
+  return useCallback(
+    ({ text, input, inputValidator, cb }: AlertOptions) =>
+      open({ text, input: input === "text", inputValidator, onConfirm: cb }),
+    [open]
+  );
 };
 
 export default useAlert;

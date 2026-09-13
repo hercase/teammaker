@@ -11,9 +11,17 @@ interface PlayerNameProps {
 }
 
 const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
-  const { bench } = usePlayers();
+  const { bench, tags } = usePlayers();
   const substitute = bench.find((p) => p.id === player.isReplacedBy);
   const currentPlayers = substitute || player;
+
+  /*
+    The same two meanings the history already uses, carried into the list that gets screenshotted:
+    cyan came in, rose went out. A dropped player used to render a bare "-" with the name hidden,
+    so the group could not tell from the teams who was missing.
+  */
+  const isOut = Boolean(player.isDeleted && !player.isReplacedBy);
+  const isSubstitute = Boolean(substitute);
 
   const { exchangePlayers } = usePlayers();
   const { random } = useMatchStore();
@@ -48,19 +56,33 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
     <p
       ref={ref}
       className={classNames(
-        "flex min-h-11 gap-1 justify-center items-center w-full px-1 select-none touch-manipulation",
+        // min-w-0: without it a flex item refuses to shrink below its text, so a long name pushed
+        // the row menu off the right edge of the card instead of being truncated.
+        // Wraps rather than truncates: on a phone each panel is about 180px wide, and an ellipsis
+        // there turns "(Hernandez)" into "(H…)", which says less than nothing. The surname is what
+        // tells two players apart, so it drops to a second line instead of disappearing.
+        "flex min-h-11 w-full min-w-0 select-none flex-wrap items-center gap-x-2 py-1 touch-manipulation",
         {
           "opacity-50": isDragging,
           "cursor-move": !random,
-          "border-2 border-dashed border-gray-300 ": isOver && !isDragging,
+          "border-2 border-dashed border-primary-400 rounded-md": isOver && !isDragging,
+          "text-error-400 line-through decoration-error-400/60": isOut,
+          "text-secondary-300": isSubstitute,
         },
         className
       )}
     >
-      {currentPlayers.name}
+      {/* The name itself never gives way; it is already capped at generatePlayer. */}
+      <span className="shrink-0">{currentPlayers.name}</span>
+      {tags[currentPlayers.id] && (
+        <span className="shrink-0 text-xs font-semibold text-text-muted">{tags[currentPlayers.id]}</span>
+      )}
+      {/* The rest of the name, smaller and in brackets. Not a badge: it is not a status. */}
       {currentPlayers.details && (
-        <span className="flex text-[9px] font-semibold uppercase">
-          (<span className="block truncate max-w-12">{currentPlayers.details}</span>)
+        // truncate is the backstop: the name is already cut short when the Player is made, so this
+        // only bites on a very narrow panel, and it ends in an ellipsis rather than mid-letter.
+        <span className="min-w-0 truncate text-2xs font-medium uppercase leading-tight text-text-muted">
+          ({currentPlayers.details})
         </span>
       )}
     </p>

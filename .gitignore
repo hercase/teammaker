@@ -37,3 +37,6 @@ next-env.d.ts
 
 # Agent skills: contents are fetched, skills-lock.json is versioned
 .agents/
+
+# Agent skills fetched locally, not part of the app
+.claude/skills/

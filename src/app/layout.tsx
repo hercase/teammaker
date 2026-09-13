@@ -1,14 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import classNames from "classnames";
 import Logo from "@/components/Logo";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
-import WelcomeModal from "@/components/WelcomeModal";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import DevBar from "@/components/DevBar";
 
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+/*
+  Geist, a geometric Swiss sans drawn for interfaces and tuned for dark backgrounds, which is the
+  only background this app has. It replaces a pairing of Barlow with Barlow Condensed: rather than
+  a second family for headings, the display role is the same face at 700 with tight tracking, so
+  the hierarchy comes from weight and spacing instead of from a change of voice.
+
+  Geist Mono comes with it and takes over the pasted list, which used to fall back to whatever
+  monospace the device happened to have.
+*/
+const geist = Geist({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-geist",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-geist-mono",
+});
 
 export const metadata: Metadata = {
   title: "Team Maker",
@@ -19,7 +37,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "dark",
-  themeColor: "#151d65",
+  themeColor: "#16122a",
 };
 
 const Layout = ({
@@ -30,20 +48,21 @@ const Layout = ({
   <html lang="es">
     <body
       className={classNames(
-        inter.className,
-        "grid grid-rows-[4rem_1fr] min-h-dvh text-white bg-primary-950 mx-auto"
+        geist.variable,
+        geistMono.variable,
+        "grid min-h-dvh grid-rows-[4rem_1fr] font-sans text-text antialiased"
       )}
     >
-      <header className="grid place-items-center relative max-w-(--breakpoint-lg) mx-auto w-full">
+      <header className="sticky top-0 z-20 grid place-items-center w-full border-b border-border bg-canvas/70 backdrop-blur-md">
         <Logo />
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <ThemeSwitcher />
-        </div>
       </header>
-      <main className="flex flex-col items-center h-full bg-linear-to-b from-primary-800 dark:from-primary-900 to-primary-950 max-w-(--breakpoint-lg) mx-auto w-full rounded-t-md">
+      {/* min-w-0 because a grid item, like a flex item, is never narrower than its own content
+          unless told so. Without it one long player name widened the page itself and the whole
+          layout scrolled sideways on a phone. */}
+      <main className="flex w-full min-w-0 items-start justify-center px-3 pb-16 pt-8 sm:px-4 sm:pt-10">
         {children}
       </main>
-      <WelcomeModal />
+      <ConfirmDialog />
       {process.env.NODE_ENV === "development" && <DevBar />}
     </body>
   </html>

@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 export type Player = {
   id: string;
   name: string;
@@ -8,12 +6,40 @@ export type Player = {
   isReplacedBy?: Player["id"];
 };
 
-export type Colors = {
-  teamA?: string;
-  teamB?: string;
-};
+export type PresetColor = "white" | "black" | "blue" | "red" | "green" | "yellow";
+
+export type TeamSide = "A" | "B";
+
+/*
+  A discriminated union rather than a bag of optional fields: shirt colours and bibs are mutually
+  exclusive in real life, and having both at once was exactly the ambiguity nobody understood.
+*/
+export interface ShirtsKit {
+  mode: "shirts";
+  teamA: PresetColor;
+  teamB: PresetColor;
+}
+
+export interface BibsKit {
+  mode: "bibs";
+  bibTeam: TeamSide;
+}
+
+/*
+  Light against dark, without naming a colour. It is how a pickup game actually sorts itself out
+  when nobody has matching shirts: whatever you brought is fine as long as it is on the right side
+  of the split, so a pale green, a pink and a yellow all count as claras.
+*/
+export interface ShadesKit {
+  mode: "shades";
+  lightTeam: TeamSide;
+}
+
+export type Kit = ShirtsKit | BibsKit | ShadesKit;
 
 export type MatchEvent = {
+  // Optional because matches persisted before this existed have events without one.
+  id?: string;
   type: "replace" | "delete" | "rename";
   old_name: string;
   new_name?: string;
@@ -27,16 +53,15 @@ export interface MatchInputs {
   // datetime-local inputs hand back a "yyyy-MM-ddTHH:mm" string, and that is what gets persisted.
   date: string | Date | null;
   random: boolean;
-  colors?: Colors;
+  kit: Kit;
 }
 export interface MatchStore {
   location: string;
   date: string | Date | null;
   organizer: string;
   random: boolean;
-  colors: Colors;
-  setOrganizer: (organizer: string) => void;
-  setColors: (colors: Colors) => void;
+  kit: Kit;
+  remember: (fields: { organizer: string; location: string }) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
 }
 
@@ -60,21 +85,15 @@ export interface UIStore {
   setShowEditModal: (show: boolean) => void;
 }
 
-export interface AlertOptions {
-  catchOnCancel?: boolean;
-  title: string | ReactNode;
-  description: string | ReactNode;
-  submitText: ReactNode;
+export interface DialogOptions {
+  text: string;
+  input?: boolean;
+  inputValidator?: (value: string) => string | undefined;
+  onConfirm: (value: string) => void;
 }
 
 export interface DialogStore {
-  awaitingPromise: {
-    resolve?: () => void;
-    reject?: () => void;
-  };
-  open: boolean;
-  state: AlertOptions;
-  dialog: (options: Partial<AlertOptions>) => Promise<void>;
-  handleClose: () => void;
-  handleSubmit: () => void;
+  options: DialogOptions | null;
+  open: (options: DialogOptions) => void;
+  close: () => void;
 }

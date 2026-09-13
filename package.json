@@ -26,8 +26,6 @@
     "react-dom": "^19",
     "react-hook-form": "^7.51.0",
     "react-laag": "^2.0.5",
-    "sweetalert2": "^11.10.6",
-    "sweetalert2-react-content": "^5.0.7",
     "tinycolor2": "^1.6.0",
     "zustand": "^4.5.1"
   },

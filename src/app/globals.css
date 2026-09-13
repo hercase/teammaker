@@ -1,74 +1,179 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/*
+  Dark-only theme. There is no light variant and no `dark:` variant: the palette below is the
+  palette, so a colour only ever needs changing in one place.
 
+  Semantic tokens (canvas / surface / border / text) name the role, raw ramps name the hue.
+  Components should reach for the semantic token and fall back to a ramp only for brand accents.
+*/
 @theme {
+  /* One step below text-xs, for annotations hanging off a name. Not for anything you have to read. */
+  --text-2xs: 0.625rem;
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
   --color-white: #fff;
   --color-black: #000;
 
-  --color-primary-50: #ffffff;
-  --color-primary-100: #fbfaff;
-  --color-primary-200: #e4defd;
-  --color-primary-300: #bab3f9;
-  --color-primary-400: #8b84f6;
-  --color-primary-500: #685ef3;
-  --color-primary-600: #5446ec;
-  --color-primary-700: #4337e1;
-  --color-primary-800: #2d28c8;
-  --color-primary-900: #2931a3;
-  --color-primary-950: #151d65;
+  /* Brand: electric indigo-violet. Cooler and more saturated than the old #151d65 family. */
+  --color-primary-50: #f4f2ff;
+  --color-primary-100: #ebe7ff;
+  --color-primary-200: #d9d1ff;
+  --color-primary-300: #bcabff;
+  --color-primary-400: #9b7cff;
+  --color-primary-500: #7f4dff;
+  --color-primary-600: #6d2ef5;
+  --color-primary-700: #5c1fd8;
+  --color-primary-800: #4b1cae;
+  --color-primary-900: #3c1a85;
+  --color-primary-950: #200d4d;
 
-  --color-secondary-50: #f0fdfb;
-  --color-secondary-100: #ccfbf5;
-  --color-secondary-200: #99f6ea;
-  --color-secondary-300: #5eead8;
-  --color-secondary-400: #2dd4bf;
-  --color-secondary-500: #14b8a3;
-  --color-secondary-600: #0d9483;
-  --color-secondary-700: #0f7669;
-  --color-secondary-800: #115e54;
-  --color-secondary-900: #134e47;
-  --color-secondary-950: #042f2a;
+  /* Accent: cyan. The violet-to-cyan pairing is the 2026 default for this kind of product. */
+  --color-secondary-50: #ecfeff;
+  --color-secondary-100: #cff9fe;
+  --color-secondary-200: #a5f1fc;
+  --color-secondary-300: #67e4f9;
+  --color-secondary-400: #22cfee;
+  --color-secondary-500: #06b0d4;
+  --color-secondary-600: #088cb0;
+  --color-secondary-700: #0e708f;
+  --color-secondary-800: #155b74;
+  --color-secondary-900: #164c62;
+  --color-secondary-950: #083144;
 
-  --color-error-50: #fff6f6;
-  --color-error-100: #ffeaea;
-  --color-error-200: #ffd6d6;
-  --color-error-300: #ffbcbc;
-  --color-error-400: #ff9e9e;
-  --color-error-500: #ff7a7a;
-  --color-error-600: #f25c5c;
-  --color-error-700: #d94a4a;
-  --color-error-800: #b53a3a;
-  --color-error-900: #8e2c2c;
-  --color-error-950: #5a1818;
+  /* Destructive: rose rather than red, which keeps the whole palette on the cool side. */
+  --color-error-50: #fff1f3;
+  --color-error-100: #ffe4e8;
+  --color-error-200: #fecdd6;
+  --color-error-300: #fda4b4;
+  --color-error-400: #fb7189;
+  --color-error-500: #f43f5e;
+  --color-error-600: #e11d48;
+  --color-error-700: #be123c;
+  --color-error-800: #9f1239;
+  --color-error-900: #881337;
+  --color-error-950: #4c0519;
+
+  /*
+    Neutrals keep only a hint of the brand hue. Tinting them heavily turned the whole screen into
+    one violet mass, with nothing separating a panel from the page behind it and no room left for
+    the accent to mean anything.
+
+    In dark mode the gap between two near-black fills buys almost nothing: canvas to surface is
+    1.19:1 however it is tuned, and inverting it so the page is the lighter one lands at 1.27:1 at
+    best. That relation is compressed at the dark end and no tuning wins it back.
+
+    What actually draws a panel is its border and the brightness of the text inside it, so that is
+    where the contrast is spent: --color-border sits at 2.03:1 against the surface, up from the
+    1.10:1 it started at, and secondary text at 9.1:1, up from 7.6:1.
+  */
+  --color-canvas: #16122a;
+  --color-surface: #212437;
+  --color-surface-raised: #2c3048;
+  --color-surface-hover: #383d59;
+  --color-border: #4d5275;
+  --color-border-strong: #767a97;
+  --color-text: #f5f6fa;
+  --color-text-muted: #c3c7db;
+  --color-text-subtle: #8c90a8;
+
+  --radius-card: 0.875rem;
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
+  body {
+    background-color: var(--color-canvas);
+    background-image: radial-gradient(
+      ellipse 90% 45% at 50% -5%,
+      color-mix(in oklab, var(--color-primary-600) 18%, transparent),
+      transparent 70%
+    );
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: var(--color-border);
+  }
+
+  /* One ring recipe for the whole app, so no component has to reinvent its focus state. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-600);
+    color: var(--color-text);
   }
 }
 
 @utility input {
-  @apply border-gray-300 text-gray-500 rounded-md w-full h-8 px-2 dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-400 dark:border-gray-700 dark:focus:ring-gray-500;
+  @apply w-full min-h-11 px-3.5 rounded-lg bg-surface-raised text-text placeholder:text-text-subtle border border-border-strong transition-colors;
+
+  &:hover {
+    @apply border-primary-400;
+  }
 }
 
 @utility label {
-  @apply font-normal text-sm text-gray-400 dark:text-gray-300;
+  @apply font-medium text-sm text-text-muted;
+}
+
+/*
+  Surface recipes. Everything in the app is built from these three and nothing invents its own
+  radius, fill or border:
+
+    canvas   the page itself. It is the only thing carrying the brand hue.
+    panel    anything resting on the page: a card, a fieldset, a list of players.
+    modal    anything resting on top of a panel. Same recipe, one step lighter, with a backdrop.
+
+  Panels and modals are rounded-card. Controls (.input, buttons) are rounded-lg and at least 44px
+  tall. If a surface needs a different radius or fill, the rule is wrong, not the surface.
+
+  Type scale. Five steps, no arbitrary pixel sizes, nothing under 12px, and weight carries as much
+  of the hierarchy as size does:
+
+    text-2xl semibold   screen title
+    text-lg  semibold   dialog title
+    text-base           body: player names, dialog copy
+    text-sm             metadata, descriptions, help
+    text-xs  medium     uppercase labels
+    text-2xs medium     an annotation attached to something else, never standalone copy
+
+  The app used to run on eight sizes, three of them written as raw pixels, with player details at
+  9px. Almost everything else was text-sm, which is why every screen read flat.
+
+  Stacking order. Four steps, and nothing picks its own number:
+
+    z-20  the header
+    z-30  menus anchored to something on the page
+    z-40  the dev bar
+    z-50  dialogs and their backdrop
+
+  The welcome dialog used to sit at z-10, under a z-20 header, so its backdrop dimmed the page but
+  left the header floating lit on top of it.
+*/
+@utility panel {
+  @apply rounded-card border border-border bg-surface shadow-lg shadow-black/20;
+}
+
+@utility modal {
+  @apply rounded-card border border-border bg-surface shadow-2xl shadow-black/60;
+}
+
+@utility overlay {
+  @apply fixed inset-0 bg-black/70 backdrop-blur-sm;
 }
 
 input[type="datetime-local"] {
   -webkit-appearance: none;
+  color-scheme: dark;
 }

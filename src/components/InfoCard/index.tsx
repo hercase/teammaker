@@ -1,30 +1,37 @@
 import { useMatchStore } from "@/store";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { InformationCircleIcon } from "@heroicons/react/20/solid";
-import usePlayers from "@/hooks/usePlayers";
+import { ArrowsRightLeftIcon } from "@heroicons/react/20/solid";
 
+/*
+  A heading, not a card. This used to be a bordered panel with a violet chip in it, which put a
+  box around the least important thing on a screen whose whole job is showing the two teams.
+*/
 const InfoCard = () => {
   const { organizer, date, location, random } = useMatchStore();
-  const { players } = usePlayers();
+
+  const when = date && `${format(date, "EEEE dd/MM", { locale: es })} · ${format(date, "p", { locale: es })} hs`;
+
   return (
-    <div className="col-span-1 flex shadow-xs rounded-md w-full mx-auto">
-      <div className="shrink-0 flex items-center justify-center px-4 bg-primary-600 dark:bg-primary-800 text-white text-sm font-medium rounded-l-md">
-        <InformationCircleIcon className="h-6 w-6" aria-hidden="true" />
+    <div className="flex w-full items-start justify-between gap-3">
+      <div className="min-w-0">
+        <h1 className="font-display text-2xl font-bold uppercase leading-none tracking-tight text-text">{location}</h1>
+
+        {/* Two lines, so the pill beside them never squeezes the author onto a line of their own. */}
+        {when && <p className="mt-1.5 text-sm text-text-muted first-letter:uppercase">{when}</p>}
+        {organizer && <p className="text-sm text-text-subtle">Creado por {organizer}</p>}
       </div>
-      <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate dark:bg-gray-800 dark:border-gray-700 ">
-        <div className="flex-1 px-4 py-2 text-sm truncate">
-          <p className="text-gray-900 dark:text-gray-300 font-medium text-md">{location}</p>
-          {date && (
-            <p className="text-gray-900 font-medium text-md first-letter:uppercase dark:text-gray-300">
-              {format(date, "EEEE dd/MM - p", { locale: es })} hs
-            </p>
-          )}
-          <p className="text-gray-500 dark:text-gray-400">Creado por {organizer}</p>
-          <p className="text-gray-500 dark:text-gray-400">{players.length} Jugadores</p>
-          {random && <p className="text-gray-500 dark:text-gray-400">Lista aleatoria 🎲</p>}
-        </div>
-      </div>
+
+      {/*
+        On the title's own line rather than under it. How the teams were split is a property of the
+        match, so it sits beside the match, and an outline carries it without shouting like a fill.
+      */}
+      {random && (
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-secondary-400 px-3 py-1.5 text-sm font-medium text-secondary-300">
+          <ArrowsRightLeftIcon className="h-4 w-4" aria-hidden="true" />
+          Sorteo al azar
+        </span>
+      )}
     </div>
   );
 };

@@ -4,7 +4,8 @@ import { FC } from "react";
 type ButtonProps = {
   type?: "button" | "submit" | "reset";
   children: React.ReactNode;
-  variant?: "primary" | "secondary" | "danger";
+  variant?: "primary" | "secondary" | "danger" | "ghost";
+  size?: "sm" | "md";
   disabled?: boolean;
   className?: string;
   onClick?: () => void;
@@ -15,19 +16,25 @@ const Button: FC<ButtonProps> = ({
   type = "button",
   children,
   variant = "primary",
+  size = "md",
   disabled,
   className,
   onClick,
   "aria-label": ariaLabel,
 }) => {
+  /*
+    Size belongs to the component, not to the caller. Every call site that reached for its own
+    px-3 or h-9 was one more way for two buttons in the same app to stop matching.
+  */
   const btnClasses = classNames(
-    "button px-4 py-2 rounded-md text-white flex items-center justify-center transition-colors duration-300 ease-in-out touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400",
+    "rounded-lg font-medium text-white flex items-center justify-center gap-2 transition-colors touch-manipulation active:scale-[0.98]",
+    { "min-h-11 px-5": size === "md", "min-h-9 px-3 text-sm": size === "sm" },
     className,
     {
-      "bg-primary-700 hover:bg-primary-800 dark:bg-primary-800 dark:hover:bg-primary-900": variant === "primary",
-      "bg-secondary-600 hover:bg-secondary-700 dark:bg-secondary-700 dark:hover:bg-secondary-800":
-        variant === "secondary",
-      "bg-error-600 hover:bg-error-700 dark:bg-error-700 dark:hover:bg-error-800": variant === "danger",
+      "bg-primary-600 hover:bg-primary-500 shadow-lg shadow-primary-950/50": variant === "primary",
+      "bg-secondary-700 hover:bg-secondary-600": variant === "secondary",
+      "bg-error-600 hover:bg-error-500": variant === "danger",
+      "bg-transparent border border-border-strong text-text hover:bg-surface-hover": variant === "ghost",
       "pointer-events-none opacity-50": disabled,
     }
   );

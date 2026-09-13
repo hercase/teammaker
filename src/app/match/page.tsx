@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useMatchStore, useUiStore } from "@/store";
 import PlayersList from "@/components/PlayersList";
+import BibIcon from "@/components/Icons/BibIcon";
+import { BIB_HEX } from "@/utils/kit";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import EditModal from "@/components/EditModal";
@@ -13,12 +15,11 @@ import useAlert from "@/hooks/useAlert";
 import usePlayers from "@/hooks/usePlayers";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { HandRaisedIcon } from "@heroicons/react/20/solid";
 
 const Match = () => {
   const router = useRouter();
   const alert = useAlert();
-  const { colors, date, random } = useMatchStore();
+  const { kit, date } = useMatchStore();
   const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
 
@@ -28,7 +29,7 @@ const Match = () => {
     if (!players?.length) {
       router.push("/");
     }
-  }, [hasHydrated, players, router, resetMatch, alert]);
+  }, [hasHydrated, players, router]);
 
   useEffect(() => {
     const matchIsOld = date && new Date(date) < new Date();
@@ -42,8 +43,7 @@ const Match = () => {
         },
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date]);
+  }, [date, alert, resetMatch, router]);
 
   const handleCreateNewList = () => {
     resetMatch();
@@ -54,27 +54,33 @@ const Match = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-col w-full">
-        <div className="flex flex-col gap-5 p-4">
+      {/* min-w-0: this is a flex item, and a flex item is never smaller than its own content
+          unless told otherwise. Without it a long name made the whole page scroll sideways on a
+          phone instead of being truncated inside its row. */}
+      <div className="flex w-full min-w-0 max-w-md flex-col gap-6 lg:max-w-3xl">
+        <div className="flex flex-col gap-5">
           <InfoCard />
 
-          <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
-            <PlayersList shirtPosition="right" players={teamA} color={colors.teamA} />
-            <PlayersList shirtPosition="left" players={teamB} color={colors.teamB} />
+          <div className="relative flex min-h-[100px] min-w-0 justify-center gap-2 text-center sm:gap-3">
+            <PlayersList side="A" kit={kit} players={teamA} />
+            <PlayersList side="B" kit={kit} players={teamB} />
           </div>
 
-          {!random && (
-            <div className="flex gap-2 items-center text-gray-300">
-              <HandRaisedIcon className="w-5 h-5" />
-              <p className="text-sm">Arrastra los jugadores para ordenar o cambiar de equipo.</p>
-            </div>
+          {/* One line instead of a label in each header: only one team wears anything. */}
+          {kit.mode === "bibs" && (
+            <p className="flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-wide text-text-muted">
+              <BibIcon color={BIB_HEX} size={18} aria-hidden="true" />
+              El equipo {kit.bibTeam} juega con pecheras
+            </p>
           )}
 
           <MatchHistory />
         </div>
-        <div className="flex justify-center w-full gap-4 mt-4">
-          <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
-          <Button variant="secondary" onClick={() => setShowEditModal(true)}>
+        <div className="flex w-full gap-3 border-t border-border pt-6">
+          <Button className="flex-1" onClick={handleCreateNewList}>
+            Crear nueva lista
+          </Button>
+          <Button variant="ghost" className="flex-1" onClick={() => setShowEditModal(true)}>
             Editar
           </Button>
         </div>
