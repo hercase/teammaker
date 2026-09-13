@@ -1,7 +1,7 @@
 import { usePlayersStore } from "@/store";
 import { Player } from "@/types";
 import useAlert from "@/hooks/useAlert";
-import { validateName } from "@/utils";
+import { duplicateTags, splitTeams, validateName } from "@/utils";
 
 const usePlayers = () => {
   const alert = useAlert();
@@ -14,10 +14,11 @@ const usePlayers = () => {
     ...store
   } = usePlayersStore();
 
-  const half = Math.ceil(players?.length / 2);
+  const { teamA, teamB } = splitTeams(players ?? []);
 
-  const teamA = players?.slice(0, half);
-  const teamB = players?.slice(-half);
+  // Collisions are decided on what is actually drawn, so a substitute counts, not the player it replaced.
+  const shown = (players ?? []).map((player) => bench?.find((p) => p.id === player.isReplacedBy) ?? player);
+  const tags = duplicateTags(shown.map((p) => ({ id: p.id, label: `${p.name} ${p.details ?? ""}`.trim() })));
 
   const removePlayer = (player: Player) => {
     alert({
@@ -50,6 +51,7 @@ const usePlayers = () => {
     bench,
     teamA,
     teamB,
+    tags,
     removePlayer,
     replacePlayer,
     renamePlayer,

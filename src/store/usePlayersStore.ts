@@ -1,5 +1,5 @@
-import { PlayersStore } from "@/types";
-import { generateMatchEvent, generatePlayer } from "@/utils";
+import { firstSurname, generateMatchEvent, generatePlayer, MAX_DETAILS_CHARS, clampName, shortenFullName } from "@/utils";
+import { MatchEvent, Player, PlayersStore } from "@/types";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -93,6 +93,33 @@ export const usePlayersStore = create(
     }),
     {
       name: "players-store",
+      /*
+        Version 1 keeps only the first surname. Everything saved before it kept whatever the group
+        chat had written, so a match already on someone's phone still read "Ezequiel (Hernandez
+        Palomero De La Mancha)" in the list and in every event that mentions him.
+      */
+      version: 1,
+      migrate: (persisted, version) => {
+        const state = persisted as PlayersStore;
+
+        if (version >= 1 || !state) return state;
+
+        const shorten = (player: Player): Player => ({
+          ...player,
+          details: clampName(firstSurname((player.details ?? "").split(/\s+/).filter(Boolean)), MAX_DETAILS_CHARS),
+        });
+
+        return {
+          ...state,
+          players: (state.players ?? []).map(shorten),
+          bench: (state.bench ?? []).map(shorten),
+          history: (state.history ?? []).map((event: MatchEvent) => ({
+            ...event,
+            old_name: shortenFullName(event.old_name),
+            ...(event.new_name && { new_name: shortenFullName(event.new_name) }),
+          })),
+        };
+      },
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },

@@ -2,25 +2,27 @@
 
 import { useEffect } from "react";
 import { useMatchStore, useUiStore } from "@/store";
-import PlayersList from "@/components/PlayersList";
+import { ShareIcon } from "@heroicons/react/20/solid";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
 import EditModal from "@/components/EditModal";
-import InfoCard from "@/components/InfoCard";
+import MatchSummary from "@/components/MatchSummary";
+import ShareCard from "@/components/ShareCard";
 import Spinner from "@/components/Spinner";
-import MatchHistory from "@/components/MatchHistory";
 import useAlert from "@/hooks/useAlert";
+import useShareTeams from "@/hooks/useShareTeams";
+import { formatKickoff, matchFileName } from "@/utils/date";
 import usePlayers from "@/hooks/usePlayers";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { HandRaisedIcon } from "@heroicons/react/20/solid";
 
 const Match = () => {
   const router = useRouter();
   const alert = useAlert();
-  const { colors, date, random } = useMatchStore();
-  const { players, teamA, teamB, hasHydrated, resetMatch } = usePlayers();
+  const { date, location } = useMatchStore();
+  const { players, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
+  const { ref: shareRef, share, isSharing } = useShareTeams();
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -28,7 +30,7 @@ const Match = () => {
     if (!players?.length) {
       router.push("/");
     }
-  }, [hasHydrated, players, router, resetMatch, alert]);
+  }, [hasHydrated, players, router]);
 
   useEffect(() => {
     const matchIsOld = date && new Date(date) < new Date();
@@ -42,8 +44,7 @@ const Match = () => {
         },
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date]);
+  }, [date, alert, resetMatch, router]);
 
   const handleCreateNewList = () => {
     resetMatch();
@@ -54,31 +55,48 @@ const Match = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-col w-full">
-        <div className="flex flex-col gap-5 p-4">
-          <InfoCard />
+      {/* min-w-0: this is a flex item, and a flex item is never smaller than its own content
+          unless told otherwise. Without it a long name made the whole page scroll sideways on a
+          phone instead of being truncated inside its row. */}
+      <div className="flex w-full min-w-0 max-w-md flex-col gap-6 lg:max-w-3xl">
+        <MatchSummary />
 
-          <div className="relative flex justify-center text-center gap-3 min-h-[100px]">
-            <PlayersList shirtPosition="right" players={teamA} color={colors.teamA} />
-            <PlayersList shirtPosition="left" players={teamB} color={colors.teamB} />
-          </div>
-
-          {!random && (
-            <div className="flex gap-2 items-center text-gray-300">
-              <HandRaisedIcon className="w-5 h-5" />
-              <p className="text-sm">Arrastra los jugadores para ordenar o cambiar de equipo.</p>
-            </div>
-          )}
-
-          <MatchHistory />
-        </div>
-        <div className="flex justify-center w-full gap-4 mt-4">
-          <Button onClick={handleCreateNewList}>Crear nueva lista</Button>
-          <Button variant="secondary" onClick={() => setShowEditModal(true)}>
-            Editar
+        {/*
+          Sharing leads, because it is what this screen is for: the teams get posted back to the
+          group the moment they exist and again after every substitution. Creating a new list is a
+          once-a-week action and steps back to match Editar.
+        */}
+        <div className="flex w-full flex-col gap-3 border-t border-border pt-6">
+          <Button
+            className="w-full"
+            disabled={isSharing}
+            onClick={() =>
+              share({
+                text: [location, formatKickoff(date)].filter(Boolean).join(" · "),
+                name: matchFileName(location, date),
+              })
+            }
+          >
+            <ShareIcon className="h-5 w-5" aria-hidden="true" />
+            {isSharing ? "Generando imagen…" : "Compartir"}
           </Button>
+
+          <div className="flex w-full gap-3">
+            {/* "Nueva lista", not "Crear nueva lista": beside Editar the verb is understood, and
+                the longer label wrapped to two lines on a phone. */}
+            <Button variant="ghost" className="flex-1" onClick={handleCreateNewList}>
+              Nueva lista
+            </Button>
+            <Button variant="ghost" className="flex-1" onClick={() => setShowEditModal(true)}>
+              Editar
+            </Button>
+          </div>
         </div>
         <EditModal isOpen={showEditModal} setIsOpen={setShowEditModal} />
+
+        {/* Only while the picture is being taken, and never where anyone can see it. */}
+        {isSharing && <ShareCard ref={shareRef} />}
+
       </div>
     </DndProvider>
   );

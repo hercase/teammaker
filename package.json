@@ -2,45 +2,54 @@
   "name": "teammaker",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check": "tsc --noEmit && next lint"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "tsc --noEmit && next lint && vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
+    "@heroui/react": "^3.2.5",
+    "@heroui/styles": "^3.2.5",
+    "@react-aria/i18n": "^3.13.1",
+    "@react-aria/ssr": "^3.10.1",
+    "@react-aria/utils": "^3.34.1",
+    "@zumer/snapdom": "^2.24.18",
     "classnames": "^2.5.1",
     "date-fns": "^3.3.1",
-    "framer-motion": "^11.1.7",
     "immer": "^10.0.3",
     "lodash": "^4.17.21",
-    "next": "^15",
+    "next": "^15.5.25",
     "react": "^19",
+    "react-aria": "^3.52.1",
+    "react-aria-components": "^1.21.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19",
     "react-hook-form": "^7.51.0",
-    "react-laag": "^2.0.5",
-    "sweetalert2": "^11.10.6",
-    "sweetalert2-react-content": "^5.0.7",
     "tinycolor2": "^1.6.0",
     "zustand": "^4.5.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20",
     "@types/react": "^19",
-    "@types/react-datepicker": "^6.0.2",
     "@types/react-dom": "^19",
     "@types/tinycolor2": "^1.4.6",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
     "eslint": "^8",
-    "eslint-config-next": "^15",
+    "eslint-config-next": "^15.5.25",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-css-import-order": "^1.1.0",
@@ -51,6 +60,8 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^7",
+    "vitest": "^5.0.0"
   }
 }

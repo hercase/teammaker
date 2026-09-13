@@ -1,7 +1,26 @@
-import React from "react";
+import React, { FC } from "react";
 import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/20/solid";
 import { format } from "date-fns";
 import usePlayers from "@/hooks/usePlayers";
+import { splitFullName } from "@/utils";
+
+/*
+  Written the way the team list writes it: the name at full size, the rest smaller and in brackets.
+  An event stores the two already joined into one string, so they are split apart again here rather
+  than migrating every event that is already saved on someone's phone.
+*/
+const EventName: FC<{ children: string }> = ({ children }) => {
+  const { name, details } = splitFullName(children);
+
+  if (!details) return <span className="truncate">{children}</span>;
+
+  return (
+    <>
+      <span className="shrink-0">{name}</span>
+      <span className="truncate text-xs font-medium uppercase opacity-80">({details})</span>
+    </>
+  );
+};
 
 const MatchHistory = () => {
   const { history } = usePlayers();
@@ -15,27 +34,31 @@ const MatchHistory = () => {
   };
 
   return (
-    <ul
-      className="flex flex-col justify-between bg-white dark:bg-gray-800
-    rounded-md p-2"
-    >
-      {history.map(({ old_name, new_name, type, date }) => (
-        <li key={format(date, "HH:mm:ss")} className="flex gap-1 items-center text-gray-600  text-xs">
-          <span className="text-gray-400">{format(date, "dd/MM HH:mm")}</span>
+    <ul className="panel flex flex-col gap-1 p-3">
+      {history.map(({ id, old_name, new_name, type, date }, index) => (
+        <li
+          // Two events land in the same second all the time, so the timestamp never was a key.
+          key={id ?? `${date}-${index}`}
+          className="flex flex-wrap items-center gap-1 text-sm"
+        >
+          <span className="text-text-subtle tabular-nums">{format(date, "dd/MM HH:mm")}</span>
 
-          <span className="flex items-center text-error-600 capitalize gap-1">
-            <ArrowDownCircleIcon className="w-4 h-4" />
-            <span>{old_name}</span>
+          {/* min-w-0 + truncate so one long name cannot stretch the line: the name itself is
+              already cut short when the Player is made, so this only bites on a narrow phone. */}
+          <span className="flex min-w-0 items-center gap-1 capitalize text-error-400">
+            <ArrowDownCircleIcon className="h-4 w-4 shrink-0" />
+            <EventName>{old_name}</EventName>
           </span>
 
-          <span className="text-gray-600 dark:text-gray-400">{renderText(type)}</span>
+          <span className="text-text-muted">{renderText(type)}</span>
 
           {new_name && (
             <>
-              <span className="flex items-center text-secondary-600 capitalize gap-1">
-                <ArrowUpCircleIcon className="w-4 h-4" />
-                <span>{new_name}</span>
-                <span>.</span>
+              <span className="flex min-w-0 items-center gap-1 capitalize text-secondary-400">
+                <ArrowUpCircleIcon className="h-4 w-4 shrink-0" />
+                <EventName>{new_name}</EventName>
+                {/* -ml-1 eats the flex gap: the line read "por Nico ." with the point adrift. */}
+                <span className="-ml-1 shrink-0">.</span>
               </span>
             </>
           )}

@@ -1,13 +1,15 @@
-import { Fragment, FC } from "react";
+"use client";
+
+import { FC, useEffect } from "react";
 import { useMatchStore } from "@/store";
 import { MatchInputs } from "@/types";
-import { Dialog, Transition } from "@headlessui/react";
+import { Modal } from "@heroui/react";
+import { ArrowsRightLeftIcon } from "@heroicons/react/20/solid";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
-import ColorPicker from "@/components/ColorPicker";
+import KitSelector from "@/components/KitSelector";
 import DateInput from "@/components/DateInput";
 import TextInput from "@/components/TextInput";
-import ToggleSwitch from "../ToggleSwitch";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -15,123 +17,126 @@ interface EditModalProps {
 }
 
 const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
-  const { organizer, location, date, colors, random, setMatch, setColors } = useMatchStore();
+  const { organizer, location, date, kit, random, setMatch } = useMatchStore();
 
   const {
     register,
     control,
     handleSubmit,
+    reset,
+    watch,
     formState: { errors },
   } = useForm<MatchInputs>({
-    mode: "onBlur",
-    defaultValues: { organizer, location, colors, date, random },
+    /*
+      onTouched, not onBlur: both check the field when you first leave it, but onBlur only checks
+      again on the next blur, so a field stays red while you are fixing it. onTouched re-checks on
+      every keystroke once the field has been visited.
+    */
+    mode: "onTouched",
+    defaultValues: { organizer, location, kit, date, random },
   });
 
-  const onSubmit: SubmitHandler<MatchInputs> = (data) => {
-    console.log("🚀 ~ data:", data);
+  /*
+    The dialog never unmounts, so useForm keeps whatever was last typed into it. Without this,
+    Cancelar only hid the form: the abandoned values were still there on the next Editar, and were
+    written to the store by the next Confirmar. Reopening now always starts from the saved match.
+  */
+  useEffect(() => {
+    if (isOpen) reset({ organizer, location, kit, date, random });
+  }, [isOpen, reset, organizer, location, kit, date, random]);
 
+  const onSubmit: SubmitHandler<MatchInputs> = (data) => {
     setMatch({
       organizer: data.organizer,
       location: data.location,
       date: data.date,
-      random: data.random,
-    });
-
-    setColors({
-      teamA: data.colors?.teamA,
-      teamB: data.colors?.teamB,
+      // Not data.random: how the teams were built is not something an edit gets to rewrite.
+      random,
+      kit: data.kit,
     });
 
     setIsOpen(false);
   };
 
-  const transitions = {
-    enter: "ease-out duration-300",
-    leave: "ease-in duration-200",
-    enterFrom: "opacity-0 scale-95",
-    enterTo: "opacity-100 scale-100",
-    leaveFrom: "opacity-100 scale-100",
-    leaveTo: "opacity-0 scale-95",
-  };
-
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
-        <Transition.Child as={Fragment} {...transitions}>
-          <div className="fixed inset-0 bg-black/25" />
-        </Transition.Child>
+    <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+      <Modal.Backdrop>
+        <Modal.Container>
+          <Modal.Dialog className="w-full max-w-md">
+            <Modal.Header>
+              <Modal.Heading>Editar</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body>
+              <form className="flex flex-col gap-6 mt-4" onSubmit={handleSubmit(onSubmit)}>
+                {/*
+                    value on all three, or the dialog opens empty: React Aria initialises each field
+                    with its own state and overwrites what reset() had just put there. See TextInput.
+                  */}
+                <TextInput
+                  name="organizer"
+                  label="Organizador"
+                  error={!!errors.organizer}
+                  value={watch("organizer")}
+                  register={register}
+                />
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child as={Fragment} {...transitions}>
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 dark:text-gray-300 p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">
-                  Editar
-                </Dialog.Title>
-                <form className="flex flex-col gap-6 mt-4 text-gray-500" onSubmit={handleSubmit(onSubmit)}>
-                  <TextInput
-                    variant="outline-solid"
-                    name="organizer"
-                    label="Organizador"
-                    error={!!errors.organizer}
-                    register={register}
-                  />
+                <TextInput
+                  name="location"
+                  label="Lugar"
+                  error={!!errors.location}
+                  value={watch("location")}
+                  register={register}
+                />
+                {/*
+                    No future check here. Editing is also what you do ten minutes before kick-off,
+                    when someone drops out — and a match starting in under fifteen minutes would
+                    have failed a rule meant for creating one, making the location unfixable.
+                  */}
+                <DateInput
+                  register={register}
+                  error={!!errors.date}
+                  value={watch("date")}
+                  requireFuture={false}
+                />
 
-                  <TextInput
-                    variant="outline-solid"
-                    name="location"
-                    label="Lugar"
-                    error={!!errors.location}
-                    register={register}
-                  />
-                  <div className="flex gap-2">
-                    <DateInput variant="outline-solid" register={register} error={!!errors.date} />
-                    {random && (
-                      <div className="flex flex-col">
-                        <span className="label">Aleatorio</span>
-                        <div className="flex justify-center items-center mt-1 h-full">
-                          <Controller
-                            name="random"
-                            control={control}
-                            defaultValue={false}
-                            render={({ field }) => (
-                              <ToggleSwitch disabled={!random} checked={field.value} onChange={field.onChange} />
-                            )}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="label">Colores</p>
-                    <div className="flex gap-6">
-                      <Controller
-                        name="colors.teamA"
-                        control={control}
-                        render={({ field }) => (
-                          <ColorPicker label="Equipo A" color={field.value} onChange={field.onChange} />
-                        )}
-                      />
+                {/*
+                    The draw is not editable, and that is the point of it.
 
-                      <Controller
-                        name="colors.teamB"
-                        control={control}
-                        render={({ field }) => (
-                          <ColorPicker label="Equipo B" color={field.value} onChange={field.onChange} />
-                        )}
-                      />
-                    </div>
-                  </div>
-                  <Button type="submit" variant="secondary" className="w-full">
+                    It says the teams were not arranged by anyone, which is a claim made to the
+                    group, about something that already happened. This used to be a switch that
+                    appeared only when the match had been drawn — so it could be turned off, and
+                    turning it off re-enabled dragging players between teams. Draw the teams, edit,
+                    flip the switch, rearrange: the promise laundered in three taps.
+
+                    Replacing, dropping and renaming a player stay available, because those are
+                    facts about who turned up, not about how the sides were picked.
+                  */}
+                {random && (
+                  <p className="flex items-center gap-2 rounded-lg border border-secondary-700 px-3 py-2.5 text-sm text-secondary-300">
+                    <ArrowsRightLeftIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    Los equipos se sortearon al azar y no se pueden reordenar.
+                  </p>
+                )}
+                <Controller
+                  name="kit"
+                  control={control}
+                  render={({ field }) => <KitSelector value={field.value} onChange={field.onChange} />}
+                />
+                {/* Same two-button row as every other dialog: the confirm is the primary action. */}
+                <div className="flex gap-3">
+                  <Button type="submit" className="flex-1">
                     Confirmar
                   </Button>
-                </form>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </div>
-      </Dialog>
-    </Transition>
+                  <Button type="button" variant="ghost" className="flex-1" onClick={() => setIsOpen(false)}>
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </Modal.Body>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 };
 

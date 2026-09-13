@@ -1,30 +1,49 @@
-<a  href="https://codeclimate.com/github/hercase/teammaker/maintainability"><img  src="https://api.codeclimate.com/v1/badges/f7ee15a81b21fa9f2b3c/maintainability" /></a>
+<a href="https://codeclimate.com/github/hercase/teammaker/maintainability"><img src="https://api.codeclimate.com/v1/badges/f7ee15a81b21fa9f2b3c/maintainability" /></a>
 
 # Teammaker
 
-### Getting Started
+Parte en dos equipos la lista de jugadores que circula por el grupo de WhatsApp. Todo vive en
+`localStorage`: no hay servidor, ni base de datos, ni URL por partido.
 
-First, run the development server:
+Los equipos se comparten como imagen — el botón Compartir dibuja la lista y la manda al share
+nativo del teléfono, sin los menús ni los botones de la pantalla.
+
+## Empezar
 
 ```bash
-npm run dev
+yarn            # yarn, no npm
+yarn dev        # http://localhost:3000
 ```
+
+## Comandos
+
 ```bash
-yarn dev
+yarn run check     # tsc --noEmit && next lint && vitest run — la puerta antes de cualquier commit
+yarn test          # vitest run
+yarn test:watch    # vitest
+yarn build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`yarn run check`, no `yarn check`: `check` es un builtin de yarn 1 y hace otra cosa.
 
-### Dependencies
+No corras `yarn build` ni borres `.next` con `yarn dev` andando — comparten `.next` y el dev server
+se queda sirviendo 404 de sus propios chunks.
 
-- [next](https://ghub.io/next): Main framework
-- [@headlessui/react](https://ghub.io/@headlessui/react): UI components for React, designed with Tailwind CSS
-- [react-hook-form](https://ghub.io/react-hook-form): Forms library
-- [zustand](https://ghub.io/zustand): 🐻 State management in React
+## Cómo está hecho
 
-### Dev Dependencies
+Next 15 (App Router) · React 19 · TypeScript · Tailwind v4 · zustand con `persist` · Vitest.
 
-- [lodash](https://ghub.io/lodash): Lodash modular utilities.
-- [eslint](https://ghub.io/eslint): An AST-based pattern checker for JavaScript.
-- [tailwindcss](https://ghub.io/tailwindcss): Modern utilities first CSS framework
-- [typescript](https://ghub.io/typescript): TypeScript is a language for application scale JavaScript development
+| | |
+| --- | --- |
+| Formularios | `react-hook-form` |
+| Diálogos | `@headlessui/react`, un único `ConfirmDialog` en el layout |
+| Menú de fila | `react-laag` |
+| Arrastrar jugadores | `react-dnd` (solo desktop) |
+| Fechas | `date-fns` |
+| Imagen para compartir | `html-to-image`, importada recién al tocar el botón |
+| Íconos | `@heroicons/react` |
+
+## Antes de tocar nada
+
+[`CLAUDE.md`](CLAUDE.md) tiene las decisiones de diseño, el modelo de nombres y de kit, y las
+trampas que ya costaron tiempo. [`PLAN.md`](PLAN.md) tiene el estado de las fases del refresh.

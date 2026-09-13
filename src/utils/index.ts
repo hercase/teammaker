@@ -1,43 +1,179 @@
 import { MatchEvent, Player } from "@/types";
-import { uniq, uniqueId } from "lodash";
-import tinycolor from "tinycolor2";
 
-// n
-export function generatePlayer(user_str: string) {
-  // regex to filter only letters and spaces, remove special characters and numbers, and end initial and final spaces
-  const onlyLetters = user_str.replace(/[^a-zA-Z\s]/g, "").trim();
+// \p{L} with the u flag covers accents and ñ, which the previous [a-zA-Z] range stripped
+const NON_NAME_CHARS = /[^\p{L}\s]/gu;
 
-  const [name, ...details] = onlyLetters.split(" ");
+/*
+  crypto.randomUUID only exists in a secure context, and http://<ip-de-la-lan>:3000 is not one —
+  which is exactly how this app gets opened on a phone to try it out. There it threw, so creating
+  the teams did nothing at all and the button looked dead. These ids never leave the browser: they
+  key React lists and identify a player inside one saved match, so Math.random is enough when the
+  real thing is unavailable.
+*/
+export function uid(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+/*
+  A row is a name at a glance, not a document. These two caps are what still fits on one line of a
+  360px phone next to the row menu: "Ezequiel (Hernandez Palomero De La Mancha)" used to push the
+  ⋮ clean off the card. The cut happens here, where a Player is made, so the list, the history and
+  the screenshot all agree on what someone is called — rename and replace go through the same door.
+*/
+export const MAX_NAME_CHARS = 14;
+export const MAX_DETAILS_CHARS = 18;
+export const MAX_FULL_NAME_CHARS = MAX_NAME_CHARS + MAX_DETAILS_CHARS;
+
+/*
+  Cut at the last word that fits, so a long surname loses whole words instead of ending mid-
+  syllable: "Hernandez Palomero De La Mancha" becomes "Hernandez…", not "Hernandez Palome…". A
+  single word longer than the cap has no boundary to fall back on and is cut where it lands.
+*/
+export function clampName(value: string, max: number): string {
+  if (value.length <= max) return value;
+
+  const cut = value.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+
+  return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
+/*
+  Words that are part of the surname that follows them rather than a surname of their own. Without
+  them "Ezequiel Di Stefano" would be filed under "Di" and "Nico de la Mancha" under "de".
+*/
+const SURNAME_PARTICLES = new Set([
+  "de",
+  "del",
+  "della",
+  "la",
+  "las",
+  "los",
+  "di",
+  "da",
+  "das",
+  "dos",
+  "van",
+  "von",
+  "der",
+  "den",
+  "san",
+  "santa",
+  "mac",
+  "mc",
+  "st",
+  "o",
+]);
+
+/*
+  The first surname and only the first: it is there to tell two Matis apart, and a row is one line
+  wide. "Hernandez Palomero De La Mancha" is filed under Hernandez, while "Di Stefano" and
+  "De La Mancha" are single surnames that happen to be spelled in several words, so any leading
+  particles are taken along with the word that ends them.
+*/
+export function firstSurname(words: string[]): string {
+  const surname: string[] = [];
+
+  for (const word of words) {
+    surname.push(word);
+
+    if (!SURNAME_PARTICLES.has(word.toLowerCase())) break;
+  }
+
+  return surname.join(" ");
+}
+
+export function generatePlayer(user_str: string): Player {
+  const onlyLetters = user_str.replace(NON_NAME_CHARS, "").replace(/\s+/g, " ").trim();
+  const [name = "", ...rest] = onlyLetters.split(" ");
 
   return {
-    id: uniqueId("player_"),
-    name,
-    details: details.join(" "),
+    id: uid(),
+    // clampName is the backstop for the one word that is absurd on its own, not the rule.
+    name: clampName(name, MAX_NAME_CHARS),
+    details: clampName(firstSurname(rest), MAX_DETAILS_CHARS),
   };
 }
 
-export function generatePlayers(str: string) {
-  const separetedByLine = str.split("\n");
-  const lettersOnly = separetedByLine.map((p) => p.replace(/[0-9.]/g, "").trim());
-  const uniquePlayers = uniq(lettersOnly).filter((p) => p !== "");
+/*
+  Splits "Nombre (Apellido)" back into its two halves. Both the history migration and the history
+  row need it, and it was written out twice before, once in each, which is two places to drift.
+*/
+export function splitFullName(fullName: string): { name: string; details?: string } {
+  const [, name, details] = fullName.match(/^(.*?)\s*\((.+)\)\s*$/) ?? [];
 
-  const playersList: Player[] = uniquePlayers.map((p) => generatePlayer(p));
+  return details ? { name, details } : { name: fullName };
+}
 
-  return playersList;
+// The first-surname rule applied to a name that was already written out, as an old event stores it.
+export function shortenFullName(fullName: string): string {
+  const { name, details } = splitFullName(fullName);
+
+  if (!details) return fullName;
+
+  const surname = clampName(firstSurname(details.split(/\s+/)), MAX_DETAILS_CHARS);
+
+  return surname ? `${name} (${surname})` : name;
+}
+
+export function generatePlayers(str: string): Player[] {
+  return str
+    .split("\n")
+    .map((line) => generatePlayer(line))
+    .filter((player) => player.name !== "");
+}
+
+/*
+  How many players a pasted list would actually produce, without minting a uuid per line. The list
+  box is validated on every keystroke, and it used to count non-blank lines instead — so a list
+  padded with emoji or bare numbers passed validation and then produced nothing, leaving the submit
+  button looking broken.
+*/
+export function countPlayers(str: string): number {
+  return str.split("\n").filter((line) => line.replace(NON_NAME_CHARS, "").trim() !== "").length;
+}
+
+// teamB starts where teamA ends. Using slice(-half) overlaps by one on odd-sized lists.
+export function splitTeams(players: Player[]): { teamA: Player[]; teamB: Player[] } {
+  const half = Math.ceil(players.length / 2);
+
+  return {
+    teamA: players.slice(0, half),
+    teamB: players.slice(half),
+  };
+}
+
+/*
+  Two rows that both read "Mati" tell the group nothing about who is on which team, and the data
+  has no way to know which Mati is which. Numbering the repeats at least says they are two people;
+  renaming one of them from the row menu is what actually fixes it.
+*/
+export function duplicateTags(labelled: { id: string; label: string }[]): Record<string, number> {
+  const counts = new Map<string, number>();
+
+  labelled.forEach(({ label }) => counts.set(label, (counts.get(label) ?? 0) + 1));
+
+  const seen = new Map<string, number>();
+
+  return labelled.reduce<Record<string, number>>((tags, { id, label }) => {
+    if ((counts.get(label) ?? 0) < 2) return tags;
+
+    const ordinal = (seen.get(label) ?? 0) + 1;
+    seen.set(label, ordinal);
+
+    return { ...tags, [id]: ordinal };
+  }, {});
 }
 
 export const generateFullName = (player: Player) => `${player.name} ${player.details ? `(${player.details})` : ""}`;
 
-export const trucanteString = (str: string, maxChar: number) => {
-  if (str.length > maxChar) {
-    return str.substring(0, maxChar) + "...";
-  }
-  return str;
-};
-
 export const validateName = (value: string) => {
-  if (!value) return "Debes ingresar un nombre";
-  if (!/^[a-zA-Z\s\(\)]+$/.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
+  if (!value?.trim()) return "Debes ingresar un nombre";
+  if (!/^[\p{L}\s()]+$/u.test(value)) return "Nombre inválido (solo letras, paréntesis y espacios)";
+  // Said out loud rather than silently trimmed: a name typed by hand is worth a word of warning.
+  if (value.trim().length > MAX_FULL_NAME_CHARS) return `Demasiado largo (máximo ${MAX_FULL_NAME_CHARS} caracteres)`;
 };
 
 interface GenerateMatchEvent {
@@ -47,16 +183,9 @@ interface GenerateMatchEvent {
 }
 
 export const generateMatchEvent = ({ type, old_player, new_player }: GenerateMatchEvent) => ({
+  id: uid(),
   type,
   old_name: generateFullName(old_player),
   ...(new_player && { new_name: generateFullName(new_player) }),
   date: new Date(),
 });
-
-export const getContrastColor = (hexcolor: string, isDarkMode: boolean) => {
-  const mainColor = isDarkMode ? tinycolor(hexcolor).lighten(10) : tinycolor(hexcolor).darken(15);
-  const contrastColor = mainColor.isDark() ? mainColor.brighten(40) : mainColor.darken(50);
-  const finalColor = contrastColor.desaturate(20).toHexString();
-
-  return finalColor;
-};

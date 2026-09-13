@@ -1,40 +1,73 @@
+"use client";
+
 import { FC } from "react";
-import classNames from "classnames";
 import { addMinutes, format } from "date-fns";
+import { FieldError, Input, Label, TextField } from "@heroui/react";
 import { MatchInputs } from "@/types";
 import { UseFormRegister } from "react-hook-form";
 
 interface DateInputProps {
   error: boolean;
-  variant?: "outline-solid";
+  // The form's value, handed to React Aria so it stops overwriting it. See the note in TextInput.
+  value?: MatchInputs["date"];
   register: UseFormRegister<MatchInputs>;
+  /*
+    Creating a match in the past is a typo; editing one that starts in ten minutes is Tuesday. The
+    rule belongs to the create form only, so editing can leave the date where it is and still fix
+    the location.
+  */
+  requireFuture?: boolean;
 }
 
-const DateInput: FC<DateInputProps> = ({ register, error, variant, ...rest }) => (
-  <div className="label flex flex-col gap-2 w-full">
-    <label
-      className={classNames({
-        "text-error-500": error,
+/*
+  HeroUI's field around a native datetime-local input, rather than its DatePicker.
+
+  The DatePicker is the more complete control, and on a desktop it would be the better one. On a
+  phone the native input opens the system date wheel, which is the thing everyone in this group
+  already knows how to use and the only one that gets the right keyboard. Trading that for a nicer
+  calendar would be a regression where the app is actually used.
+*/
+const FIELD_FORMAT = "yyyy-MM-dd'T'HH:mm";
+
+/*
+  A datetime-local input only accepts its own spelling: hand it a Date and it shows nothing at all.
+  The store has held both — a string when it came from this field, a Date from an older save.
+*/
+const asFieldValue = (value: DateInputProps["value"]): string => {
+  if (!value) return "";
+
+  return value instanceof Date ? format(value, FIELD_FORMAT) : value;
+};
+
+const DateInput: FC<DateInputProps> = ({ register, error, value, requireFuture = true, ...rest }) => (
+  <TextField
+    className="flex w-full flex-col gap-2"
+    value={asFieldValue(value)}
+    isInvalid={error}
+    validationBehavior="aria"
+  >
+    <Label htmlFor="date">Fecha</Label>
+
+    {/* min-h-11 is the app's 44px touch target; HeroUI's own field height is 40. */}
+    <Input
+      id="date"
+      type="datetime-local"
+      className="min-h-11 w-full"
+      min={requireFuture ? format(addMinutes(new Date(), 15), FIELD_FORMAT) : undefined}
+      {...register("date", {
+        required: true,
+        // The min attribute already blocks earlier values in the picker; this catches a typed one.
+        validate: (value) => !requireFuture || !value || new Date(value) > addMinutes(new Date(), 15),
       })}
-      htmlFor="date"
-    >
-      Fecha <span className=" text-xs text-gray-400">(mínimo 15 minutos desde ahora)</span>
-    </label>
-    <div className="relative">
-      <input
-        id="date"
-        type="datetime-local"
-        min={format(addMinutes(new Date(), 15), "yyyy-MM-dd'T'HH:mm")}
-        className={classNames("input border outline-hidden", {
-          "text-error-600 ring-2 ring-inset ring-error-600 placeholder:text-error-300 focus:ring-2 focus:ring-inset focus:ring-error-500":
-            error,
-          "border border-primary-300": variant === "outline-solid",
-        })}
-        {...register("date", { required: true })}
-        {...rest}
-      />
-    </div>
-  </div>
+      {...rest}
+    />
+
+    {error && (
+      <FieldError>
+        {requireFuture ? "Elegí una fecha y hora al menos 15 minutos después de ahora." : "Elegí una fecha y hora."}
+      </FieldError>
+    )}
+  </TextField>
 );
 
 DateInput.displayName = "DateInput";

@@ -1,74 +1,328 @@
 @import "tailwindcss";
+@import "@heroui/styles";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/*
+  Dark-only theme. There is no light variant and no `dark:` variant: the palette below is the
+  palette, so a colour only ever needs changing in one place.
 
+  Semantic tokens (canvas / surface / border / text) name the role, raw ramps name the hue.
+  Components should reach for the semantic token and fall back to a ramp only for brand accents.
+*/
 @theme {
+  /*
+    One family, Inter, which is what HeroUI sets --font-sans to. Its own components are drawn in it
+    whatever we choose, so a second face here only made the app disagree with itself. Hierarchy is
+    carried by HeroUI's scale — 24/600, 18/600, 16/400, 14, 12 — not by a display family.
+  */
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
   --color-white: #fff;
   --color-black: #000;
 
-  --color-primary-50: #ffffff;
-  --color-primary-100: #fbfaff;
-  --color-primary-200: #e4defd;
-  --color-primary-300: #bab3f9;
-  --color-primary-400: #8b84f6;
-  --color-primary-500: #685ef3;
-  --color-primary-600: #5446ec;
-  --color-primary-700: #4337e1;
-  --color-primary-800: #2d28c8;
-  --color-primary-900: #2931a3;
-  --color-primary-950: #151d65;
+  /*
+    The brand, muted. It was an electric #6d2ef5 at 91% saturation, which held up while the whole
+    page was violet and became a neon slab the moment the page went near-black around it. The hue is
+    the same; the saturation drops to 62%, which is where restrained product accents sit — Linear's
+    is 56% — and white on the button improves from 6.25:1 to 6.59:1 on the way.
 
-  --color-secondary-50: #f0fdfb;
-  --color-secondary-100: #ccfbf5;
-  --color-secondary-200: #99f6ea;
-  --color-secondary-300: #5eead8;
-  --color-secondary-400: #2dd4bf;
-  --color-secondary-500: #14b8a3;
-  --color-secondary-600: #0d9483;
-  --color-secondary-700: #0f7669;
-  --color-secondary-800: #115e54;
-  --color-secondary-900: #134e47;
-  --color-secondary-950: #042f2a;
+    This ramp is the one colour in the app allowed to shout, and it only does so in three places:
+    the button that shares the teams, the glow the page is lit with, and a keyboard focus ring.
+  */
+  --color-primary-50: #f6f3fb;
+  --color-primary-100: #eee8f8;
+  --color-primary-200: #d9ccef;
+  --color-primary-300: #bea4ea;
+  --color-primary-400: #a07be0;
+  --color-primary-500: #885ad8;
+  --color-primary-600: #7039d0;
+  --color-primary-700: #5e2bb6;
+  --color-primary-800: #4d2395;
+  --color-primary-900: #3e1c78;
+  --color-primary-950: #26114a;
 
-  --color-error-50: #fff6f6;
-  --color-error-100: #ffeaea;
-  --color-error-200: #ffd6d6;
-  --color-error-300: #ffbcbc;
-  --color-error-400: #ff9e9e;
-  --color-error-500: #ff7a7a;
-  --color-error-600: #f25c5c;
-  --color-error-700: #d94a4a;
-  --color-error-800: #b53a3a;
-  --color-error-900: #8e2c2c;
-  --color-error-950: #5a1818;
+  /*
+    Accent: cyan, at the same restraint as the brand. It sat at 86% saturation, which was fine
+    while the whole page was violet at 40% and became a second neon the moment everything
+    structural went near-black. Cyan means one thing here — someone came in — and it says it
+    without shouting over the orange bib, which is the only colour in the app allowed to.
+  */
+  --color-secondary-50: #effbfc;
+  --color-secondary-100: #d6f3f7;
+  --color-secondary-200: #b2e7ef;
+  --color-secondary-300: #7cd5e4;
+  --color-secondary-400: #39bfd7;
+  --color-secondary-500: #259cb5;
+  --color-secondary-600: #1f7f99;
+  --color-secondary-700: #1b6982;
+  --color-secondary-800: #175a72;
+  --color-secondary-900: #164c62;
+  --color-secondary-950: #0d2f3f;
+
+  /*
+    Destructive: rose rather than red, which keeps the palette on the cool side, and at the same
+    66% ceiling as the other two accents. Every colour that carries meaning in this app now sits in
+    the same band; the only thing above it is the bib.
+  */
+  --color-error-50: #fdf3f5;
+  --color-error-100: #fae9eb;
+  --color-error-200: #f6d5db;
+  --color-error-300: #efb2bd;
+  --color-error-400: #e68697;
+  --color-error-500: #dc576d;
+  --color-error-600: #d32b50;
+  --color-error-700: #ad2345;
+  --color-error-800: #931e3e;
+  --color-error-900: #811a3a;
+  --color-error-950: #430e1d;
+
+  /*
+    The neutrals are HeroUI's tokens, filled in by HeroUI's theme builder. These names are only
+    aliases, so that what this app draws by hand — the team panels, the player rows, the kit
+    selector — stands on exactly the same ground as the library's own Button, Modal and Input, and
+    the two cannot drift apart. The values themselves are in the theme block further down.
+
+    surface-raised and surface-hover point at --surface-secondary and --surface-tertiary, which is
+    what those tokens are for: a surface lifted off another surface. They used to point at --default
+    and --overlay, which are the fill of a default-variant button and the fill of a popover — near
+    enough in colour to look right and wrong about what they meant, so restyling a button would have
+    moved every player row with it.
+  */
+  --color-canvas: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-secondary);
+  --color-surface-hover: var(--surface-tertiary);
+  --color-border: var(--border);
+  --color-border-strong: var(--muted);
+  --color-text: var(--foreground);
+  --color-text-muted: var(--muted);
+  --color-text-subtle: var(--field-placeholder);
+
+  /* The app's panels, kept on HeroUI's scale rather than a pixel value of their own, so they stay
+     a step rounder than a field however --radius is set. */
+  --radius-card: calc(var(--radius) * 2);
 }
 
 /*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+  The settings of a kit mode arriving when you pick it. Deliberately small: the panel is already
+  where you are looking, so this only has to say "these belong to what you just chose" and get out
+  of the way. Anything longer than a couple of frames turns a radio button into a performance.
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
+  CSS rather than an animation library: this is one fade of one element, and the library that used
+  to be here was 37kB animating an opacity from 1 to 1.
+*/
+@keyframes kit-settings-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
+@utility kit-settings {
+  animation: kit-settings-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kit-settings {
+    animation: none;
+  }
+}
+
+/*
+  HeroUI's theme, as its theme builder exports it, with our violet in it.
+
+  This is the whole of what the app tells HeroUI about colour, and it is deliberately the shape the
+  builder produces rather than a set of values reasoned out here — the previous version set --accent
+  alone and left every other token at the library's default, which meant the neutrals were tinted
+  towards its own hue and never towards ours.
+
+  Two numbers explain the file. The hue is 293.76, which is #7039d0 measured in OKLCH, and the
+  chroma is how much of it each neutral carries — the builder's "Base" slider. It sits at 0.019,
+  and 0.028-0.034 on the surfaces, roughly double what the builder exported: enough that the greys
+  read as belonging to the brand rather than as zinc, and well short of a violet page. Foreground
+  and accent are deliberately not on this slider; tinting the text would only grey it.
+
+  Dark only, so only the dark block. --radius lives here rather than in the builder's :root block
+  for the same reason.
 */
 @layer base {
+  [data-theme="dark"] {
+    color-scheme: dark;
+
+    --accent: oklch(50.3% 0.2162 293.76);
+    --accent-foreground: oklch(99.11% 0 0);
+    --background: oklch(12% 0.019 293.76);
+    --border: oklch(28% 0.019 293.76);
+    /*
+      Pointed at the rose ramp rather than the builder's red-orange. Rose already means "went out"
+      in the team list and the history, and a destructive button in a different red would have been
+      the app saying the same thing in two colours.
+    */
+    --danger: var(--color-error-500);
+    --danger-foreground: oklch(99.11% 0 0);
+    /*
+      The off state of the switch, and — measured across both screens — the only thing in the app
+      painted with this token, which is why it can move on its own.
+
+      The builder's 27.4% put it at 1.20:1 against the panel it sits on. WCAG 1.4.11 asks 3:1 of any
+      control's boundary, and below that it is not a dim toggle, it is not visibly a toggle: the
+      white thumb floated on the card with no track behind it. 50% is where 3:1 lands against
+      --surface, and it is also how iOS and Material draw an unset switch on a dark ground — a
+      visible grey track, not an absence.
+    */
+    --default: oklch(51% 0.019 293.76);
+    --default-foreground: oklch(99.11% 0 0);
+    /*
+      The builder ships --field-background identical to --surface, which works where its own demos
+      put fields: straight on the page. This app also puts three of them inside the Editar dialog,
+      whose body is --surface — measured, the field and the dialog came out at 1.00:1, so the boxes
+      were not dim, they were gone. Moved one step up the builder's own ramp rather than to a value
+      invented here.
+    */
+    --field-background: oklch(25.7% 0.028 293.76);
+    --field-border: transparent;
+    --field-foreground: oklch(99.11% 0.0088 293.76);
+    --field-placeholder: oklch(70.5% 0.0176 293.76);
+    --focus: oklch(50.3% 0.2162 293.76);
+    --foreground: oklch(99.11% 0.0088 293.76);
+    --muted: oklch(70.5% 0.0176 293.76);
+    --overlay: oklch(21.03% 0.034 293.76);
+    --overlay-foreground: oklch(99.11% 0.0088 293.76);
+    --scrollbar: oklch(70.5% 0.0088 293.76);
+    --segment: oklch(39.64% 0.019 293.76);
+    --segment-foreground: oklch(99.11% 0.0088 293.76);
+    --separator: oklch(25% 0.019 293.76);
+    --success: oklch(73.29% 0.1969 156.32);
+    --success-foreground: oklch(21.03% 0.0059 156.32);
+    --surface: oklch(21.03% 0.034 293.76);
+    --surface-foreground: oklch(99.11% 0.0088 293.76);
+    --surface-secondary: oklch(25.7% 0.028 293.76);
+    --surface-secondary-foreground: oklch(99.11% 0.0088 293.76);
+    --surface-tertiary: oklch(27.21% 0.028 293.76);
+    --surface-tertiary-foreground: oklch(99.11% 0.0088 293.76);
+    --warning: oklch(82.03% 0.1412 81.85);
+    --warning-foreground: oklch(21.03% 0.0059 81.85);
+
+    /*
+      One knob. HeroUI derives its whole radius scale from --radius — xs is *0.25, sm *0.5, xl *1.5
+      — and --field-radius is *1.5 of it. The builder's export hardcoded --field-radius at 0.75rem,
+      which cut that derivation: the base said "small" and the fields stayed at 12px regardless.
+      Left to derive, so changing this one line changes everything with it.
+    */
+    --radius: 0.25rem;
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-canvas);
+    background-image: radial-gradient(
+      ellipse 90% 45% at 50% -5%,
+      color-mix(in oklab, var(--color-primary-600) 26%, transparent),
+      transparent 70%
+    );
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: var(--color-border);
+  }
+
+  /* One ring recipe for the whole app, so no component has to reinvent its focus state. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-600);
+    color: var(--color-text);
   }
 }
 
-@utility input {
-  @apply border-gray-300 text-gray-500 rounded-md w-full h-8 px-2 dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-400 dark:border-gray-700 dark:focus:ring-gray-500;
+/*
+  There is deliberately no `input` or `label` utility here any more, and this note is what stops
+  them coming back.
+
+  HeroUI draws its own Input and Label with `class="input"` and `class="label"`. A Tailwind
+  `@utility` of the same name is not a separate thing — it lands on the very same elements and wins,
+  so ours were silently repainting every field in the app: fill from --default instead of
+  --field-background, a 1px --muted border where HeroUI asks for none, and an 8px radius instead of
+  --field-radius. That is the entire reason the fields never looked like the library's, and it was
+  invisible in the source, because nothing in this app ever wrote className="input".
+
+  The TextArea was the tell: it collides with nothing, and it was the one field that looked right.
+
+  Anything this app needs to add to a HeroUI component goes in that component's own className, not
+  into a global utility named after one of its parts.
+*/
+
+/*
+  Surface recipes. Everything in the app is built from these three and nothing invents its own
+  radius, fill or border:
+
+    canvas   the page itself. It is the only thing carrying the brand hue.
+    panel    anything resting on the page: a card, a fieldset, a list of players.
+    modal    anything resting on top of a panel. Same recipe, one step lighter, with a backdrop.
+
+  Panels and modals are rounded-card. Controls (.input, buttons) are rounded-lg and at least 44px
+  tall. If a surface needs a different radius or fill, the rule is wrong, not the surface.
+
+  Type scale. Five steps, no arbitrary pixel sizes, nothing under 12px, and weight carries as much
+  of the hierarchy as size does:
+
+    text-2xl semibold   screen title
+    text-lg  semibold   dialog title
+    text-base           body: player names, dialog copy
+    text-sm             metadata, descriptions, help
+    text-xs  medium     uppercase labels
+    text-xs medium      an annotation attached to something else, never standalone copy
+
+  The app used to run on eight sizes, three of them written as raw pixels, with player details at
+  9px. Almost everything else was text-sm, which is why every screen read flat.
+
+  Stacking order. Four steps, and nothing picks its own number:
+
+    z-20  the header
+    z-30  menus anchored to something on the page
+    z-40  the dev bar
+    z-50  dialogs and their backdrop
+
+  The scale exists because a dialog once sat at z-10, under a z-20 header: its backdrop dimmed the
+  page and left the header floating lit on top of it.
+*/
+@utility panel {
+  @apply rounded-card border border-border bg-surface shadow-lg shadow-black/20;
 }
 
-@utility label {
-  @apply font-normal text-sm text-gray-400 dark:text-gray-300;
+/*
+  A team panel washed with its own kit. The kit used to live in a 1px border and a 30px icon, and
+  the shared picture came out grey: the one thing a football team has, a colour, was the thinnest
+  line in it. 7% of the garment mixed into the surface — and into the rows, so the panel and its
+  rows keep their step — reads as "the blue team" without becoming a blue box — 12% was tried first and the bib's
+  side came out plainly orange. White text on the rows measures above 9:1 for every preset. --team-color defaults to the surface itself, so a team that wears nothing (the side without
+  bibs) is drawn exactly as before.
+*/
+@utility team-panel {
+  background-color: color-mix(in oklab, var(--team-color, var(--surface)) 7%, var(--surface));
 }
+
+@utility team-row {
+  background-color: color-mix(in oklab, var(--team-color, var(--surface-secondary)) 7%, var(--surface-secondary));
+
+  &:hover {
+    background-color: color-mix(in oklab, var(--team-color, var(--surface-tertiary)) 7%, var(--surface-tertiary));
+  }
+}
+
+
 
 input[type="datetime-local"] {
   -webkit-appearance: none;
+  color-scheme: dark;
 }

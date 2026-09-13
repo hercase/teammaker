@@ -1,61 +1,31 @@
-import { usePrefersColorScheme } from "@/hooks/usePrefersColorScheme";
-import { getContrastColor } from "@/utils";
 import { FC } from "react";
+import { LIGHT_HEX } from "@/utils/kit";
 
 interface ShirtIconProps {
   color?: string;
+  // Only the dark shirt asks for one, and only because no fill can hold a shape on this background.
+  outline?: string;
   size?: number;
 }
 
-const ShirtIcon: FC<ShirtIconProps> = ({ color = "#2C3590", size = 42, ...rest }) => {
-  const { isDarkMode } = usePrefersColorScheme();
-  const contrastColor = getContrastColor(color, isDarkMode);
+/*
+  A silhouette, not an illustration. The previous icon was a 512px drawing with a collar, cuffs, a
+  hem seam and a little tag, all of which turn to mush at the 28px this is actually rendered at.
 
-  return (
-    <svg width={size} height={size} viewBox="0 0 512 512" {...rest}>
-      <path
-        d="M495.426 60.134a10.78 10.78 0 0 1 8.49 10.533v109.881c0 5.953-4.826 10.779-10.779 10.779h-86.232v301.81c0 5.953-4.826 10.779-10.779 10.779H115.874c-5.953 0-10.779-4.826-10.779-10.779v-301.81H18.863c-5.953 0-10.779-4.826-10.779-10.779V70.667a10.78 10.78 0 0 1 8.489-10.533L256 8.084l239.426 52.05z"
-        style={{
-          fill: color,
-        }}
-      />
-      <path
-        d="M406.905 40.89v452.246c0 5.953-4.826 10.779-10.779 10.779H256V8.084L406.905 40.89z"
-        style={{
-          fill: contrastColor,
-          opacity: 0.2,
-        }}
-      />
-      <path
-        d="M288.337 105.095h-64.674c-35.718 0-64.674-28.955-64.674-64.674 0-17.859 14.477-32.337 32.337-32.337h129.347c17.859 0 32.337 14.477 32.337 32.337 0 35.718-28.955 64.674-64.673 64.674z"
-        style={{
-          fill: color,
-        }}
-      />
-      <path
-        d="M256 105.095h-32.337c-35.718 0-64.674-28.955-64.674-64.674 0-17.859 14.477-32.337 32.337-32.337H256v97.011z"
-        style={{
-          fill: color,
-        }}
-      />
-      <path
-        d="M288.337 61.979h-64.674c-11.906 0-21.558-9.651-21.558-21.558V8.084h107.789v32.337c.001 11.906-9.651 21.558-21.557 21.558z"
-        style={{
-          fill: color,
-        }}
-      />
-      <path
-        d="M363.789 466.189v37.726h-32.337v-37.726a5.39 5.39 0 0 1 5.389-5.389H358.4a5.39 5.39 0 0 1 5.389 5.389z"
-        style={{
-          fill: color,
-        }}
-      />
-      <path
-        d="M497.144 52.234 356.467 21.652C349.695 8.79 336.191 0 320.674 0H191.326c-15.517 0-29.021 8.79-35.794 21.652L14.857 52.234C6.247 54.105 0 61.857 0 70.667v109.881c0 10.401 8.463 18.863 18.863 18.863h86.232c.661 0 1.319-.081 1.961-.241l43.116-10.779a8.083 8.083 0 0 0 5.882-9.803c-1.083-4.333-5.475-6.968-9.803-5.882l-42.15 10.538H18.863a2.699 2.699 0 0 1-2.695-2.695V70.667a2.71 2.71 0 0 1 2.122-2.633L150.924 39.2c-.012.405-.018.814-.018 1.221 0 40.119 32.639 72.758 72.758 72.758H256a8.084 8.084 0 0 0 0-16.168h-32.337c-31.204 0-56.589-25.385-56.589-56.589 0-13.373 10.879-24.253 24.253-24.253h2.695v24.253c0 16.345 13.297 29.642 29.642 29.642h64.674c16.345 0 29.642-13.297 29.642-29.642V16.168h2.695c13.373 0 24.253 10.879 24.253 24.253 0 31.204-25.385 56.589-56.589 56.589a8.084 8.084 0 0 0 0 16.168c40.119 0 72.758-32.639 72.758-72.758 0-.407-.007-.816-.018-1.221L493.71 68.033a2.707 2.707 0 0 1 2.121 2.632v109.882a2.699 2.699 0 0 1-2.695 2.695H407.9l-42.15-10.538a8.083 8.083 0 1 0-3.921 15.685l36.992 9.248v295.498a2.699 2.699 0 0 1-2.695 2.695h-24.253v-29.642c0-7.43-6.044-13.474-13.474-13.474h-21.558c-7.43 0-13.474 6.044-13.474 13.474v29.642H115.874a2.699 2.699 0 0 1-2.695-2.695V224.022a8.084 8.084 0 0 0-16.168 0v269.115c0 10.401 8.463 18.863 18.863 18.863h280.253c10.401 0 18.863-8.463 18.863-18.863V199.411h78.147c10.401 0 18.863-8.463 18.863-18.863V70.667c0-8.81-6.247-16.562-14.856-18.433zM301.811 40.421c0 7.43-6.044 13.474-13.474 13.474h-64.674c-7.43 0-13.474-6.044-13.474-13.474V16.168h91.621v24.253zm53.894 455.411h-16.168v-26.947h16.168v26.947z"
-        fill={contrastColor}
-      />
-    </svg>
-  );
-};
+  A ring around every shirt read as a sticker, so only the one that needs it gets a contour, and it
+  needs it for a reason no palette can argue with: measured against this panel a dark fill reaches
+  1.57:1 and a darker one 1.06:1. The others are chosen to hold up on their own.
+*/
+const ShirtIcon: FC<ShirtIconProps> = ({ color = LIGHT_HEX, outline, size = 42, ...rest }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+    <path
+      d="M8.8 2.6 4.7 4.3a1 1 0 0 0-.6.7L3.1 9a.8.8 0 0 0 .5.9l2.1.7a.5.5 0 0 0 .7-.5V20a1.4 1.4 0 0 0 1.4 1.4h8.4A1.4 1.4 0 0 0 17.6 20v-9.9a.5.5 0 0 0 .7.5l2.1-.7a.8.8 0 0 0 .5-.9L20 5a1 1 0 0 0-.6-.7l-4.1-1.7a3.4 3.4 0 0 1-6.5 0Z"
+      fill={color}
+      stroke={outline}
+      strokeWidth={outline ? 1.1 : undefined}
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 export default ShirtIcon;
