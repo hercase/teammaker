@@ -20,7 +20,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
     cyan came in, rose went out. A dropped player used to render a bare "-" with the name hidden,
     so the group could not tell from the teams who was missing.
   */
-  const isOut = Boolean(player.isDeleted && !player.isReplacedBy);
+  const isOut = Boolean(player.isDeleted);
   const isSubstitute = Boolean(substitute);
 
   const { random } = useMatchStore();

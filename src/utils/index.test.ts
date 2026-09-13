@@ -2,15 +2,20 @@ import { describe, expect, it } from "vitest";
 import {
   clampName,
   countPlayers,
+  countPlaying,
   duplicateTags,
   firstSurname,
+  formatMoney,
+  parsePrice,
   generateMatchEvent,
   generatePlayer,
   generatePlayers,
   MAX_DETAILS_CHARS,
   MAX_FULL_NAME_CHARS,
   MAX_NAME_CHARS,
+  pricePerPlayer,
   shortenFullName,
+  splitRoster,
   splitTeams,
   validateName,
 } from "@/utils";
@@ -36,9 +41,24 @@ describe("generatePlayer", () => {
   it("drops emoji and punctuation that come from the pasted message", () => {
     expect(generatePlayer("⚽ Lucho!").name).toBe("Lucho");
   });
+
+  it("keeps a nickname in brackets whole, and apart from the name", () => {
+    const player = generatePlayer("Andres(el titan)");
+
+    expect(player.name).toBe("Andres");
+    expect(player.details).toBe("el titan");
+  });
 });
 
 describe("generatePlayers", () => {
+  it("leaves the title, the day and the pitch of a real message off the teams", () => {
+    const message =
+      "Partido de los miercoles\n\n⏳Miércoles 18.30hrs\n🏟️ Cancha: Quintana y Salta\n\n⬇️ Esta semana:\n\n1. Lucho\n2. Mura\n3. Mauro\n4. Lihue";
+
+    expect(generatePlayers(message).map((p) => p.name)).toEqual(["Lucho", "Mura", "Mauro", "Lihue"]);
+    expect(countPlayers(message)).toBe(4);
+  });
+
   it("strips the list numbering that comes from the pasted message", () => {
     const players = generatePlayers("1. Lucho\n2. Mura\n3. Mauro");
 
@@ -343,5 +363,84 @@ describe("shortenFullName", () => {
 
   it("keeps a compound surname whole", () => {
     expect(shortenFullName("Ezequiel (Di Stefano)")).toBe("Ezequiel (Di Stefano)");
+  });
+});
+
+describe("countPlaying", () => {
+  it("counts a substitute once, and a substitute who also left not at all", () => {
+    const players = [
+      { id: "1", name: "Lucho" },
+      { id: "2", name: "Mura", isDeleted: true },
+      { id: "3", name: "Mauro", isDeleted: false, isReplacedBy: "9" },
+      { id: "4", name: "Lihue", isDeleted: true, isReplacedBy: "8" },
+    ];
+
+    expect(countPlaying(players)).toBe(2);
+  });
+});
+
+describe("pricePerPlayer", () => {
+  it("divides the pitch by whoever plays, rounding up", () => {
+    expect(pricePerPlayer(25000, 12)).toBe(2084);
+    expect(pricePerPlayer(24000, 12)).toBe(2000);
+  });
+
+  it("has nothing to say without a price or without players", () => {
+    expect(pricePerPlayer(null, 12)).toBeNull();
+    expect(pricePerPlayer(0, 12)).toBeNull();
+    expect(pricePerPlayer(24000, 0)).toBeNull();
+  });
+});
+
+describe("formatMoney", () => {
+  it("writes pesos the way the group does", () => {
+    expect(formatMoney(2084).replace(/\s/g, " ")).toBe("$ 2.084");
+  });
+});
+
+describe("parsePrice", () => {
+  it("reads pesos however they are typed", () => {
+    expect(parsePrice("24000")).toBe(24000);
+    expect(parsePrice("24.000")).toBe(24000);
+    expect(parsePrice("$ 24.000")).toBe(24000);
+  });
+
+  it("treats an empty box as no price, not zero", () => {
+    expect(parsePrice("")).toBeNull();
+    expect(parsePrice("  ")).toBeNull();
+    expect(parsePrice(null)).toBeNull();
+    expect(parsePrice(undefined)).toBeNull();
+  });
+});
+
+describe("splitRoster", () => {
+  // Letters only: the numbering is a symbol and gets stripped, and so would a digit in a name.
+  const NAMES = "Lucho Mura Mauro Lihue Eze Patru Mati Nacho Fede Keis Max Santi Nico Juan".split(" ");
+  const fourteen = NAMES.map((name, i) => `${i + 1}. ${name}`).join("\n");
+
+  it("plays the first names up to the cap and keeps the rest waiting, in order", () => {
+    const { players, substitutes } = splitRoster(fourteen, 12);
+
+    expect(players).toHaveLength(12);
+    expect(substitutes.map((p) => p.name)).toEqual(["Nico", "Juan"]);
+  });
+
+  it("treats a cap under two as no cap", () => {
+    expect(splitRoster(fourteen, 1).players).toHaveLength(14);
+    expect(splitRoster(fourteen, 0).players).toHaveLength(14);
+  });
+
+  it("plays everyone when there is no cap", () => {
+    const { players, substitutes } = splitRoster(fourteen, null);
+
+    expect(players).toHaveLength(14);
+    expect(substitutes).toEqual([]);
+  });
+
+  it("queues the message's own suplentes behind the ones past the cap", () => {
+    const { players, substitutes } = splitRoster("1. Lucho\n2. Mura\n3. Mauro\nSuplentes\n4. Nico", 2);
+
+    expect(players.map((p) => p.name)).toEqual(["Lucho", "Mura"]);
+    expect(substitutes.map((p) => p.name)).toEqual(["Mauro", "Nico"]);
   });
 });

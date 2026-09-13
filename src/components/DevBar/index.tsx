@@ -7,7 +7,7 @@ import { ChevronDownIcon, WrenchScrewdriverIcon } from "@heroicons/react/20/soli
 import { Separator } from "@heroui/react";
 import { useMatchStore, usePlayersStore } from "@/store";
 import { shuffle } from "lodash";
-import { generatePlayers } from "@/utils";
+import { splitRoster } from "@/utils";
 import { DEFAULT_KIT } from "@/utils/kit";
 import { Kit } from "@/types";
 import {
@@ -18,6 +18,9 @@ import {
   USUAL_LIST,
   USUAL_LOCATION,
   USUAL_ORGANIZER,
+  USUAL_PRICE,
+  USUAL_CAPACITY,
+  WAITLIST_LIST,
 } from "@/fixtures";
 
 interface DevActionProps {
@@ -45,6 +48,7 @@ interface LoadOptions {
   date?: string;
   kit?: Kit;
   random?: boolean;
+  capacity?: number | null;
 }
 
 const DevBar = () => {
@@ -52,7 +56,7 @@ const DevBar = () => {
   const pathname = usePathname();
   const [isOpen, setOpen] = useState(false);
   const { setMatch } = useMatchStore();
-  const { setPlayers } = usePlayersStore();
+  const { startMatch } = usePlayersStore();
   const barRef = useRef<HTMLDivElement>(null);
   const isOnForm = pathname === "/";
 
@@ -88,11 +92,12 @@ const DevBar = () => {
     date = nextWednesdayAt(),
     kit = DEFAULT_KIT,
     random = false,
+    capacity = null,
   }: LoadOptions = {}) => {
-    const players = generatePlayers(list);
+    const { players, substitutes } = splitRoster(list, capacity);
 
-    setMatch({ location: USUAL_LOCATION, organizer: USUAL_ORGANIZER, date, random, kit });
-    setPlayers(random ? shuffle(players) : players);
+    setMatch({ location: USUAL_LOCATION, organizer: USUAL_ORGANIZER, date, random, kit, price: USUAL_PRICE, capacity });
+    startMatch(random ? shuffle(players) : players, substitutes);
     router.push("/match");
 
     return players;
@@ -179,6 +184,9 @@ const DevBar = () => {
           <DevAction onClick={loadWithSubstitutions}>Con un cambio y una baja</DevAction>
           <DevAction onClick={() => loadList({ list: DUPLICATE_NAMES_LIST })}>Con nombres repetidos</DevAction>
           <DevAction onClick={() => loadList({ list: ODD_LIST })}>Con lista impar (11)</DevAction>
+          <DevAction onClick={() => loadList({ list: WAITLIST_LIST, capacity: USUAL_CAPACITY })}>
+            Con suplentes
+          </DevAction>
           <DevAction onClick={() => loadList({ date: expiredDate() })}>Ya finalizado</DevAction>
 
           <Separator className="my-0.5 bg-amber-400/20" />

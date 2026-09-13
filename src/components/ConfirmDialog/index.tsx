@@ -44,7 +44,41 @@ const ConfirmDialog: FC = () => {
             </AlertDialog.Header>
 
             {options?.input && (
-              <AlertDialog.Body>
+              <AlertDialog.Body className="flex flex-col gap-3">
+                {/*
+                  The waiting list, one tap each: the most common answer to "who comes in" is the
+                  next name on it, and typing a name on a phone is the slow way to say so. A tap
+                  fills the box rather than confirming, so a slip of the thumb costs nothing.
+                */}
+                {options.choices && options.choices.length > 0 && (
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Suplentes">
+                    {options.choices.map((choice) => (
+                      <Button
+                        key={choice}
+                        variant={value === choice ? "primary" : "ghost"}
+                        onClick={() => {
+                          setValue(choice);
+                          setError(undefined);
+                        }}
+                      >
+                        {choice}
+                      </Button>
+                    ))}
+                    {/* "Nobody" is an answer too, and it should not have to be typed. */}
+                    {options.emptyLabel && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          options.onConfirm("");
+                          close();
+                        }}
+                      >
+                        {options.emptyLabel}
+                      </Button>
+                    )}
+                  </div>
+                )}
+
                 <TextField
                   aria-label={options.text}
                   isInvalid={Boolean(error)}
@@ -54,10 +88,7 @@ const ConfirmDialog: FC = () => {
                 >
                   <Label className="sr-only">{options.text}</Label>
                   {/* data-testid, not id: HeroUI generates the input's id for the label to point at. */}
-                  <Input
-                    data-testid="dialog-input"
-                    onKeyDown={(event) => event.key === "Enter" && confirm()}
-                  />
+                  <Input data-testid="dialog-input" onKeyDown={(event) => event.key === "Enter" && confirm()} />
                   {error && (
                     <p role="alert" className="mt-2 text-sm text-error-400">
                       {error}

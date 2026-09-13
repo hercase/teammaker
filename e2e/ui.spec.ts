@@ -329,7 +329,8 @@ test("el kit, el lado y el nombre persisten sin crear nada", async ({ page }) =>
 test("el menú de fila: abre desde el ⋮, renombra, se cierra con Escape y no se abre al arrastrar", async ({ page }) => {
   const errors = watchConsole(page);
   await openFixture(page, "Con un cambio y una baja");
-  await expect(rows(page)).toHaveCount(12);
+  /* Twelve signed up, one dropped out: eleven rows, and the one who left is in the history. */
+  await expect(rows(page)).toHaveCount(11);
 
   await page
     .getByRole("button", { name: /^Opciones de/ })
@@ -535,4 +536,173 @@ test("el card del partido lleva el tinte violeta y su texto sigue legible sobre 
   expect(m.title).toBeGreaterThanOrEqual(4.5);
   expect(m.muted).toBeGreaterThanOrEqual(4.5);
   expect(m.icons).toBeGreaterThanOrEqual(3);
+});
+
+// ─── lo que trae el mensaje, y lo que pasa después de armar ──────────────────
+
+const REAL_MESSAGE =
+  "Partido de los miercoles \n\n⏳Miércoles 18.30hrs\n🏟️ Cancha: Quintana y Salta\n\n⬇️ Esta semana:\n\n1. Lucho\n2. Mura\n3. Mauro\n4. Lihue\n5. Eze \n6. Patru\n7. Mati\n8. Nacho\n9. Fede Camino\n10. Mati R\n11. Keis\n12.  Max";
+
+test("pegar un mensaje real llena Lugar y Fecha y arma doce jugadores, no dieciséis", async ({ page }) => {
+  const errors = watchConsole(page);
+  await page.evaluate((m) => navigator.clipboard.writeText(m), REAL_MESSAGE);
+  await page.getByRole("button", { name: "Pegar lista desde el portapapeles" }).click();
+  await expect(page.locator("#location")).toHaveValue("Quintana y Salta");
+  await expect(page.locator("#date")).toHaveValue(/^\d{4}-\d{2}-\d{2}T18:30$/);
+  await page.locator("#organizer").fill("Hernán");
+  await page.locator("#price").fill("24000");
+  await page.getByRole("button", { name: "Crear equipos" }).click();
+  await page.waitForURL(`**${MATCH}`);
+  await expect(rows(page)).toHaveCount(12);
+  /* $ 24.000 over twelve is $ 2.000 a head, on the card. */
+  await expect(page.getByText(/2\.000 cada uno/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("una baja saca la fila, dice qué equipo quedó corto, ajusta la cuota, y Sumar jugador la deshace", async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.evaluate((m) => navigator.clipboard.writeText(m), REAL_MESSAGE);
+  await page.getByRole("button", { name: "Pegar lista desde el portapapeles" }).click();
+  await page.locator("#organizer").fill("Hernán");
+  await page.locator("#price").fill("24000");
+  await page.getByRole("button", { name: "Crear equipos" }).click();
+  await page.waitForURL(`**${MATCH}`);
+
+  await page.getByRole("button", { name: /^Opciones de Mura/ }).click();
+  await page.getByRole("menuitem", { name: "Dar de baja" }).click();
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(page.getByText(/Falta uno en/)).toBeVisible();
+  /* Eleven left: $ 24.000 / 11 rounds up to $ 2.182. */
+  await expect(page.getByText(/2\.182 cada uno/)).toBeVisible();
+
+  await expect(rows(page)).toHaveCount(11);
+  await expect(rows(page).filter({ hasText: "Mura" })).toHaveCount(0);
+  await expect(page.getByText(/Mura se dio de baja/)).toBeVisible();
+
+  /* The undo lives where the hole is: Sumar jugador offers Mura first. */
+  await page.getByRole("button", { name: "Sumar jugador" }).click();
+  await page.getByRole("group", { name: "Suplentes" }).getByRole("button", { name: "Mura" }).click();
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(rows(page)).toHaveCount(12);
+  await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
+  await expect(page.getByText(/2\.000 cada uno/)).toBeVisible();
+  await expect(page.getByText(/volvió a sumarse/)).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("Nueva lista propone la fecha del próximo partido y recuerda el precio", async ({ page }) => {
+  await page.evaluate((m) => navigator.clipboard.writeText(m), REAL_MESSAGE);
+  await page.getByRole("button", { name: "Pegar lista desde el portapapeles" }).click();
+  await page.locator("#organizer").fill("Hernán");
+  await page.locator("#price").fill("24000");
+  await page.getByRole("button", { name: "Crear equipos" }).click();
+  await page.waitForURL(`**${MATCH}`);
+  await page.goto(HOME);
+  await expect(page.locator("#date")).toHaveValue(/T18:30$/);
+  await expect(page.locator("#price")).toHaveValue("24000");
+});
+
+test("con cupo, los que sobran son suplentes y Reemplazar los ofrece con un toque", async ({ page }) => {
+  const errors = watchConsole(page);
+  await openFixture(page, "Con suplentes");
+  await expect(rows(page)).toHaveCount(12);
+  await expect(page.locator("p", { hasText: "Suplentes:" })).toContainText("Nico, Juan");
+
+  await page.getByRole("button", { name: /^Opciones de Mura/ }).click();
+  await page.getByRole("menuitem", { name: "Reemplazar" }).click();
+  const choices = page.getByRole("group", { name: "Suplentes" });
+  await expect(choices.getByRole("button")).toHaveCount(2);
+  await choices.getByRole("button", { name: "Nico" }).click();
+  await expect(page.locator('[data-testid="dialog-input"]')).toHaveValue("Nico");
+  await page.getByRole("button", { name: "Confirmar" }).click();
+
+  /* Nico is on the pitch in Mura's row, off the waiting list, and the history says who came in. */
+  await expect(rows(page).filter({ hasText: "Nico" })).toHaveCount(1);
+  await expect(page.locator("p", { hasText: "Suplentes:" })).toContainText("Juan");
+  await expect(page.locator("p", { hasText: "Suplentes:" })).not.toContainText("Nico");
+  await expect(page.getByText(/reemplazado por/)).toBeVisible();
+  await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test("el cupo dice cuántos faltan cuando la lista no lo llena", async ({ page }) => {
+  await page
+    .locator("textarea")
+    .fill("1. Lucho\n2. Mura\n3. Mauro\n4. Lihue\n5. Eze\n6. Patru\n7. Mati\n8. Nacho\n9. Fede\n10. Keis");
+  await page.locator("#organizer").fill("Hernán");
+  await page.locator("#location").fill("Quintana y Salta");
+  await page.locator("#capacity").fill("12");
+  const soon = new Date(Date.now() + 3 * 864e5);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  await page.locator("#date").fill(`${soon.getFullYear()}-${pad(soon.getMonth() + 1)}-${pad(soon.getDate())}T20:30`);
+  await page.getByRole("button", { name: "Crear equipos" }).click();
+  await page.waitForURL(`**${MATCH}`);
+  await expect(page.getByText(/Faltan 2 para completar el cupo de 12/)).toBeVisible();
+});
+
+test("con suplentes, Dar de baja pregunta quién entra y el historial cuenta una sola cosa", async ({ page }) => {
+  await openFixture(page, "Con suplentes");
+  await page.getByRole("button", { name: /^Opciones de Keis/ }).click();
+  await page.getByRole("menuitem", { name: "Dar de baja" }).click();
+  await expect(page.getByRole("alertdialog")).toContainText("Keis se baja. ¿Quién entra?");
+  const choices = page.getByRole("group", { name: "Suplentes" });
+  await expect(choices.getByRole("button", { name: "Nadie, queda afuera" })).toBeVisible();
+  await choices.getByRole("button", { name: "Nico" }).click();
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(rows(page).filter({ hasText: "Nico" })).toHaveCount(1);
+  await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
+  await expect(page.getByText(/se dio de baja/)).toHaveCount(0);
+  await expect(page.getByText(/reemplazado por/)).toBeVisible();
+});
+
+test("el cupo arranca en 12", async ({ page }) => {
+  await expect(page.locator("#capacity")).toHaveValue("12");
+});
+
+test("un suplente con el nombre de alguien que ya estaba es el (2), aunque su fila quede más arriba", async ({
+  page,
+}) => {
+  await openFixture(page, "Con suplentes");
+  /* Lucho is the first row; a second Keis takes it, above the Keis who signed up first. */
+  await page.getByRole("button", { name: /^Opciones de Lucho/ }).click();
+  await page.getByRole("menuitem", { name: "Reemplazar" }).click();
+  await page.locator('[data-testid="dialog-input"]').fill("Keis");
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  const first = rows(page).first();
+  await expect(first).toContainText("Keis");
+  await expect(first).toContainText("(2)");
+  await expect(rows(page).filter({ hasText: "(1)" })).toContainText("Keis");
+});
+
+test("a la lista impar se le puede sumar el que falta, del lado que falta", async ({ page }) => {
+  const errors = watchConsole(page);
+  await openFixture(page, "Con lista impar (11)");
+  await expect(page.getByText(/Falta uno en/)).toBeVisible();
+  /* Only the short side offers it; the picture never does. */
+  const add = page.getByRole("button", { name: "Sumar jugador" });
+  await expect(add).toHaveCount(1);
+  await expect(add.locator("xpath=ancestor::*[@data-share='hide']")).toHaveCount(1);
+  await add.click();
+  await page.locator('[data-testid="dialog-input"]').fill("Nico");
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(rows(page)).toHaveCount(12);
+  await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
+  await expect(page.getByText(/Nico se sumó/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sumar jugador" })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test("el que entró por otro también puede bajarse, y el historial lo nombra a él", async ({ page }) => {
+  await openFixture(page, "Con un cambio y una baja");
+  /* Nico came in for Mauro; his row has to allow the same three actions as any other. */
+  await page.getByRole("button", { name: /^Opciones de Mauro/ }).click();
+  await expect(page.getByRole("menuitem", { name: "Dar de baja" })).toBeEnabled();
+  await expect(page.getByRole("menuitem", { name: "Reemplazar" })).toBeEnabled();
+  await page.getByRole("menuitem", { name: "Dar de baja" }).click();
+  await expect(page.getByRole("alertdialog")).toContainText("Nico");
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(rows(page)).toHaveCount(10);
+  await expect(page.getByText(/Nico se dio de baja/)).toBeVisible();
 });

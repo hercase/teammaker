@@ -41,8 +41,7 @@ const nextPaint = () =>
 // A finger, not a mouse. Desktop Safari can share files perfectly well; it should still not be asked to.
 const isTouchDevice = () => window.matchMedia("(pointer: coarse)").matches;
 
-const canCopyImages = () =>
-  typeof ClipboardItem !== "undefined" && typeof navigator.clipboard?.write === "function";
+const canCopyImages = () => typeof ClipboardItem !== "undefined" && typeof navigator.clipboard?.write === "function";
 
 /*
   On a phone the share sheet is its own answer, so only the two silent outcomes say anything. What

@@ -42,7 +42,7 @@ export type KitMode = Kit["mode"];
 export type MatchEvent = {
   // Optional because matches persisted before this existed have events without one.
   id?: string;
-  type: "replace" | "delete" | "rename";
+  type: "replace" | "delete" | "rename" | "restore" | "join";
   old_name: string;
   new_name?: string;
   date: Date;
@@ -56,6 +56,10 @@ export interface MatchInputs {
   date: string | Date | null;
   random: boolean;
   kit: Kit;
+  // What the pitch costs, in pesos, or null when nobody said. The picture divides it by whoever plays.
+  price: number | null;
+  // How many play. Names past it are substitutes, and the picture says how many are still missing.
+  capacity: number | null;
 }
 export interface MatchStore {
   location: string;
@@ -63,20 +67,37 @@ export interface MatchStore {
   organizer: string;
   random: boolean;
   kit: Kit;
-  remember: (fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "random">>) => void;
+  price: number | null;
+  capacity: number | null;
+  remember: (
+    fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "random" | "price" | "capacity">>
+  ) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
 }
 
 export interface PlayersStore {
   players: Player[];
+  // Who came in for someone: referenced by isReplacedBy, drawn in the replaced player's row.
   bench: Player[];
+  // Who is waiting for a spot: the names past the cap, and whoever the message listed as suplentes.
+  substitutes: Player[];
   history: MatchEvent[];
   hasHydrated: boolean;
   renamePlayer: (id: string, player_name: string) => void;
   setHasHydrated: (state: boolean) => void;
   setPlayers: (players: Player[]) => void;
+  // A match from scratch: these players, these substitutes, and nothing left over from the last one.
+  startMatch: (players: Player[], substitutes: Player[]) => void;
   setBench: (bench: Player[]) => void;
+  setSubstitutes: (substitutes: Player[]) => void;
+  // A substitute takes a player's place: out of the waiting list, into the bench, into the row.
+  promoteSubstitute: (old_id: string, substitute_id: string) => void;
+  // A new row on one side, for the eleventh player's missing partner: typed, or off the waiting list.
+  addPlayer: (player_name: string, side: TeamSide) => void;
+  addSubstitute: (substitute_id: string, side: TeamSide) => void;
   removePlayer: (id: string) => void;
+  // The undo of removePlayer: the person is back on the team and the history says so.
+  restorePlayer: (id: string) => void;
   replacePlayer: (old_id: string, player_name: string) => void;
   resetMatch: () => void;
   exchangePlayers: (playerId1: string, playerId2: string) => void;
@@ -90,6 +111,10 @@ export interface UIStore {
 export interface DialogOptions {
   text: string;
   input?: boolean;
+  // Names offered beside the input, one tap each: the substitutes, when there are any.
+  choices?: string[];
+  // A way to answer "nobody": confirms with an empty value, and says what that means.
+  emptyLabel?: string;
   inputValidator?: (value: string) => string | undefined;
   onConfirm: (value: string) => void;
 }

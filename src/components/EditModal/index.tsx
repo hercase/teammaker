@@ -10,6 +10,7 @@ import Button from "@/components/Button";
 import KitSelector from "@/components/KitSelector";
 import DateInput from "@/components/DateInput";
 import TextInput from "@/components/TextInput";
+import { parsePrice } from "@/utils";
 
 interface EditModalProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ interface EditModalProps {
 }
 
 const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
-  const { organizer, location, date, kit, random, setMatch } = useMatchStore();
+  const { organizer, location, date, kit, random, price, capacity, setMatch } = useMatchStore();
 
   const {
     register,
@@ -33,7 +34,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
       every keystroke once the field has been visited.
     */
     mode: "onTouched",
-    defaultValues: { organizer, location, kit, date, random },
+    defaultValues: { organizer, location, kit, date, random, price, capacity },
   });
 
   /*
@@ -42,8 +43,8 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
     written to the store by the next Confirmar. Reopening now always starts from the saved match.
   */
   useEffect(() => {
-    if (isOpen) reset({ organizer, location, kit, date, random });
-  }, [isOpen, reset, organizer, location, kit, date, random]);
+    if (isOpen) reset({ organizer, location, kit, date, random, price, capacity });
+  }, [isOpen, reset, organizer, location, kit, date, random, price, capacity]);
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
     setMatch({
@@ -53,6 +54,8 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
       // Not data.random: how the teams were built is not something an edit gets to rewrite.
       random,
       kit: data.kit,
+      price: data.price,
+      capacity: data.capacity,
     });
 
     setIsOpen(false);
@@ -92,11 +95,27 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     when someone drops out — and a match starting in under fifteen minutes would
                     have failed a rule meant for creating one, making the location unfixable.
                   */}
-                <DateInput
+                <DateInput register={register} error={!!errors.date} value={watch("date")} requireFuture={false} />
+
+                <TextInput
+                  name="capacity"
+                  label="Cupo de jugadores"
+                  inputMode="numeric"
+                  required={false}
+                  valueAs={parsePrice}
+                  value={watch("capacity") == null ? "" : String(watch("capacity"))}
                   register={register}
-                  error={!!errors.date}
-                  value={watch("date")}
-                  requireFuture={false}
+                />
+
+                <TextInput
+                  name="price"
+                  label="Precio de la cancha"
+                  prefix="$"
+                  inputMode="numeric"
+                  required={false}
+                  valueAs={parsePrice}
+                  value={watch("price") == null ? "" : String(watch("price"))}
+                  register={register}
                 />
 
                 {/*

@@ -161,6 +161,9 @@ the z-index scale all live there with the reasoning attached. Read it before wri
   identical, which is fine where fields sit on the page and invisible where they sit in a dialog:
   the Editar fields measured 1.00:1 against the dialog body — not dim, gone. Anything that changes
   the surface ramp has to be checked inside a modal, not only on the page.
+- The shirt presets sit 15 saturation points above the interface accents, on purpose: they are
+  garments, and at 26px seven in a row the muted set read as grey versions of themselves. +30 was
+  rendered beside it and is the neon sheet the palette was pulled back from. `kit.ts` has the note.
 - Cyan (`secondary`) means *came in*; rose (`error`) means *went out*. Consistent in the team list
   and the history.
 - **Buttons are HeroUI's `lg`, and nothing overrides a height.** Its scale is sm 36 / md 40 / lg 44,
@@ -343,13 +346,80 @@ horizontal overflow. Two measurement traps: `getComputedStyle` returns `oklch()`
 through a 1×1 canvas; and a colour with alpha must be composited over its real ground before it is
 read, or a 30% border reports 6:1 where the truth is 1.7:1.
 
+### The WhatsApp message
+
+`parseMessage` in `src/utils/message.ts` is how a pasted list is read, and `generatePlayers` and
+`countPlayers` both go through it. **A player is a line that starts with a number.** Read line by
+line as names, one real message produced 16 players out of 12: "Partido", "Miércoles", "Cancha" and
+"Esta semana" were on the teams. The lines that are not numbered are read for the day and time
+("⏳Miércoles 18.30hrs" is the coming Wednesday at 18:30, counted from now) and for the pitch
+("🏟️ Cancha: Quintana y Salta"); a paste — the Pegar button or the phone's own menu, caught on the
+wrapper because React Aria filters DOM props — fills Lugar and Fecha where they are still empty,
+and never from typing. A list with no numbering at all still works the old way, every line a name.
+WhatsApp puts U+2060 WORD JOINER between the number and the name (42 in one message); it is neither
+whitespace nor a letter, and it is stripped first with the other zero-width characters. The three
+real messages the rule was written against are in `message.test.ts`; keep them.
+
+The form opens with a proposed date: the coming occurrence of the last match's weekday and hour
+(`proposeKickoff`). The group plays on a schedule and the date wheel is the slowest field on a
+phone. The message's date overrides it; so does the person.
+
+### What the match screen says after the teams exist
+
+- **"Falta uno en Claras"** under the teams when a drop-out leaves the sides uneven, in the same
+  voice as the bibs line. Two small numbers in the headers were the only thing saying so, and it is
+  the one thing the group has to act on before kick-off.
+- **A row that dropped out leaves the list.** It used to stay, struck through, so the group could
+  see who was missing; the "falta uno" line and the history ("Fede se dio de baja.") say so now,
+  and the struck name only made the team look one longer. The row stays in the data with
+  `isDeleted`, so the undo is possible: **Sumar jugador offers whoever left that side first**, by
+  the name their row showed, and picking them restores the row ("volvió a sumarse."). Both events
+  stay in the history, because both happened. `countPlaying` is the one place that decides who is
+  on the pitch (`!isDeleted`); the headers, the lines and the price all use it.
+- **`isDeleted` is about the row, whoever it shows.** A substitute who came in (`isReplacedBy`)
+  can drop out or be replaced like anyone else: the store names the *drawn* player in the event
+  ("Nico se dio de baja", not Mauro) and keeps `isReplacedBy`, so a restore brings Nico back. The
+  row menu used to freeze a replaced row — no Dar de baja, no Reemplazar — which after one
+  substitution left the organiser with no move at all.
+- **Precio de la cancha** is optional and the only numeric field. It is a *text* input with
+  `inputMode="numeric"`: a number input drew spinner arrows and reported an empty box as 0. It
+  starts empty and has no placeholder, because anything in the box reads as something to fill in.
+  `parsePrice` takes unknown: react-hook-form hands the converter `null` before anything is typed,
+  and `Number(null)` is 0, which is exactly how the box came to say "0". The card shows
+  "$ 2.000 cada uno · $ 24.000 entre 12", recalculated from whoever is playing; it is remembered
+  between matches like the pitch and the kit.
+- Required fields carry HeroUI's asterisk (`isRequired` on the TextField). With
+  `validationBehavior="aria"` that is all it does; react-hook-form still decides what is missing.
+- **Cupo de jugadores** is optional and remembered. `splitRoster` cuts the list at it: the first N
+  numbered names play, the rest wait, in the order they signed up — and whoever the message lists
+  under a "Suplentes" heading waits behind them. The waiting list is `substitutes` in the players
+  store, distinct from `bench` (who already came in for someone). The picture prints
+  "Suplentes: Nico, Juan", and "Faltan 2 para completar el cupo de 12" when the sides are even and
+  still under the cap; when one side is short, "Falta uno en Claras" already says where the hole
+  is, so the cap line stays quiet.
+- The cap starts at 12 (`DEFAULT_CAPACITY`) and is remembered; cleared, everyone plays. With
+  anyone waiting, **Dar de baja asks who comes in** — the substitutes and "Nadie, queda afuera" —
+  so the row goes straight from one name to the other and the history writes one event, not a
+  drop-out and then a replacement with "falta uno" on screen in between.
+- **Sumar jugador** at the foot of the side that is short (both sides when even and under the
+  cap), hidden from the picture like every control. "Falta uno en Oscuras" was a statement with no
+  way to act on it: an odd list leaves a side short and nothing could add anyone. It opens the same
+  "¿Quién entra?" dialog, substitutes first; the new row is spliced where `splitTeams` will hand it
+  to that side (the end of the first half for A, the end for B), and the history says "se sumó."
+- **Duplicates are numbered by arrival, not by row.** A substitute takes the row of whoever left,
+  which may sit above the original, and numbering down the rows made the newcomer "Keis (1)" and
+  the Keis who signed up first "Keis (2)". Originals first in list order, then the bench in the
+  order people came in.
+- **Reemplazar offers the waiting list** as one-tap buttons above the name box; a tap fills the
+  box, Confirmar confirms, so a slipped thumb costs nothing. A typed name that is a substitute's is
+  the substitute stepping in (`promoteSubstitute`: off the list, onto the bench, into the row) —
+  not a second person who happens to share the name. The fixture "Con suplentes" loads fourteen
+  for twelve spots.
+- The price line reads "$ 2.000 cada uno ($ 24.000)". It said "entre 12", which the chips already
+  say, and the total in brackets is enough.
+
 ## Still open
 
-- **The WhatsApp parser.** Real messages carry metadata lines ("Partido", "Miércoles 20hs", the
-  pitch address) that currently become players: one real message produced 16 players instead of 12.
-  The rule that validates against all three sample messages is *a player is only a line that starts
-  with a number*, and the metadata lines should fill the location and date instead. Also strip
-  U+2060 WORD JOINER, which appears 42 times in one real message.
 - An open question never answered: should "Fede Camino" stop being split into name + surname
   altogether?
 - On a narrow phone a replaced player with a long surname still truncates in the on-screen list

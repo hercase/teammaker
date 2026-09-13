@@ -5,6 +5,10 @@ interface AlertOptions {
   text: string;
   input?: "text";
   inputValidator?: (value: string) => string | undefined;
+  // Names offered as one-tap answers beside the input.
+  choices?: string[];
+  // Offers "nobody" as an answer; cb then receives "".
+  emptyLabel?: string;
   cb: (value: string) => void;
 }
 
@@ -21,8 +25,8 @@ const useAlert = () => {
   const open = useDialogStore((state) => state.open);
 
   return useCallback(
-    ({ text, input, inputValidator, cb }: AlertOptions) =>
-      open({ text, input: input === "text", inputValidator, onConfirm: cb }),
+    ({ text, input, inputValidator, choices, emptyLabel, cb }: AlertOptions) =>
+      open({ text, input: input === "text", inputValidator, choices, emptyLabel, onConfirm: cb }),
     [open]
   );
 };

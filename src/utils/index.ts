@@ -1,4 +1,5 @@
 import { MatchEvent, Player } from "@/types";
+import { parseMessage } from "@/utils/message";
 
 // \p{L} with the u flag covers accents and ñ, which the previous [a-zA-Z] range stripped
 const NON_NAME_CHARS = /[^\p{L}\s]/gu;
@@ -61,6 +62,8 @@ const SURNAME_PARTICLES = new Set([
   "den",
   "san",
   "santa",
+  // Not a surname particle but a nickname's: "Andres (el titan)" is filed under "el titan", not "el".
+  "el",
   "mac",
   "mc",
   "st",
@@ -86,7 +89,8 @@ export function firstSurname(words: string[]): string {
 }
 
 export function generatePlayer(user_str: string): Player {
-  const onlyLetters = user_str.replace(NON_NAME_CHARS, "").replace(/\s+/g, " ").trim();
+  // Replaced with a space, not removed: "Andres(el titan)" used to come out as "Andresel titan".
+  const onlyLetters = user_str.replace(NON_NAME_CHARS, " ").replace(/\s+/g, " ").trim();
   const [name = "", ...rest] = onlyLetters.split(" ");
 
   return {
@@ -118,11 +122,45 @@ export function shortenFullName(fullName: string): string {
   return surname ? `${name} (${surname})` : name;
 }
 
+const toPlayers = (lines: string[]): Player[] =>
+  lines.map((line) => generatePlayer(line)).filter((player) => player.name !== "");
+
+// Only the player lines of the message; see parseMessage for what the rest of it is.
 export function generatePlayers(str: string): Player[] {
-  return str
-    .split("\n")
-    .map((line) => generatePlayer(line))
-    .filter((player) => player.name !== "");
+  return toPlayers(parseMessage(str).players);
+}
+
+/*
+  What the form proposes before anyone has said: six a side. Cleared, it means everyone plays.
+*/
+export const DEFAULT_CAPACITY = 12;
+
+/*
+  Who plays and who waits. The cap comes first: a Tuesday list of fourteen with a cap of twelve
+  is twelve players and two substitutes, in list order, which is the order they signed up in and
+  the order they expect to get a spot. Whoever the message listed under "Suplentes" waits behind
+  them. Without a cap every numbered name plays, as before.
+*/
+export function splitRoster(str: string, capacity: number | null): { players: Player[]; substitutes: Player[] } {
+  const parsed = parseMessage(str);
+  const all = toPlayers(parsed.players);
+  // A cap under two is not a match; it is treated as no cap rather than as a silent refusal.
+  const cut = capacity && capacity >= 2 ? Math.min(capacity, all.length) : all.length;
+
+  return {
+    players: all.slice(0, cut),
+    substitutes: [...all.slice(cut), ...toPlayers(parsed.substitutes)],
+  };
+}
+
+/*
+  Who is actually on the pitch: a row that is out is out, whoever it shows — the player who signed
+  up, or the substitute who came in for them and then dropped out too. A replaced row counts once,
+  as its substitute. The team header, the "falta uno" line and the price per head all need the
+  same number, so it is decided here.
+*/
+export function countPlaying(players: Player[]): number {
+  return players.filter((player) => !player.isDeleted).length;
 }
 
 /*
@@ -132,7 +170,7 @@ export function generatePlayers(str: string): Player[] {
   button looking broken.
 */
 export function countPlayers(str: string): number {
-  return str.split("\n").filter((line) => line.replace(NON_NAME_CHARS, "").trim() !== "").length;
+  return parseMessage(str).players.filter((line) => line.replace(NON_NAME_CHARS, "").trim() !== "").length;
 }
 
 // teamB starts where teamA ends. Using slice(-half) overlaps by one on odd-sized lists.
@@ -189,3 +227,30 @@ export const generateMatchEvent = ({ type, old_player, new_player }: GenerateMat
   ...(new_player && { new_name: generateFullName(new_player) }),
   date: new Date(),
 });
+
+/*
+  Pesos, the way the group writes them: "$ 2.000", no cents. The price is what the pitch costs; the
+  share is what each person on it puts in, rounded up so the organiser is not left short by a
+  peso per head.
+*/
+const PESOS = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+
+export const formatMoney = (amount: number): string => PESOS.format(amount);
+
+export function pricePerPlayer(price: number | null | undefined, playing: number): number | null {
+  if (!price || price <= 0 || playing <= 0) return null;
+
+  return Math.ceil(price / playing);
+}
+
+/*
+  "24000", "24.000" and "$24.000" are all the same price; an empty box is no price, not zero.
+  Takes unknown because react-hook-form hands the converter whatever the field holds, and before
+  anything is typed that is the null it was born with — Number(null) is 0, which is how an empty
+  box came to say "0" and look like something that had to be filled in.
+*/
+export function parsePrice(value: unknown): number | null {
+  const digits = String(value ?? "").replace(/\D/g, "");
+
+  return digits ? Number(digits) : null;
+}

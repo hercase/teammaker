@@ -1,12 +1,36 @@
-import { firstSurname, generateMatchEvent, generatePlayer, MAX_DETAILS_CHARS, clampName, shortenFullName } from "@/utils";
-import { MatchEvent, Player, PlayersStore } from "@/types";
+import {
+  firstSurname,
+  generateMatchEvent,
+  generatePlayer,
+  MAX_DETAILS_CHARS,
+  clampName,
+  shortenFullName,
+} from "@/utils";
+import { MatchEvent, Player, PlayersStore, TeamSide } from "@/types";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+/*
+  Where a new row has to go for splitTeams to hand it to the right side: team A is the first
+  ceil(n/2) rows, so a player for A goes in at the end of that half and one for B at the end.
+*/
+const insertionIndex = (count: number, side: TeamSide): number =>
+  side === "B" ? count : Math.ceil((count + 1) / 2) - 1;
+
+const join = (state: PlayersStore, player: Player, side: TeamSide) => {
+  state.players.splice(insertionIndex(state.players.length, side), 0, player);
+  state.history.push(generateMatchEvent({ type: "join", old_player: player }));
+};
+
+// Who the row shows: the substitute, if one came in, else the player who signed up.
+const drawn = (state: PlayersStore, player: Player): Player =>
+  state.bench.find((p) => p.id === player.isReplacedBy) ?? player;
+
 const initialState = {
   players: [],
   bench: [],
+  substitutes: [],
   history: [],
 };
 
@@ -19,7 +43,33 @@ export const usePlayersStore = create(
         set({ hasHydrated: state });
       },
       setPlayers: (players) => set(() => ({ players })),
+      /*
+        One action, so a new list can never inherit the last match's bench or history. The home
+        page only shows the form once a match has been reset, so in the app this was theoretical;
+        the dev bar, which loads fixtures over a match in progress, showed the old events under
+        the new teams — and the same door is open to any future caller.
+      */
+      startMatch: (players, substitutes) => set(() => ({ ...initialState, players, substitutes })),
       setBench: (bench) => set(() => ({ bench })),
+      setSubstitutes: (substitutes) => set(() => ({ substitutes })),
+      promoteSubstitute: (old_id: string, substitute_id: string) =>
+        set(
+          produce((state: PlayersStore) => {
+            const player = state.players.find((p) => p.id === old_id);
+            const index = (state.substitutes ?? []).findIndex((p) => p.id === substitute_id);
+
+            if (!player || index === -1) return;
+
+            const [substitute] = state.substitutes.splice(index, 1);
+            const leaving = drawn(state, player);
+
+            state.bench.push(substitute);
+            player.isReplacedBy = substitute.id;
+            player.isDeleted = false;
+
+            state.history.push(generateMatchEvent({ type: "replace", old_player: leaving, new_player: substitute }));
+          })
+        ),
       renamePlayer: (id: string, player_name: string) =>
         set(
           produce((state: PlayersStore) => {
@@ -47,11 +97,43 @@ export const usePlayersStore = create(
           produce((state: PlayersStore) => {
             const player = state.players.find((p) => p.id === id);
 
-            if (player) {
+            /*
+              isDeleted is about the row, whoever it shows: a substitute who came in and then drops
+              out leaves the same hole, and the history names the person who left, not the one
+              they had replaced. isReplacedBy is kept, so Volver a sumar brings the right one back.
+            */
+            if (player && !player.isDeleted) {
               player.isDeleted = true;
 
-              state.history.push(generateMatchEvent({ type: "delete", old_player: player }));
+              state.history.push(generateMatchEvent({ type: "delete", old_player: drawn(state, player) }));
             }
+          })
+        ),
+      restorePlayer: (id: string) =>
+        set(
+          produce((state: PlayersStore) => {
+            const player = state.players.find((p) => p.id === id);
+
+            if (player?.isDeleted) {
+              player.isDeleted = false;
+
+              // The drop-out stays in the history: both things happened.
+              state.history.push(generateMatchEvent({ type: "restore", old_player: drawn(state, player) }));
+            }
+          })
+        ),
+      addPlayer: (player_name: string, side: TeamSide) =>
+        set(produce((state: PlayersStore) => join(state, generatePlayer(player_name), side))),
+      addSubstitute: (substitute_id: string, side: TeamSide) =>
+        set(
+          produce((state: PlayersStore) => {
+            const index = (state.substitutes ?? []).findIndex((p) => p.id === substitute_id);
+
+            if (index === -1) return;
+
+            const [substitute] = state.substitutes.splice(index, 1);
+
+            join(state, substitute, side);
           })
         ),
       replacePlayer: (old_id: string, player_name: string) =>
@@ -61,12 +143,13 @@ export const usePlayersStore = create(
 
             if (player) {
               const newPlayer = generatePlayer(player_name);
+              const leaving = drawn(state, player);
 
               state.bench.push(newPlayer);
               player.isReplacedBy = newPlayer.id;
               player.isDeleted = false;
 
-              state.history.push(generateMatchEvent({ type: "replace", old_player: player, new_player: newPlayer }));
+              state.history.push(generateMatchEvent({ type: "replace", old_player: leaving, new_player: newPlayer }));
             }
           })
         ),
@@ -76,6 +159,7 @@ export const usePlayersStore = create(
             ...state,
             players: initialState.players,
             bench: initialState.bench,
+            substitutes: initialState.substitutes,
             history: initialState.history,
           }))
         ),
