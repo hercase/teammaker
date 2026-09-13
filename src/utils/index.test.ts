@@ -3,12 +3,14 @@ import {
   clampName,
   countPlayers,
   duplicateTags,
+  firstSurname,
   generateMatchEvent,
   generatePlayer,
   generatePlayers,
   MAX_DETAILS_CHARS,
   MAX_FULL_NAME_CHARS,
   MAX_NAME_CHARS,
+  shortenFullName,
   splitTeams,
   validateName,
 } from "@/utils";
@@ -217,11 +219,12 @@ describe("generatePlayer with very long names", () => {
     expect(player.name.endsWith("…")).toBe(true);
   });
 
-  it("caps the details and keeps the first name whole", () => {
-    const player = generatePlayer("Ezequiel Hernandez Palomero De La Mancha");
+  // The surname rule normally gets there first; the character cap is what catches one absurd word.
+  it("caps a single surname that is absurd on its own", () => {
+    const player = generatePlayer("Ezequiel Hernandezpalomerodelamancha");
 
     expect(player.name).toBe("Ezequiel");
-    expect(player.details).toBe("Hernandez…");
+    expect(player.details?.endsWith("…")).toBe(true);
     expect(player.details?.length ?? 0).toBeLessThanOrEqual(MAX_DETAILS_CHARS + 1);
   });
 
@@ -277,5 +280,68 @@ describe("validateName length", () => {
 
   it("does not count the spaces someone left around the name", () => {
     expect(validateName(`  ${"a".repeat(MAX_FULL_NAME_CHARS)}  `)).toBeUndefined();
+  });
+});
+
+/*
+  The bracketed half of a name exists to tell two Matis apart, so it is the first surname and
+  nothing after it. A surname is not always one word, which is the whole difficulty.
+*/
+describe("firstSurname", () => {
+  it("takes one surname and leaves the rest of the paperwork", () => {
+    expect(firstSurname(["Hernandez", "Palomero", "De", "La", "Mancha"])).toBe("Hernandez");
+  });
+
+  it("keeps a surname that is spelled in more than one word", () => {
+    expect(firstSurname(["Di", "Stefano"])).toBe("Di Stefano");
+    expect(firstSurname(["De", "La", "Mancha"])).toBe("De La Mancha");
+    expect(firstSurname(["van", "Dijk"])).toBe("van Dijk");
+    expect(firstSurname(["Mac", "Allister"])).toBe("Mac Allister");
+  });
+
+  it("carries a single surname through untouched", () => {
+    expect(firstSurname(["Camino"])).toBe("Camino");
+  });
+
+  it("has nothing to take from a one-word name", () => {
+    expect(firstSurname([])).toBe("");
+  });
+
+  it("does not mistake a particle inside the discarded part for the start of one", () => {
+    expect(firstSurname(["Gonzalez", "de", "la", "Vega"])).toBe("Gonzalez");
+  });
+});
+
+describe("generatePlayer keeps only the first surname", () => {
+  it("files the long one under its first surname", () => {
+    const player = generatePlayer("Ezequiel Hernandez Palomero de la Mancha");
+
+    expect(player.name).toBe("Ezequiel");
+    expect(player.details).toBe("Hernandez");
+  });
+
+  it("keeps a compound surname whole", () => {
+    expect(generatePlayer("Ezequiel Di Stefano").details).toBe("Di Stefano");
+    expect(generatePlayer("Nico de la Mancha").details).toBe("de la Mancha");
+  });
+
+  it("leaves the everyday case exactly as it was", () => {
+    expect(generatePlayer("Fede Camino").details).toBe("Camino");
+    expect(generatePlayer("Lucho").details).toBe("");
+  });
+});
+
+describe("shortenFullName", () => {
+  it("applies the same rule to a name already written out", () => {
+    expect(shortenFullName("Ezequiel (Hernandez Palomero De La Mancha)")).toBe("Ezequiel (Hernandez)");
+  });
+
+  it("leaves a name that is already short alone", () => {
+    expect(shortenFullName("Fede (Camino)")).toBe("Fede (Camino)");
+    expect(shortenFullName("Lucho")).toBe("Lucho");
+  });
+
+  it("keeps a compound surname whole", () => {
+    expect(shortenFullName("Ezequiel (Di Stefano)")).toBe("Ezequiel (Di Stefano)");
   });
 });

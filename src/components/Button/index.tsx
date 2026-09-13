@@ -12,21 +12,21 @@ type ButtonProps = {
   "aria-label"?: string;
 };
 
-const Button: FC<ButtonProps> = ({
-  type = "button",
-  children,
+/*
+  Exported so the one thing in the app that must look like a button but be a link — the 404's way
+  home — wears the real recipe instead of a copy of it. The copy had already drifted: no 44px
+  minimum height, no press feedback, its own padding scale.
+
+  Size belongs to the component, not to the caller. Every call site that reached for its own px-3
+  or h-9 was one more way for two buttons in the same app to stop matching.
+*/
+export const buttonClasses = ({
   variant = "primary",
   size = "md",
   disabled,
   className,
-  onClick,
-  "aria-label": ariaLabel,
-}) => {
-  /*
-    Size belongs to the component, not to the caller. Every call site that reached for its own
-    px-3 or h-9 was one more way for two buttons in the same app to stop matching.
-  */
-  const btnClasses = classNames(
+}: Pick<ButtonProps, "variant" | "size" | "disabled" | "className"> = {}) =>
+  classNames(
     "rounded-lg font-medium text-white flex items-center justify-center gap-2 transition-colors touch-manipulation active:scale-[0.98]",
     { "min-h-11 px-5": size === "md", "min-h-9 px-3 text-sm": size === "sm" },
     className,
@@ -39,11 +39,25 @@ const Button: FC<ButtonProps> = ({
     }
   );
 
-  return (
-    <button type={type} className={btnClasses} disabled={disabled} onClick={onClick} aria-label={ariaLabel}>
-      {children}
-    </button>
-  );
-};
+const Button: FC<ButtonProps> = ({
+  type = "button",
+  children,
+  variant,
+  size,
+  disabled,
+  className,
+  onClick,
+  "aria-label": ariaLabel,
+}) => (
+  <button
+    type={type}
+    className={buttonClasses({ variant, size, disabled, className })}
+    disabled={disabled}
+    onClick={onClick}
+    aria-label={ariaLabel}
+  >
+    {children}
+  </button>
+);
 
 export default Button;

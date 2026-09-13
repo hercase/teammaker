@@ -11,6 +11,12 @@
   /* One step below text-xs, for annotations hanging off a name. Not for anything you have to read. */
   --text-2xs: 0.625rem;
 
+  /*
+    One face in both roles, on purpose. This used to pair Barlow with Barlow Condensed; the display
+    role is now the same Geist at 700 with tight tracking, so hierarchy comes from weight and
+    spacing rather than from a change of voice. The token stays separate so the pairing can come
+    back without touching every heading.
+  */
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -158,8 +164,8 @@
     z-40  the dev bar
     z-50  dialogs and their backdrop
 
-  The welcome dialog used to sit at z-10, under a z-20 header, so its backdrop dimmed the page but
-  left the header floating lit on top of it.
+  The scale exists because a dialog once sat at z-10, under a z-20 header: its backdrop dimmed the
+  page and left the header floating lit on top of it.
 */
 @utility panel {
   @apply rounded-card border border-border bg-surface shadow-lg shadow-black/20;

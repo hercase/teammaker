@@ -11,7 +11,7 @@ interface PlayerNameProps {
 }
 
 const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
-  const { bench, tags } = usePlayers();
+  const { bench, tags, exchangePlayers } = usePlayers();
   const substitute = bench.find((p) => p.id === player.isReplacedBy);
   const currentPlayers = substitute || player;
 
@@ -23,7 +23,6 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
   const isOut = Boolean(player.isDeleted && !player.isReplacedBy);
   const isSubstitute = Boolean(substitute);
 
-  const { exchangePlayers } = usePlayers();
   const { random } = useMatchStore();
   const ref = useRef<HTMLParagraphElement>(null);
 
@@ -58,10 +57,9 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
       className={classNames(
         // min-w-0: without it a flex item refuses to shrink below its text, so a long name pushed
         // the row menu off the right edge of the card instead of being truncated.
-        // Wraps rather than truncates: on a phone each panel is about 180px wide, and an ellipsis
-        // there turns "(Hernandez)" into "(H…)", which says less than nothing. The surname is what
-        // tells two players apart, so it drops to a second line instead of disappearing.
-        "flex min-h-11 w-full min-w-0 select-none flex-wrap items-center gap-x-2 py-1 touch-manipulation",
+        // One line per player, always: a row that grows to two lines makes the two teams stop
+        // reading as two even stacks. The surname gives way instead, with an ellipsis.
+        "flex min-h-11 w-full min-w-0 select-none items-center gap-2 touch-manipulation",
         {
           "opacity-50": isDragging,
           "cursor-move": !random,
@@ -79,9 +77,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
       )}
       {/* The rest of the name, smaller and in brackets. Not a badge: it is not a status. */}
       {currentPlayers.details && (
-        // truncate is the backstop: the name is already cut short when the Player is made, so this
-        // only bites on a very narrow panel, and it ends in an ellipsis rather than mid-letter.
-        <span className="min-w-0 truncate text-2xs font-medium uppercase leading-tight text-text-muted">
+        <span className="min-w-0 truncate text-2xs font-medium uppercase text-text-muted">
           ({currentPlayers.details})
         </span>
       )}

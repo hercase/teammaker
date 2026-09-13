@@ -19,7 +19,7 @@ const DateInput: FC<DateInputProps> = ({ register, error, requireFuture = true, 
   <div className="label flex flex-col gap-2 w-full">
     <label
       className={classNames({
-        "text-error-500": error,
+        "text-error-400": error,
       })}
       htmlFor="date"
     >

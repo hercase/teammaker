@@ -1,7 +1,26 @@
-import React from "react";
+import React, { FC } from "react";
 import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/20/solid";
 import { format } from "date-fns";
 import usePlayers from "@/hooks/usePlayers";
+import { splitFullName } from "@/utils";
+
+/*
+  Written the way the team list writes it: the name at full size, the rest smaller and in brackets.
+  An event stores the two already joined into one string, so they are split apart again here rather
+  than migrating every event that is already saved on someone's phone.
+*/
+const EventName: FC<{ children: string }> = ({ children }) => {
+  const { name, details } = splitFullName(children);
+
+  if (!details) return <span className="truncate">{children}</span>;
+
+  return (
+    <>
+      <span className="shrink-0">{name}</span>
+      <span className="truncate text-2xs font-medium uppercase opacity-80">({details})</span>
+    </>
+  );
+};
 
 const MatchHistory = () => {
   const { history } = usePlayers();
@@ -28,7 +47,7 @@ const MatchHistory = () => {
               already cut short when the Player is made, so this only bites on a narrow phone. */}
           <span className="flex min-w-0 items-center gap-1 capitalize text-error-400">
             <ArrowDownCircleIcon className="h-4 w-4 shrink-0" />
-            <span className="truncate">{old_name}</span>
+            <EventName>{old_name}</EventName>
           </span>
 
           <span className="text-text-muted">{renderText(type)}</span>
@@ -37,7 +56,7 @@ const MatchHistory = () => {
             <>
               <span className="flex min-w-0 items-center gap-1 capitalize text-secondary-400">
                 <ArrowUpCircleIcon className="h-4 w-4 shrink-0" />
-                <span className="truncate">{new_name}</span>
+                <EventName>{new_name}</EventName>
                 <span className="shrink-0">.</span>
               </span>
             </>

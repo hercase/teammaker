@@ -74,8 +74,10 @@ const PlayersList: FC<PlayersListProps> = ({ side, kit, players }) => {
 
                   <PlayerName player={player} />
 
+                  {/* Left out of the shared image: it is a control, and the picture is not. */}
                   <EllipsisVerticalIcon
                     aria-hidden="true"
+                    data-share="hide"
                     className="ml-auto h-5 w-5 shrink-0 opacity-40 transition-opacity group-hover:opacity-100"
                   />
                 </>

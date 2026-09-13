@@ -27,15 +27,82 @@ export function clampName(value: string, max: number): string {
   return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
 
+/*
+  Words that are part of the surname that follows them rather than a surname of their own. Without
+  them "Ezequiel Di Stefano" would be filed under "Di" and "Nico de la Mancha" under "de".
+*/
+const SURNAME_PARTICLES = new Set([
+  "de",
+  "del",
+  "della",
+  "la",
+  "las",
+  "los",
+  "di",
+  "da",
+  "das",
+  "dos",
+  "van",
+  "von",
+  "der",
+  "den",
+  "san",
+  "santa",
+  "mac",
+  "mc",
+  "st",
+  "o",
+]);
+
+/*
+  The first surname and only the first: it is there to tell two Matis apart, and a row is one line
+  wide. "Hernandez Palomero De La Mancha" is filed under Hernandez, while "Di Stefano" and
+  "De La Mancha" are single surnames that happen to be spelled in several words, so any leading
+  particles are taken along with the word that ends them.
+*/
+export function firstSurname(words: string[]): string {
+  const surname: string[] = [];
+
+  for (const word of words) {
+    surname.push(word);
+
+    if (!SURNAME_PARTICLES.has(word.toLowerCase())) break;
+  }
+
+  return surname.join(" ");
+}
+
 export function generatePlayer(user_str: string): Player {
   const onlyLetters = user_str.replace(NON_NAME_CHARS, "").replace(/\s+/g, " ").trim();
-  const [name = "", ...details] = onlyLetters.split(" ");
+  const [name = "", ...rest] = onlyLetters.split(" ");
 
   return {
     id: crypto.randomUUID(),
+    // clampName is the backstop for the one word that is absurd on its own, not the rule.
     name: clampName(name, MAX_NAME_CHARS),
-    details: clampName(details.join(" "), MAX_DETAILS_CHARS),
+    details: clampName(firstSurname(rest), MAX_DETAILS_CHARS),
   };
+}
+
+/*
+  Splits "Nombre (Apellido)" back into its two halves. Both the history migration and the history
+  row need it, and it was written out twice before, once in each, which is two places to drift.
+*/
+export function splitFullName(fullName: string): { name: string; details?: string } {
+  const [, name, details] = fullName.match(/^(.*?)\s*\((.+)\)\s*$/) ?? [];
+
+  return details ? { name, details } : { name: fullName };
+}
+
+// The first-surname rule applied to a name that was already written out, as an old event stores it.
+export function shortenFullName(fullName: string): string {
+  const { name, details } = splitFullName(fullName);
+
+  if (!details) return fullName;
+
+  const surname = clampName(firstSurname(details.split(/\s+/)), MAX_DETAILS_CHARS);
+
+  return surname ? `${name} (${surname})` : name;
 }
 
 export function generatePlayers(str: string): Player[] {
@@ -88,13 +155,6 @@ export function duplicateTags(labelled: { id: string; label: string }[]): Record
 }
 
 export const generateFullName = (player: Player) => `${player.name} ${player.details ? `(${player.details})` : ""}`;
-
-export const trucanteString = (str: string, maxChar: number) => {
-  if (str.length > maxChar) {
-    return str.substring(0, maxChar) + "...";
-  }
-  return str;
-};
 
 export const validateName = (value: string) => {
   if (!value?.trim()) return "Debes ingresar un nombre";

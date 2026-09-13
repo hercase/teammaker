@@ -1,6 +1,5 @@
 import { useMatchStore } from "@/store";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { formatKickoff } from "@/utils/date";
 import { ArrowsRightLeftIcon } from "@heroicons/react/20/solid";
 
 /*
@@ -10,7 +9,7 @@ import { ArrowsRightLeftIcon } from "@heroicons/react/20/solid";
 const InfoCard = () => {
   const { organizer, date, location, random } = useMatchStore();
 
-  const when = date && `${format(date, "EEEE dd/MM", { locale: es })} · ${format(date, "p", { locale: es })} hs`;
+  const when = formatKickoff(date);
 
   return (
     <div className="flex w-full items-start justify-between gap-3">

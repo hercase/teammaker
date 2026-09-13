@@ -3,6 +3,24 @@
 Fecha: 2026-09-12
 Rama: `feat/refresh-2026`
 
+> **Documento histórico.** Registra lo que se decidió el 12/09 antes de implementar. Varias de esas
+> decisiones se revirtieron al construirlas, así que **no es la fuente de verdad del código**: eso
+> es [`CLAUDE.md`](../../../CLAUDE.md). Lo que este documento dice y ya no es cierto:
+>
+> - **Compartir** (§1 tabla, §6.4): decía "texto armado a WhatsApp, reemplaza el screenshot". Es al
+>   revés: el botón *genera* el screenshot como PNG y lo pasa a `navigator.share`, porque nadie
+>   manda el link y todo el mundo manda una foto.
+> - **`Kit`** (§4.1): el union tiene tres modos, no dos. Falta `ShadesKit` (claras contra oscuras),
+>   que además es **el default**, no camisetas blanco/azul (§5.2).
+> - **`zod`** (§7.2, §8.3) y **`cva`** (§8.1, §8.4): no se instaló ninguno. `parseKit` valida la
+>   forma persistida a mano y `Button` sigue en `classNames`.
+> - **`getContrastColor`** (§5.1, §9): la función ya no existe. Los colores de kit son presets
+>   elegidos para funcionar sobre el panel oscuro, sin calcular contraste en runtime.
+> - **`MatchInputs.date`** (§4.2): sigue siendo `string | Date | null`.
+> - **`WelcomeModal`** (§3.4): eliminado. El nombre se pide como un campo más del formulario.
+> - **§6.3 pegado inteligente, §6.5 lista habitual, §6.6 `@dnd-kit`, §8.5 toolchain**: no se
+>   hicieron. El parseo del mensaje de WhatsApp es el pendiente más grande — ver `CLAUDE.md`.
+
 ## 1. Contexto
 
 La app se escribió antes de que hubiera asistencia de AI y no se tocó en mucho tiempo. Se usa

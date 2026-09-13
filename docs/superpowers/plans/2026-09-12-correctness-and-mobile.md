@@ -1,5 +1,11 @@
 # Corrección y Mobile — Plan de Implementación
 
+> **Documento histórico, ya ejecutado.** Es el plan de las fases 1 y 2, completas desde
+> `db8a72a`. No describe el código actual: cita `WelcomeModal` (eliminado), un `@ts-expect-error` y
+> un `eslint-disable` que ya no existen, clases `dark:` que se fueron en la fase 3, y planes por
+> fase que nunca se escribieron. Para el estado real ver [`CLAUDE.md`](../../../CLAUDE.md) y
+> [`PLAN.md`](../../../PLAN.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
 > (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use
 > checkbox (`- [ ]`) syntax for tracking.

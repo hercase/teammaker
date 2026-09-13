@@ -56,8 +56,8 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
   };
 
   const transitions = {
-    enter: "ease-out duration-300",
-    leave: "ease-in duration-200",
+    enter: "ease-out duration-200",
+    leave: "ease-in duration-150",
     enterFrom: "opacity-0 scale-95",
     enterTo: "opacity-100 scale-100",
     leaveFrom: "opacity-100 scale-100",

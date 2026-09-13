@@ -14,9 +14,9 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
+    "@zumer/snapdom": "^2.24.18",
     "classnames": "^2.5.1",
     "date-fns": "^3.3.1",
-    "framer-motion": "^11.1.7",
     "immer": "^10.0.3",
     "lodash": "^4.17.21",
     "next": "^15",
@@ -34,7 +34,6 @@
     "@types/lodash": "^4.14.202",
     "@types/node": "^20",
     "@types/react": "^19",
-    "@types/react-datepicker": "^6.0.2",
     "@types/react-dom": "^19",
     "@types/tinycolor2": "^1.4.6",
     "@typescript-eslint/eslint-plugin": "^6.17.0",

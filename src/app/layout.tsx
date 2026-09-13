@@ -59,7 +59,7 @@ const Layout = ({
       {/* min-w-0 because a grid item, like a flex item, is never narrower than its own content
           unless told so. Without it one long player name widened the page itself and the whole
           layout scrolled sideways on a phone. */}
-      <main className="flex w-full min-w-0 items-start justify-center px-3 pb-16 pt-8 sm:px-4 sm:pt-10">
+      <main className="flex w-full min-w-0 items-start justify-center px-5 pb-16 pt-8 sm:px-6 sm:pt-10">
         {children}
       </main>
       <ConfirmDialog />
