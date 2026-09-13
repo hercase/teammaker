@@ -12,11 +12,15 @@ interface ListInputProps {
   error: boolean;
   submitted: boolean;
   value?: string;
+  // The Pegar button: the text has to be written into the box as well as read.
   onPaste: (clipText: string) => void;
+  // A paste made by hand, with the keyboard or the phone's own menu: the box fills itself, the
+  // form only gets to read what arrived.
+  onPasted?: (clipText: string) => void;
   register: UseFormRegister<MatchInputs>;
 }
 
-const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPaste, ...rest }) => {
+const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPaste, onPasted, ...rest }) => {
   const isEmpty = !value?.trim();
 
   /*
@@ -52,7 +56,12 @@ const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPa
     >
       <Label className="sr-only">Lista de jugadores</Label>
 
-      <div className="relative flex flex-1 flex-col">
+      {/* The paste listener sits on the wrapper: React Aria decides which DOM props reach its
+          textarea, and the event bubbles here regardless. */}
+      <div
+        className="relative flex flex-1 flex-col"
+        onPaste={(event) => onPasted?.(event.clipboardData.getData("text"))}
+      >
         <TextArea
           rows={8}
           /*

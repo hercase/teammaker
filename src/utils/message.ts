@@ -27,10 +27,10 @@ export interface ParsedMessage {
 /*
   WhatsApp inserts U+2060 WORD JOINER between the number and the name when it formats a list —
   42 of them in one real message. It is invisible, it is not whitespace, and it is a letter as
-  far as \p{L} is not concerned, so " 6.⁠ ⁠Keis" has to be cleaned before anything reads
+  far as \p{L} is not concerned, so " 6.\u2060 \u2060Keis" has to be cleaned before anything reads
   it. The rest of the range is the other zero-width characters keyboards and copy-paste leave.
 */
-const INVISIBLE = /[​-‍⁠﻿]/g;
+const INVISIBLE = /[\u200B-\u200D\u2060\uFEFF]/g;
 
 // "1. Lucho", "12.  Max", " 6) Keis", "3- Mauro", "4 Lihue": a number, maybe a mark, then a name.
 const NUMBERED_LINE = /^\d{1,2}\s*[.)\-:]?\s+\S/;

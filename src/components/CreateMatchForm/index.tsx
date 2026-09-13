@@ -7,6 +7,8 @@ import { MatchInputs } from "@/types";
 import { useMatchStore } from "@/store";
 import { DEFAULT_KIT } from "@/utils/kit";
 import { generatePlayers } from "@/utils";
+import { parseMessage } from "@/utils/message";
+import { proposeKickoff } from "@/utils/date";
 import usePlayers from "@/hooks/usePlayers";
 import Button from "@/components/Button";
 import ToggleSwitch from "@/components/ToggleSwitch";
@@ -22,7 +24,7 @@ import TextInput from "@/components/TextInput";
   field still came up blank on every reload.
 */
 const CreateMatchForm: FC = () => {
-  const { organizer, random, location, kit, setMatch, remember } = useMatchStore();
+  const { organizer, random, location, date, kit, setMatch, remember } = useMatchStore();
   const { setPlayers } = usePlayers();
 
   const {
@@ -30,6 +32,7 @@ const CreateMatchForm: FC = () => {
     handleSubmit,
     control,
     setValue,
+    getValues,
     watch,
     formState: { errors, isSubmitted },
   } = useForm<MatchInputs>({
@@ -39,8 +42,28 @@ const CreateMatchForm: FC = () => {
       every keystroke once the field has been visited.
     */
     mode: "onTouched",
-    defaultValues: { organizer, location, random, kit: kit ?? DEFAULT_KIT },
+    /*
+      The date is proposed from the last match — same weekday, same hour, the coming week — because
+      the group plays on a schedule and the date wheel is the slowest field on a phone. It is a
+      proposal: whatever the pasted message says overrides it, and so does the person.
+    */
+    defaultValues: { organizer, location, random, kit: kit ?? DEFAULT_KIT, date: proposeKickoff(date) },
   });
+
+  /*
+    A pasted message carries the pitch and the kickoff on the lines that are not players, so they
+    fill the fields below instead of being deleted from the box and typed again underneath. Only
+    where the field says nothing yet, and never from typing: this is what a paste does, once.
+  */
+  const fillFromMessage = (text: string) => {
+    const message = parseMessage(text);
+
+    if (message.location && !getValues("location")) {
+      setValue("location", message.location, { shouldValidate: true, shouldDirty: true });
+    }
+
+    if (message.date) setValue("date", message.date, { shouldValidate: true, shouldDirty: true });
+  };
 
   const typedName = watch("organizer");
   const typedLocation = watch("location");
@@ -89,7 +112,11 @@ const CreateMatchForm: FC = () => {
         error={!!errors.list}
         submitted={isSubmitted}
         value={watch("list")}
-        onPaste={(clipText) => setValue("list", clipText, { shouldValidate: true })}
+        onPaste={(clipText) => {
+          setValue("list", clipText, { shouldValidate: true });
+          fillFromMessage(clipText);
+        }}
+        onPasted={fillFromMessage}
       />
 
       <div className="flex flex-col gap-5">

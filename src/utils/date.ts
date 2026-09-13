@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { nextKickoff } from "@/utils/message";
 
 /*
   One place decides how a kickoff is written. The heading and the caption that leaves with the
@@ -38,4 +39,19 @@ export const shareCaption = (location: string, date: string | Date | null): stri
   const where = location ? `en ${location}` : "";
 
   return ["Equipos", when, where].filter(Boolean).join(" ");
+};
+
+/*
+  The date the form opens with. The group plays the same day at the same hour every week, so the
+  last match already says when the next one is: the coming occurrence of that weekday, at that
+  time, counted from now. Nothing to propose before a first match has been created.
+*/
+export const proposeKickoff = (previous: string | Date | null, now: Date = new Date()): string | undefined => {
+  if (!previous) return undefined;
+
+  const last = new Date(previous);
+
+  if (Number.isNaN(last.getTime())) return undefined;
+
+  return nextKickoff(last.getDay(), last.getHours(), last.getMinutes(), now);
 };
