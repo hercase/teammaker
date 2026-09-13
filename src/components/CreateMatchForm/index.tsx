@@ -6,7 +6,7 @@ import { shuffle } from "lodash";
 import { MatchInputs } from "@/types";
 import { useMatchStore } from "@/store";
 import { DEFAULT_KIT } from "@/utils/kit";
-import { splitRoster } from "@/utils";
+import { DEFAULT_CAPACITY, splitRoster } from "@/utils";
 import { parseMessage } from "@/utils/message";
 import { proposeKickoff } from "@/utils/date";
 import { parsePrice } from "@/utils";
@@ -55,7 +55,7 @@ const CreateMatchForm: FC = () => {
       kit: kit ?? DEFAULT_KIT,
       date: proposeKickoff(date),
       price,
-      capacity,
+      capacity: capacity ?? DEFAULT_CAPACITY,
     },
   });
 
@@ -186,6 +186,7 @@ const CreateMatchForm: FC = () => {
         <TextInput
           name="price"
           label="Precio de la cancha"
+          prefix="$"
           inputMode="numeric"
           required={false}
           valueAs={parsePrice}

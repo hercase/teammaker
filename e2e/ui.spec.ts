@@ -631,3 +631,37 @@ test("el cupo dice cuántos faltan cuando la lista no lo llena", async ({ page }
   await page.waitForURL(`**${MATCH}`);
   await expect(page.getByText(/Faltan 2 para completar el cupo de 12/)).toBeVisible();
 });
+
+test("con suplentes, Dar de baja pregunta quién entra y el historial cuenta una sola cosa", async ({ page }) => {
+  await openFixture(page, "Con suplentes");
+  await page.getByRole("button", { name: /^Opciones de Keis/ }).click();
+  await page.getByRole("menuitem", { name: "Dar de baja" }).click();
+  await expect(page.getByRole("alertdialog")).toContainText("Keis se baja. ¿Quién entra?");
+  const choices = page.getByRole("group", { name: "Suplentes" });
+  await expect(choices.getByRole("button", { name: "Nadie, queda afuera" })).toBeVisible();
+  await choices.getByRole("button", { name: "Nico" }).click();
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(rows(page).filter({ hasText: "Nico" })).toHaveCount(1);
+  await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
+  await expect(page.getByText(/se dio de baja/)).toHaveCount(0);
+  await expect(page.getByText(/reemplazado por/)).toBeVisible();
+});
+
+test("el cupo arranca en 12", async ({ page }) => {
+  await expect(page.locator("#capacity")).toHaveValue("12");
+});
+
+test("un suplente con el nombre de alguien que ya estaba es el (2), aunque su fila quede más arriba", async ({
+  page,
+}) => {
+  await openFixture(page, "Con suplentes");
+  /* Lucho is the first row; a second Keis takes it, above the Keis who signed up first. */
+  await page.getByRole("button", { name: /^Opciones de Lucho/ }).click();
+  await page.getByRole("menuitem", { name: "Reemplazar" }).click();
+  await page.locator('[data-testid="dialog-input"]').fill("Keis");
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  const first = rows(page).first();
+  await expect(first).toContainText("Keis");
+  await expect(first).toContainText("(2)");
+  await expect(rows(page).filter({ hasText: "(1)" })).toContainText("Keis");
+});

@@ -3,7 +3,7 @@
 import { FC } from "react";
 import classNames from "classnames";
 import { UseFormRegister } from "react-hook-form";
-import { Input, Label, TextField } from "@heroui/react";
+import { Input, InputGroup, Label, TextField } from "@heroui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { MatchInputs } from "@/types";
 
@@ -21,6 +21,8 @@ interface TextInputProps {
   inputMode?: "text" | "numeric";
   required?: boolean;
   valueAs?: (value: string) => unknown;
+  // Text drawn inside the box before what is typed — "$" on the price — via HeroUI's InputGroup.
+  prefix?: string;
 }
 
 /*
@@ -53,6 +55,7 @@ const TextInput: FC<TextInputProps> = ({
   register,
   required = true,
   valueAs,
+  prefix,
   ...rest
 }) => (
   /* isRequired draws HeroUI's asterisk on the label; with validationBehavior="aria" that is all it
@@ -67,15 +70,30 @@ const TextInput: FC<TextInputProps> = ({
     <Label htmlFor={name}>{label}</Label>
 
     <div className="relative">
-      {/* w-full because HeroUI's Input sizes to its content, and the clear button is positioned
-          against this wrapper — without it the X sat outside the field. */}
-      <Input
-        id={name}
-        type="text"
-        className={classNames("min-h-11 w-full", { "pr-11": onClear && value })}
-        {...register(name, { required, setValueAs: valueAs })}
-        {...rest}
-      />
+      {prefix ? (
+        /* InputGroup rather than a "$" drawn over the box: it is the library's own way of putting
+           text inside a field, and it takes the field's states with it. */
+        <InputGroup className="min-h-11 w-full">
+          <InputGroup.Prefix>{prefix}</InputGroup.Prefix>
+          <InputGroup.Input
+            id={name}
+            type="text"
+            className="w-full"
+            {...register(name, { required, setValueAs: valueAs })}
+            {...rest}
+          />
+        </InputGroup>
+      ) : (
+        /* w-full because HeroUI's Input sizes to its content, and the clear button is positioned
+           against this wrapper — without it the X sat outside the field. */
+        <Input
+          id={name}
+          type="text"
+          className={classNames("min-h-11 w-full", { "pr-11": onClear && value })}
+          {...register(name, { required, setValueAs: valueAs })}
+          {...rest}
+        />
+      )}
 
       {/*
         These two fields come back filled from the last match, which is what makes the weekly use of

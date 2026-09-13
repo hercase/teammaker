@@ -108,6 +108,8 @@ export interface DialogOptions {
   input?: boolean;
   // Names offered beside the input, one tap each: the substitutes, when there are any.
   choices?: string[];
+  // A way to answer "nobody": confirms with an empty value, and says what that means.
+  emptyLabel?: string;
   inputValidator?: (value: string) => string | undefined;
   onConfirm: (value: string) => void;
 }

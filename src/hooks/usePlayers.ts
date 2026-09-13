@@ -20,14 +20,50 @@ const usePlayers = () => {
 
   const { teamA, teamB } = splitTeams(players ?? []);
 
-  // Collisions are decided on what is actually drawn, so a substitute counts, not the player it replaced.
-  const shown = (players ?? []).map((player) => bench?.find((p) => p.id === player.isReplacedBy) ?? player);
-  const tags = duplicateTags(shown.map((p) => ({ id: p.id, label: `${p.name} ${p.details ?? ""}`.trim() })));
+  /*
+    Collisions are decided on what is actually drawn, so a substitute counts, not the player it
+    replaced — and they are numbered by arrival, not by row. A substitute takes the row of whoever
+    left, which may sit above the original; numbering down the rows made the newcomer "Keis (1)"
+    and the Keis who signed up first "Keis (2)". The bench is in the order people came in.
+  */
+  const drawn = (players ?? []).map((player) => bench?.find((p) => p.id === player.isReplacedBy) ?? player);
+  const arrival = [
+    ...drawn.filter((p) => !bench?.some((b) => b.id === p.id)),
+    ...(bench ?? []).filter((b) => drawn.some((p) => p.id === b.id)),
+  ];
+  const tags = duplicateTags(arrival.map((p) => ({ id: p.id, label: `${p.name} ${p.details ?? ""}`.trim() })));
+
+  /*
+    Someone who takes a substitute's place is not "given up": the row goes straight from one name
+    to the other and the history says "reemplazado por". So when the waiting list has anyone on
+    it, a drop-out asks who comes in, with "Nadie" as one of the answers — the two-step version
+    left the screen saying "falta uno" between the taps and wrote two events for one fact.
+  */
+  const enters = (player: Player, user: string) => {
+    if (!user.trim()) return _removePlayer(player.id);
+
+    const substitute = waiting.find((sub) => generateFullName(sub).trim() === user.trim());
+
+    if (substitute) return promoteSubstitute(player.id, substitute.id);
+
+    _replacePlayer(player.id, user);
+  };
 
   const removePlayer = (player: Player) => {
+    if (waiting.length === 0) {
+      return alert({
+        text: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
+        cb: () => _removePlayer(player.id),
+      });
+    }
+
     alert({
-      text: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
-      cb: () => _removePlayer(player.id),
+      text: `${player.name} se baja. ¿Quién entra?`,
+      input: "text",
+      inputValidator: validateName,
+      choices: waiting.map((sub) => generateFullName(sub).trim()),
+      emptyLabel: "Nadie, queda afuera",
+      cb: (user: string) => enters(player, user),
     });
   };
 
@@ -42,13 +78,7 @@ const usePlayers = () => {
       input: "text",
       inputValidator: validateName,
       choices: waiting.map((sub) => generateFullName(sub).trim()),
-      cb: (user: string) => {
-        const substitute = waiting.find((sub) => generateFullName(sub).trim() === user.trim());
-
-        if (substitute) return promoteSubstitute(player.id, substitute.id);
-
-        _replacePlayer(player.id, user);
-      },
+      cb: (user: string) => enters(player, user),
     });
   };
 

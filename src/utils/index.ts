@@ -131,6 +131,11 @@ export function generatePlayers(str: string): Player[] {
 }
 
 /*
+  What the form proposes before anyone has said: six a side. Cleared, it means everyone plays.
+*/
+export const DEFAULT_CAPACITY = 12;
+
+/*
   Who plays and who waits. The cap comes first: a Tuesday list of fourteen with a cap of twelve
   is twelve players and two substitutes, in list order, which is the order they signed up in and
   the order they expect to get a spot. Whoever the message listed under "Suplentes" waits behind

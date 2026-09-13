@@ -110,6 +110,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                 <TextInput
                   name="price"
                   label="Precio de la cancha"
+                  prefix="$"
                   inputMode="numeric"
                   required={false}
                   valueAs={parsePrice}

@@ -64,6 +64,18 @@ const ConfirmDialog: FC = () => {
                         {choice}
                       </Button>
                     ))}
+                    {/* "Nobody" is an answer too, and it should not have to be typed. */}
+                    {options.emptyLabel && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          options.onConfirm("");
+                          close();
+                        }}
+                      >
+                        {options.emptyLabel}
+                      </Button>
+                    )}
                   </div>
                 )}
 

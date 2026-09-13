@@ -386,6 +386,14 @@ phone. The message's date overrides it; so does the person.
   "Suplentes: Nico, Juan", and "Faltan 2 para completar el cupo de 12" when the sides are even and
   still under the cap; when one side is short, "Falta uno en Claras" already says where the hole
   is, so the cap line stays quiet.
+- The cap starts at 12 (`DEFAULT_CAPACITY`) and is remembered; cleared, everyone plays. With
+  anyone waiting, **Dar de baja asks who comes in** — the substitutes and "Nadie, queda afuera" —
+  so the row goes straight from one name to the other and the history writes one event, not a
+  drop-out and then a replacement with "falta uno" on screen in between.
+- **Duplicates are numbered by arrival, not by row.** A substitute takes the row of whoever left,
+  which may sit above the original, and numbering down the rows made the newcomer "Keis (1)" and
+  the Keis who signed up first "Keis (2)". Originals first in list order, then the bench in the
+  order people came in.
 - **Reemplazar offers the waiting list** as one-tap buttons above the name box; a tap fills the
   box, Confirmar confirms, so a slipped thumb costs nothing. A typed name that is a substitute's is
   the substitute stepping in (`promoteSubstitute`: off the list, onto the bench, into the row) —
