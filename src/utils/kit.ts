@@ -13,6 +13,12 @@ import { Kit, PresetColor, ShirtsKit, TeamSide } from "@/types";
   saturation while its five siblings sat between 15 and 62%, so it read as borrowed from somewhere
   else. Black is the one that cannot win — a black shirt on a dark
   interface is a contradiction — so it is a charcoal that reads as a shape beside its own label.
+
+  Then brought back up by 15 points, all five together. At 26px in the kit picker, seven in a row,
+  the muted set read as grey versions of themselves — these are garments, not interface accents,
+  and "roja" has to be recognisable as red at a glance. +30 was tried beside it and is the neon
+  sheet again; +15 is the step where each colour is unmistakably itself and none of them shouts.
+  Lightness is unchanged, so the contrast measurements above still hold.
 */
 /*
   `edge` is what to draw when the garment has to be seen rather than shown: the contour of its icon,
@@ -31,11 +37,11 @@ import { Kit, PresetColor, ShirtsKit, TeamSide } from "@/types";
 export const KIT_PRESETS: Record<PresetColor, { label: string; hex: string; edge?: string }> = {
   white: { label: "Blanca", hex: "#e7e9f2" },
   black: { label: "Negra", hex: "#22242e", edge: "#827ca2" },
-  celeste: { label: "Celeste", hex: "#8fc7e8" },
-  blue: { label: "Azul", hex: "#6d8be1" },
-  red: { label: "Roja", hex: "#d95f6a" },
-  green: { label: "Verde", hex: "#45b58a" },
-  yellow: { label: "Amarilla", hex: "#c9a951" },
+  celeste: { label: "Celeste", hex: "#85caf2" },
+  blue: { label: "Azul", hex: "#6085ee" },
+  red: { label: "Roja", hex: "#e8505e" },
+  green: { label: "Verde", hex: "#32c88e" },
+  yellow: { label: "Amarilla", hex: "#dab140" },
 };
 
 // What a preset looks like as a line. Falls back to the fill for every colour that reads on its own.

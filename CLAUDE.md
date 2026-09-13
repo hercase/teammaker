@@ -161,6 +161,9 @@ the z-index scale all live there with the reasoning attached. Read it before wri
   identical, which is fine where fields sit on the page and invisible where they sit in a dialog:
   the Editar fields measured 1.00:1 against the dialog body — not dim, gone. Anything that changes
   the surface ramp has to be checked inside a modal, not only on the page.
+- The shirt presets sit 15 saturation points above the interface accents, on purpose: they are
+  garments, and at 26px seven in a row the muted set read as grey versions of themselves. +30 was
+  rendered beside it and is the neon sheet the palette was pulled back from. `kit.ts` has the note.
 - Cyan (`secondary`) means *came in*; rose (`error`) means *went out*. Consistent in the team list
   and the history.
 - **Buttons are HeroUI's `lg`, and nothing overrides a height.** Its scale is sm 36 / md 40 / lg 44,

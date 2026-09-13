@@ -67,7 +67,7 @@ const MODES: { mode: KitMode; label: string; hint: string; question: string; ico
   {
     mode: "bibs",
     label: "Pecheras",
-    hint: "Solo un equipo la lleva",
+    hint: "Un equipo se las pone",
     question: "¿Quién lleva la pechera?",
     icon: <BibIcon size={26} />,
   },
