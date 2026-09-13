@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { Chip } from "@heroui/react";
+import Button from "@/components/Button";
 import { Kit, Player, TeamSide } from "@/types";
 
 import ShirtIcon from "@/components/Icons/ShirtIcon";
@@ -11,6 +12,7 @@ import {
   ArrowUpCircleIcon,
   EllipsisVerticalIcon,
   PencilSquareIcon,
+  UserPlusIcon,
 } from "@heroicons/react/20/solid";
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
@@ -21,10 +23,12 @@ interface PlayersListProps {
   side: TeamSide;
   kit: Kit;
   players?: Player[];
+  // This side is short, or the cap still has room: offer to add someone here.
+  canAdd?: boolean;
 }
 
-const PlayersList: FC<PlayersListProps> = ({ side, kit, players }) => {
-  const { removePlayer, restorePlayer, replacePlayer, renamePlayer } = usePlayers();
+const PlayersList: FC<PlayersListProps> = ({ side, kit, players, canAdd = false }) => {
+  const { removePlayer, restorePlayer, replacePlayer, renamePlayer, addPlayer } = usePlayers();
   const color = kitColor(kit, side);
   const edge = kitEdge(kit, side);
   const label = kitLabel(kit, side);
@@ -123,6 +127,20 @@ const PlayersList: FC<PlayersListProps> = ({ side, kit, players }) => {
           </li>
         ))}
       </ul>
+
+      {/*
+        "Falta uno en Oscuras" used to be a statement with no way to act on it: an odd list leaves
+        one side a player short and nothing on the screen could add one. The button lives at the
+        foot of the side that needs someone, and stays out of the picture like every control.
+      */}
+      {canAdd && (
+        <div className="mt-2" data-share="hide">
+          <Button variant="ghost" className="w-full" onClick={() => addPlayer(side, label)}>
+            <UserPlusIcon className="h-5 w-5" aria-hidden="true" />
+            Sumar jugador
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

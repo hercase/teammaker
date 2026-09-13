@@ -6,10 +6,22 @@ import {
   clampName,
   shortenFullName,
 } from "@/utils";
-import { MatchEvent, Player, PlayersStore } from "@/types";
+import { MatchEvent, Player, PlayersStore, TeamSide } from "@/types";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
+/*
+  Where a new row has to go for splitTeams to hand it to the right side: team A is the first
+  ceil(n/2) rows, so a player for A goes in at the end of that half and one for B at the end.
+*/
+const insertionIndex = (count: number, side: TeamSide): number =>
+  side === "B" ? count : Math.ceil((count + 1) / 2) - 1;
+
+const join = (state: PlayersStore, player: Player, side: TeamSide) => {
+  state.players.splice(insertionIndex(state.players.length, side), 0, player);
+  state.history.push(generateMatchEvent({ type: "join", old_player: player }));
+};
 
 const initialState = {
   players: [],
@@ -91,6 +103,20 @@ export const usePlayersStore = create(
               // The drop-out stays in the history: both things happened.
               state.history.push(generateMatchEvent({ type: "restore", old_player: player }));
             }
+          })
+        ),
+      addPlayer: (player_name: string, side: TeamSide) =>
+        set(produce((state: PlayersStore) => join(state, generatePlayer(player_name), side))),
+      addSubstitute: (substitute_id: string, side: TeamSide) =>
+        set(
+          produce((state: PlayersStore) => {
+            const index = (state.substitutes ?? []).findIndex((p) => p.id === substitute_id);
+
+            if (index === -1) return;
+
+            const [substitute] = state.substitutes.splice(index, 1);
+
+            join(state, substitute, side);
           })
         ),
       replacePlayer: (old_id: string, player_name: string) =>

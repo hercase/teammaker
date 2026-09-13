@@ -390,6 +390,11 @@ phone. The message's date overrides it; so does the person.
   anyone waiting, **Dar de baja asks who comes in** — the substitutes and "Nadie, queda afuera" —
   so the row goes straight from one name to the other and the history writes one event, not a
   drop-out and then a replacement with "falta uno" on screen in between.
+- **Sumar jugador** at the foot of the side that is short (both sides when even and under the
+  cap), hidden from the picture like every control. "Falta uno en Oscuras" was a statement with no
+  way to act on it: an odd list leaves a side short and nothing could add anyone. It opens the same
+  "¿Quién entra?" dialog, substitutes first; the new row is spliced where `splitTeams` will hand it
+  to that side (the end of the first half for A, the end for B), and the history says "se sumó."
 - **Duplicates are numbered by arrival, not by row.** A substitute takes the row of whoever left,
   which may sit above the original, and numbering down the rows made the newcomer "Keis (1)" and
   the Keis who signed up first "Keis (2)". Originals first in list order, then the bench in the

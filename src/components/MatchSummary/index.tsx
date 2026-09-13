@@ -38,8 +38,8 @@ const MatchSummary: FC = () => {
       <InfoCard />
 
       <div className="relative flex min-h-[100px] min-w-0 justify-center gap-2 text-center sm:gap-3">
-        <PlayersList side="A" kit={kit} players={teamA} />
-        <PlayersList side="B" kit={kit} players={teamB} />
+        <PlayersList side="A" kit={kit} players={teamA} canAdd={short ? short === "A" : belowCap > 0} />
+        <PlayersList side="B" kit={kit} players={teamB} canAdd={short ? short === "B" : belowCap > 0} />
       </div>
 
       {short && (

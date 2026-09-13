@@ -665,3 +665,21 @@ test("un suplente con el nombre de alguien que ya estaba es el (2), aunque su fi
   await expect(first).toContainText("(2)");
   await expect(rows(page).filter({ hasText: "(1)" })).toContainText("Keis");
 });
+
+test("a la lista impar se le puede sumar el que falta, del lado que falta", async ({ page }) => {
+  const errors = watchConsole(page);
+  await openFixture(page, "Con lista impar (11)");
+  await expect(page.getByText(/Falta uno en/)).toBeVisible();
+  /* Only the short side offers it; the picture never does. */
+  const add = page.getByRole("button", { name: "Sumar jugador" });
+  await expect(add).toHaveCount(1);
+  await expect(add.locator("xpath=ancestor::*[@data-share='hide']")).toHaveCount(1);
+  await add.click();
+  await page.locator('[data-testid="dialog-input"]').fill("Nico");
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(rows(page)).toHaveCount(12);
+  await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
+  await expect(page.getByText(/Nico se sumó/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sumar jugador" })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

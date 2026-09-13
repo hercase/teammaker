@@ -1,5 +1,5 @@
 import { usePlayersStore } from "@/store";
-import { Player } from "@/types";
+import { Player, TeamSide } from "@/types";
 import useAlert from "@/hooks/useAlert";
 import { duplicateTags, generateFullName, splitTeams, validateName } from "@/utils";
 
@@ -13,6 +13,8 @@ const usePlayers = () => {
     replacePlayer: _replacePlayer,
     renamePlayer: _renamePlayer,
     promoteSubstitute,
+    addPlayer: _addPlayer,
+    addSubstitute,
     ...store
   } = usePlayersStore();
 
@@ -82,6 +84,26 @@ const usePlayers = () => {
     });
   };
 
+  // The eleventh player's missing partner, or the two the cap still has room for.
+  const addPlayer = (side: TeamSide, teamLabel: string) => {
+    // "a Oscuras", "a Azul", but "al equipo B": the label is a name in two modes and a noun in one.
+    const team = /^Equipo\b/.test(teamLabel) ? `al ${teamLabel.toLowerCase()}` : `a ${teamLabel}`;
+
+    alert({
+      text: `¿Quién se suma ${team}?`,
+      input: "text",
+      inputValidator: validateName,
+      choices: waiting.map((sub) => generateFullName(sub).trim()),
+      cb: (user: string) => {
+        const substitute = waiting.find((sub) => generateFullName(sub).trim() === user.trim());
+
+        if (substitute) return addSubstitute(substitute.id, side);
+
+        _addPlayer(user, side);
+      },
+    });
+  };
+
   const renamePlayer = (player: Player) => {
     alert({
       text: `Ingresa el nuevo nombre para ${player.name}`,
@@ -101,6 +123,7 @@ const usePlayers = () => {
     removePlayer,
     replacePlayer,
     renamePlayer,
+    addPlayer,
     ...store,
   };
 };

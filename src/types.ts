@@ -42,7 +42,7 @@ export type KitMode = Kit["mode"];
 export type MatchEvent = {
   // Optional because matches persisted before this existed have events without one.
   id?: string;
-  type: "replace" | "delete" | "rename" | "restore";
+  type: "replace" | "delete" | "rename" | "restore" | "join";
   old_name: string;
   new_name?: string;
   date: Date;
@@ -90,6 +90,9 @@ export interface PlayersStore {
   setSubstitutes: (substitutes: Player[]) => void;
   // A substitute takes a player's place: out of the waiting list, into the bench, into the row.
   promoteSubstitute: (old_id: string, substitute_id: string) => void;
+  // A new row on one side, for the eleventh player's missing partner: typed, or off the waiting list.
+  addPlayer: (player_name: string, side: TeamSide) => void;
+  addSubstitute: (substitute_id: string, side: TeamSide) => void;
   removePlayer: (id: string) => void;
   // The undo of removePlayer: the person is back on the team and the history says so.
   restorePlayer: (id: string) => void;

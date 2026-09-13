@@ -33,6 +33,7 @@ const MatchHistory = () => {
     if (type === "rename") return "renombrado a";
     if (type === "delete") return "se dio de baja.";
     if (type === "restore") return "volvió a sumarse.";
+    if (type === "join") return "se sumó.";
   };
 
   return (
@@ -50,11 +51,11 @@ const MatchHistory = () => {
           {/* Cyan means came in, rose means went out — the same two meanings the team list uses. */}
           <span
             className={classNames("flex min-w-0 items-center gap-1 capitalize", {
-              "text-secondary-400": type === "restore",
-              "text-error-400": type !== "restore",
+              "text-secondary-400": type === "restore" || type === "join",
+              "text-error-400": type !== "restore" && type !== "join",
             })}
           >
-            {type === "restore" ? (
+            {type === "restore" || type === "join" ? (
               <ArrowUpCircleIcon className="h-4 w-4 shrink-0" />
             ) : (
               <ArrowDownCircleIcon className="h-4 w-4 shrink-0" />
