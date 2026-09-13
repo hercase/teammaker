@@ -11,7 +11,7 @@ import ShareCard from "@/components/ShareCard";
 import Spinner from "@/components/Spinner";
 import useAlert from "@/hooks/useAlert";
 import useShareTeams from "@/hooks/useShareTeams";
-import { formatKickoff, matchFileName } from "@/utils/date";
+import { matchFileName, shareCaption } from "@/utils/date";
 import usePlayers from "@/hooks/usePlayers";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -72,7 +72,7 @@ const Match = () => {
             disabled={isSharing}
             onClick={() =>
               share({
-                text: [location, formatKickoff(date)].filter(Boolean).join(" · "),
+                text: shareCaption(location, date),
                 name: matchFileName(location, date),
               })
             }
@@ -96,7 +96,6 @@ const Match = () => {
 
         {/* Only while the picture is being taken, and never where anyone can see it. */}
         {isSharing && <ShareCard ref={shareRef} />}
-
       </div>
     </DndProvider>
   );

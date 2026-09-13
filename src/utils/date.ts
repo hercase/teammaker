@@ -22,3 +22,20 @@ export const matchFileName = (location: string, date: string | Date | null): str
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_|_$/g, "") || "equipos";
+
+/*
+  The words that travel with the picture. "Quintana y Salta · miércoles 16/09 · 18:30 hs" was the
+  heading's format reused as a caption, and read as a database row; the caption is a message to
+  the group, so it is written as one. Whatever is missing is simply left out of the sentence, and
+  the weekday is lower-case because Spanish writes it that way mid-sentence.
+
+  Android WhatsApp shows this under the image; iOS usually drops the text that comes with a file.
+*/
+export const shareCaption = (location: string, date: string | Date | null): string => {
+  const when = date
+    ? `para el ${format(date, "EEEE dd/MM", { locale: es })} a las ${format(date, "p", { locale: es })} hs`
+    : "";
+  const where = location ? `en ${location}` : "";
+
+  return ["Equipos", when, where].filter(Boolean).join(" ");
+};
