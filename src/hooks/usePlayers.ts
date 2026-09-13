@@ -93,9 +93,9 @@ const usePlayers = () => {
     drop-out: whoever left this side is offered first, by the name their row showed, and picking
     them brings the row back rather than adding a second one. Then the waiting list, then a name.
   */
-  const addPlayer = (side: TeamSide, teamLabel: string, team: Player[]) => {
-    // "a Oscuras", "a Azul", but "al equipo B": the label is a name in two modes and a noun in one.
-    const where = /^Equipo\b/.test(teamLabel) ? `al ${teamLabel.toLowerCase()}` : `a ${teamLabel}`;
+  const addPlayer = (side: TeamSide, teamPhrase: string, team: Player[]) => {
+    // "a los de oscuro", but "al equipo B": Spanish contracts "a el".
+    const where = teamPhrase.startsWith("el ") ? `al ${teamPhrase.slice(3)}` : `a ${teamPhrase}`;
     const dropped = team.filter((p) => p.isDeleted).map((p) => ({ row: p, name: generateFullName(shownOf(p)).trim() }));
 
     alert({

@@ -34,14 +34,15 @@ import { Kit, PresetColor, ShirtsKit, TeamSide } from "@/types";
   Racing, Belgrano, Temperley. Lighter and greener than the blue so the two read apart at 26px —
   hue 200 against 225, lightness 74% against 65% — and at the same restraint as its siblings.
 */
-export const KIT_PRESETS: Record<PresetColor, { label: string; hex: string; edge?: string }> = {
-  white: { label: "Blanca", hex: "#e7e9f2" },
-  black: { label: "Negra", hex: "#22242e", edge: "#827ca2" },
-  celeste: { label: "Celeste", hex: "#85caf2" },
-  blue: { label: "Azul", hex: "#6085ee" },
-  red: { label: "Roja", hex: "#e8505e" },
-  green: { label: "Verde", hex: "#32c88e" },
-  yellow: { label: "Amarilla", hex: "#dab140" },
+// `label` names the shirt ("Blanca"); `wearing` is how the group names the people in it ("los de blanco").
+export const KIT_PRESETS: Record<PresetColor, { label: string; wearing: string; hex: string; edge?: string }> = {
+  white: { label: "Blanca", wearing: "blanco", hex: "#e7e9f2" },
+  black: { label: "Negra", wearing: "negro", hex: "#22242e", edge: "#827ca2" },
+  celeste: { label: "Celeste", wearing: "celeste", hex: "#85caf2" },
+  blue: { label: "Azul", wearing: "azul", hex: "#6085ee" },
+  red: { label: "Roja", wearing: "rojo", hex: "#e8505e" },
+  green: { label: "Verde", wearing: "verde", hex: "#32c88e" },
+  yellow: { label: "Amarilla", wearing: "amarillo", hex: "#dab140" },
 };
 
 // What a preset looks like as a line. Falls back to the fill for every colour that reads on its own.
@@ -103,6 +104,18 @@ export function kitLabel(kit: Kit, side: TeamSide): string {
   if (kit.mode === "shades") return kit.lightTeam === side ? "Claras" : "Oscuras";
 
   return KIT_PRESETS[side === "A" ? kit.teamA : kit.teamB].label;
+}
+
+/*
+  The team as people talk about it, for a sentence: "¿Quién se suma a los de oscuro?". The label is
+  the team's name on a panel ("Oscuras") and reads wrong the moment it is spoken about; this is
+  what the group actually says on the sideline. Bibs mode has no colour to say, so it is the team.
+*/
+export function teamPhrase(kit: Kit, side: TeamSide): string {
+  if (kit.mode === "bibs") return `el equipo ${side}`;
+  if (kit.mode === "shades") return kit.lightTeam === side ? "los de claro" : "los de oscuro";
+
+  return `los de ${KIT_PRESETS[side === "A" ? kit.teamA : kit.teamB].wearing}`;
 }
 
 const CHROMATIC_PRESETS: PresetColor[] = ["celeste", "blue", "red", "green", "yellow"];

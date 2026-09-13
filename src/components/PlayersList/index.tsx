@@ -16,7 +16,7 @@ import {
 import PlayerName from "../PlayerName";
 import usePlayers from "@/hooks/usePlayers";
 import { countPlaying } from "@/utils";
-import { kitColor, kitEdge, kitLabel } from "@/utils/kit";
+import { kitColor, kitEdge, kitLabel, teamPhrase } from "@/utils/kit";
 
 interface PlayersListProps {
   side: TeamSide;
@@ -129,7 +129,11 @@ const PlayersList: FC<PlayersListProps> = ({ side, kit, players, canAdd = false 
       */}
       {canAdd && (
         <div className="mt-2" data-share="hide">
-          <Button variant="ghost" className="w-full" onClick={() => addPlayer(side, label, players ?? [])}>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => addPlayer(side, teamPhrase(kit, side), players ?? [])}
+          >
             <UserPlusIcon className="h-5 w-5" aria-hidden="true" />
             Sumar jugador
           </Button>

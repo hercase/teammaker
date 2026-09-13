@@ -8,6 +8,7 @@ import {
   nearestPreset,
   parseKit,
   setShirt,
+  teamPhrase,
 } from "@/utils/kit";
 
 describe("nearestPreset", () => {
@@ -172,5 +173,15 @@ describe("two teams never wear the same shirt", () => {
       teamA: "white",
       teamB: "black",
     });
+  });
+});
+
+describe("teamPhrase", () => {
+  it("says the team the way the sideline does", () => {
+    expect(teamPhrase({ mode: "shades", lightTeam: "A" }, "B")).toBe("los de oscuro");
+    expect(teamPhrase({ mode: "shades", lightTeam: "A" }, "A")).toBe("los de claro");
+    expect(teamPhrase({ mode: "shirts", teamA: "white", teamB: "blue" }, "B")).toBe("los de azul");
+    expect(teamPhrase({ mode: "shirts", teamA: "red", teamB: "yellow" }, "A")).toBe("los de rojo");
+    expect(teamPhrase({ mode: "bibs", bibTeam: "A" }, "B")).toBe("el equipo B");
   });
 });
