@@ -86,6 +86,8 @@ export interface PlayersStore {
   renamePlayer: (id: string, player_name: string) => void;
   setHasHydrated: (state: boolean) => void;
   setPlayers: (players: Player[]) => void;
+  // A match from scratch: these players, these substitutes, and nothing left over from the last one.
+  startMatch: (players: Player[], substitutes: Player[]) => void;
   setBench: (bench: Player[]) => void;
   setSubstitutes: (substitutes: Player[]) => void;
   // A substitute takes a player's place: out of the waiting list, into the bench, into the row.

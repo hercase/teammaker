@@ -43,6 +43,13 @@ export const usePlayersStore = create(
         set({ hasHydrated: state });
       },
       setPlayers: (players) => set(() => ({ players })),
+      /*
+        One action, so a new list can never inherit the last match's bench or history. The home
+        page only shows the form once a match has been reset, so in the app this was theoretical;
+        the dev bar, which loads fixtures over a match in progress, showed the old events under
+        the new teams — and the same door is open to any future caller.
+      */
+      startMatch: (players, substitutes) => set(() => ({ ...initialState, players, substitutes })),
       setBench: (bench) => set(() => ({ bench })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
       promoteSubstitute: (old_id: string, substitute_id: string) =>

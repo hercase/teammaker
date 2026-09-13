@@ -26,7 +26,7 @@ import TextInput from "@/components/TextInput";
 */
 const CreateMatchForm: FC = () => {
   const { organizer, random, location, date, kit, price, capacity, setMatch, remember } = useMatchStore();
-  const { setPlayers, setSubstitutes } = usePlayers();
+  const { startMatch } = usePlayers();
 
   const {
     register,
@@ -111,8 +111,7 @@ const CreateMatchForm: FC = () => {
       price: data.price,
       capacity: data.capacity,
     });
-    setPlayers(data.random ? shuffle(players) : players);
-    setSubstitutes(substitutes);
+    startMatch(data.random ? shuffle(players) : players, substitutes);
   };
 
   return (

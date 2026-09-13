@@ -56,7 +56,7 @@ const DevBar = () => {
   const pathname = usePathname();
   const [isOpen, setOpen] = useState(false);
   const { setMatch } = useMatchStore();
-  const { setPlayers, setSubstitutes } = usePlayersStore();
+  const { startMatch } = usePlayersStore();
   const barRef = useRef<HTMLDivElement>(null);
   const isOnForm = pathname === "/";
 
@@ -97,8 +97,7 @@ const DevBar = () => {
     const { players, substitutes } = splitRoster(list, capacity);
 
     setMatch({ location: USUAL_LOCATION, organizer: USUAL_ORGANIZER, date, random, kit, price: USUAL_PRICE, capacity });
-    setPlayers(random ? shuffle(players) : players);
-    setSubstitutes(substitutes);
+    startMatch(random ? shuffle(players) : players, substitutes);
     router.push("/match");
 
     return players;
