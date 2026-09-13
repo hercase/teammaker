@@ -27,7 +27,7 @@ const MatchSummary: FC = () => {
 
       {/* One line instead of a label in each header: only one team wears anything. */}
       {kit.mode === "bibs" && (
-        <p className="flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-wide text-text-muted">
+        <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-text-muted">
           <BibIcon size={18} aria-hidden="true" color={BIB_HEX} />
           El equipo {kit.bibTeam} juega con pecheras
         </p>

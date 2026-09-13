@@ -4,22 +4,31 @@ import classNames from "classnames";
 import Logo from "@/components/Logo";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import DevBar from "@/components/DevBar";
+import Toasts from "@/components/Toasts";
 
 import "./globals.css";
 
 /*
-  Geist, a geometric Swiss sans drawn for interfaces and tuned for dark backgrounds, which is the
-  only background this app has. It replaces a pairing of Barlow with Barlow Condensed: rather than
-  a second family for headings, the display role is the same face at 700 with tight tracking, so
-  the hierarchy comes from weight and spacing instead of from a change of voice.
+  One superfamily: Geist for everything you read, Geist Mono for the pasted list.
 
-  Geist Mono comes with it and takes over the pasted list, which used to fall back to whatever
-  monospace the device happened to have.
+  HeroUI's theme builder offers the font as a choice, and Inter — its default — is the safe answer
+  rather than the right one here. Read back at size, uppercase, on a dark card, it went thin and
+  characterless: a screen of UI chrome rather than a thing with a name on it. Geist is drawn in the
+  Swiss neo-grotesque line that SF Pro comes from — tighter apertures, flatter terminals, more
+  weight where a heading needs it — which is the "not generic" the app was missing, and it is the
+  same family as the mono already carrying the list.
+
+  Self-hosted by next/font, so a phone, a Mac and a Windows laptop render the same letters — the
+  point of not leaning on a system face.
+
+  What came before, and why not: Inter (correct, anonymous); Plus Jakarta Sans as a second display
+  family, which only meant the app disagreed with itself wherever we had not reached; Big Shoulders,
+  the athletic condensed face a football app wants on paper, unreadable on a phone at 14px.
 */
-const geist = Geist({
+const body = Geist({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-geist",
+  variable: "--font-body",
 });
 
 const geistMono = Geist_Mono({
@@ -37,7 +46,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "dark",
-  themeColor: "#16122a",
+  themeColor: "#17161b",
 };
 
 const Layout = ({
@@ -45,15 +54,23 @@ const Layout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => (
-  <html lang="es">
-    <body
-      className={classNames(
-        geist.variable,
-        geistMono.variable,
-        "grid min-h-dvh grid-rows-[4rem_1fr] font-sans text-text antialiased"
-      )}
-    >
-      <header className="sticky top-0 z-20 grid place-items-center w-full border-b border-border bg-canvas/70 backdrop-blur-md">
+  /*
+    The font variables go on <html>, not on <body>, and it matters more than it looks.
+
+    globals.css declares --font-sans on :root as `var(--font-body), …`. A custom property is
+    substituted where it is read, so on :root — and with --font-body defined one level down on
+    <body>, that substitution failed, --font-sans computed to nothing, and every `font-sans` in the
+    app quietly fell through to the system UI face. On a Mac that is SF Pro, which is close enough
+    to a grotesque that nobody noticed the web font was never loading.
+  */
+  <html lang="es" data-theme="dark" className={classNames(body.variable, geistMono.variable)}>
+    <body className="grid min-h-dvh grid-rows-[4rem_1fr] font-sans text-text antialiased">
+      {/*
+        No fill of its own, only blur. A flat bg-canvas/70 here was darker than the violet glow
+        behind it, so the top four rems of every screen read as a separate, duller band with a hard
+        edge along the bottom. The blur alone keeps anything scrolling underneath legible.
+      */}
+      <header className="sticky top-0 z-20 grid w-full place-items-center border-b border-border/60 backdrop-blur-md">
         <Logo />
       </header>
       {/* min-w-0 because a grid item, like a flex item, is never narrower than its own content
@@ -63,6 +80,8 @@ const Layout = ({
         {children}
       </main>
       <ConfirmDialog />
+      {/* Mounted once, for the whole app: HeroUI's toast queue renders into it from anywhere. */}
+      <Toasts />
       {process.env.NODE_ENV === "development" && <DevBar />}
     </body>
   </html>

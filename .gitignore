@@ -40,3 +40,9 @@ next-env.d.ts
 
 # Agent skills fetched locally, not part of the app
 .claude/skills/
+# heroui-agents-md
+.heroui-docs/
+
+# playwright
+/test-results/
+/playwright-report/

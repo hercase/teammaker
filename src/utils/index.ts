@@ -4,6 +4,19 @@ import { MatchEvent, Player } from "@/types";
 const NON_NAME_CHARS = /[^\p{L}\s]/gu;
 
 /*
+  crypto.randomUUID only exists in a secure context, and http://<ip-de-la-lan>:3000 is not one —
+  which is exactly how this app gets opened on a phone to try it out. There it threw, so creating
+  the teams did nothing at all and the button looked dead. These ids never leave the browser: they
+  key React lists and identify a player inside one saved match, so Math.random is enough when the
+  real thing is unavailable.
+*/
+export function uid(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+/*
   A row is a name at a glance, not a document. These two caps are what still fits on one line of a
   360px phone next to the row menu: "Ezequiel (Hernandez Palomero De La Mancha)" used to push the
   ⋮ clean off the card. The cut happens here, where a Player is made, so the list, the history and
@@ -77,7 +90,7 @@ export function generatePlayer(user_str: string): Player {
   const [name = "", ...rest] = onlyLetters.split(" ");
 
   return {
-    id: crypto.randomUUID(),
+    id: uid(),
     // clampName is the backstop for the one word that is absurd on its own, not the rule.
     name: clampName(name, MAX_NAME_CHARS),
     details: clampName(firstSurname(rest), MAX_DETAILS_CHARS),
@@ -170,7 +183,7 @@ interface GenerateMatchEvent {
 }
 
 export const generateMatchEvent = ({ type, old_player, new_player }: GenerateMatchEvent) => ({
-  id: crypto.randomUUID(),
+  id: uid(),
   type,
   old_name: generateFullName(old_player),
   ...(new_player && { new_name: generateFullName(new_player) }),

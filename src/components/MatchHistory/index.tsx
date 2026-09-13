@@ -17,7 +17,7 @@ const EventName: FC<{ children: string }> = ({ children }) => {
   return (
     <>
       <span className="shrink-0">{name}</span>
-      <span className="truncate text-2xs font-medium uppercase opacity-80">({details})</span>
+      <span className="truncate text-xs font-medium uppercase opacity-80">({details})</span>
     </>
   );
 };
@@ -57,7 +57,8 @@ const MatchHistory = () => {
               <span className="flex min-w-0 items-center gap-1 capitalize text-secondary-400">
                 <ArrowUpCircleIcon className="h-4 w-4 shrink-0" />
                 <EventName>{new_name}</EventName>
-                <span className="shrink-0">.</span>
+                {/* -ml-1 eats the flex gap: the line read "por Nico ." with the point adrift. */}
+                <span className="-ml-1 shrink-0">.</span>
               </span>
             </>
           )}

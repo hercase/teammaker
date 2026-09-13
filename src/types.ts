@@ -6,7 +6,7 @@ export type Player = {
   isReplacedBy?: Player["id"];
 };
 
-export type PresetColor = "white" | "black" | "blue" | "red" | "green" | "yellow";
+export type PresetColor = "white" | "black" | "celeste" | "blue" | "red" | "green" | "yellow";
 
 export type TeamSide = "A" | "B";
 
@@ -36,6 +36,8 @@ export interface ShadesKit {
 }
 
 export type Kit = ShirtsKit | BibsKit | ShadesKit;
+// The three ways a pickup game tells its sides apart, named once.
+export type KitMode = Kit["mode"];
 
 export type MatchEvent = {
   // Optional because matches persisted before this existed have events without one.
@@ -61,7 +63,7 @@ export interface MatchStore {
   organizer: string;
   random: boolean;
   kit: Kit;
-  remember: (fields: { organizer: string; location: string }) => void;
+  remember: (fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "random">>) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
 }
 

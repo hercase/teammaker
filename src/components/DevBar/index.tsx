@@ -1,9 +1,10 @@
 "use client";
 
 import { FC, ReactNode, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import classNames from "classnames";
 import { ChevronDownIcon, WrenchScrewdriverIcon } from "@heroicons/react/20/solid";
+import { Separator } from "@heroui/react";
 import { useMatchStore, usePlayersStore } from "@/store";
 import { shuffle } from "lodash";
 import { generatePlayers } from "@/utils";
@@ -24,6 +25,11 @@ interface DevActionProps {
   onClick: () => void;
 }
 
+// What the group of actions underneath it is for, so the bar reads as sections rather than a pile.
+const DevLabel: FC<{ children: ReactNode }> = ({ children }) => (
+  <span className="px-2.5 pb-0.5 pt-1 text-xs uppercase tracking-wide text-amber-300/70">{children}</span>
+);
+
 const DevAction: FC<DevActionProps> = ({ children, onClick }) => (
   <button
     type="button"
@@ -43,10 +49,12 @@ interface LoadOptions {
 
 const DevBar = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setOpen] = useState(false);
   const { setMatch } = useMatchStore();
   const { setPlayers } = usePlayersStore();
   const barRef = useRef<HTMLDivElement>(null);
+  const isOnForm = pathname === "/";
 
   /*
     Dismissed the way every other menu here is: tap anywhere else, or press Escape. The ref is on
@@ -95,6 +103,9 @@ const DevBar = () => {
     through the native value setter and fires an input event, which is how React picks the change
     up: the bar drives the rendered inputs the way a person would, so no dev-only prop or store has
     to exist in the components themselves.
+
+    Offered only on the screen that has a form. It used to be offered everywhere and cope by
+    navigating home and retrying after 400ms, which is a guess dressed as a feature.
   */
   const fillForm = () => {
     const type = (selector: string, value: string) => {
@@ -111,21 +122,10 @@ const DevBar = () => {
       return true;
     };
 
-    const fill = () => {
-      if (!type("#organizer", USUAL_ORGANIZER)) return false;
-
-      type("#location", USUAL_LOCATION);
-      type("#date", nextWednesdayAt());
-      type("textarea", USUAL_LIST);
-
-      return true;
-    };
-
-    // The form only exists on the home screen, so get there first if we are somewhere else.
-    if (!fill()) {
-      router.push("/");
-      setTimeout(fill, 400);
-    }
+    type("#organizer", USUAL_ORGANIZER);
+    type("#location", USUAL_LOCATION);
+    type("#date", nextWednesdayAt());
+    type("textarea", USUAL_LIST);
   };
 
   /*
@@ -154,25 +154,36 @@ const DevBar = () => {
         // A tap on any action is also a dismissal: the state it loads is the thing worth looking at.
         <div
           onClick={() => setOpen(false)}
-          className="flex w-52 flex-col gap-1 rounded-md border border-amber-400/40 bg-canvas/95 p-1.5 shadow-lg backdrop-blur-sm"
+          className="flex w-60 flex-col gap-1 rounded-md border border-amber-400/40 bg-canvas/95 p-1.5 shadow-lg backdrop-blur-sm"
         >
-          <DevAction onClick={fillForm}>Llenar formulario</DevAction>
+          {/* Only where there is a form to fill. */}
+          {isOnForm && (
+            <>
+              <DevLabel>Formulario</DevLabel>
+              <DevAction onClick={fillForm}>Completar los campos</DevAction>
+              <Separator className="my-0.5 bg-amber-400/20" />
+            </>
+          )}
 
-          <hr className="my-0.5 border-amber-400/20" />
-
-          <DevAction onClick={() => loadList({ kit: { mode: "bibs", bibTeam: "A" } })}>12 · pecheras</DevAction>
-          <DevAction onClick={() => loadList({ kit: { mode: "shades", lightTeam: "A" } })}>
-            12 · claras/oscuras
+          {/*
+            Named after the case each one puts the app in, not after what happens to be in the list.
+            "dos Mati" described the fixture; "nombres repetidos" describes why anyone would load it.
+          */}
+          <DevLabel>Cargar un partido</DevLabel>
+          <DevAction onClick={() => loadList({ kit: { mode: "bibs", bibTeam: "A" } })}>Con pecheras</DevAction>
+          <DevAction onClick={() => loadList({ kit: { mode: "shades", lightTeam: "A" } })}>Claras y oscuras</DevAction>
+          <DevAction onClick={() => loadList({ kit: { mode: "shirts", teamA: "white", teamB: "blue" } })}>
+            Con colores
           </DevAction>
-          <DevAction onClick={() => loadList({ random: true })}>12 · sorteada</DevAction>
-          <DevAction onClick={loadWithSubstitutions}>12 · con cambios</DevAction>
-          <DevAction onClick={() => loadList({ list: DUPLICATE_NAMES_LIST })}>12 · dos Mati</DevAction>
-          <DevAction onClick={() => loadList({ list: ODD_LIST })}>11 · impar</DevAction>
-          <DevAction onClick={() => loadList({ date: expiredDate() })}>12 · vencido</DevAction>
+          <DevAction onClick={() => loadList({ random: true })}>Sorteado al azar</DevAction>
+          <DevAction onClick={loadWithSubstitutions}>Con un cambio y una baja</DevAction>
+          <DevAction onClick={() => loadList({ list: DUPLICATE_NAMES_LIST })}>Con nombres repetidos</DevAction>
+          <DevAction onClick={() => loadList({ list: ODD_LIST })}>Con lista impar (11)</DevAction>
+          <DevAction onClick={() => loadList({ date: expiredDate() })}>Ya finalizado</DevAction>
 
-          <hr className="my-0.5 border-amber-400/20" />
+          <Separator className="my-0.5 bg-amber-400/20" />
 
-          <DevAction onClick={resetEverything}>Resetear</DevAction>
+          <DevAction onClick={resetEverything}>Borrar todo y empezar de cero</DevAction>
         </div>
       )}
 

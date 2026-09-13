@@ -111,7 +111,7 @@ describe("setShirt", () => {
     const sides = ["A", "B"] as const;
 
     sides.forEach((side) =>
-      (["white", "black", "blue", "red", "green", "yellow"] as const).forEach((color) => {
+      (["white", "black", "celeste", "blue", "red", "green", "yellow"] as const).forEach((color) => {
         const next = setShirt(kit, side, color);
 
         expect(next.teamA).not.toBe(next.teamB);

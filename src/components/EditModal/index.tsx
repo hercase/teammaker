@@ -1,7 +1,9 @@
-import { Fragment, FC, useEffect } from "react";
+"use client";
+
+import { FC, useEffect } from "react";
 import { useMatchStore } from "@/store";
 import { MatchInputs } from "@/types";
-import { Dialog, Transition } from "@headlessui/react";
+import { Modal } from "@heroui/react";
 import { ArrowsRightLeftIcon } from "@heroicons/react/20/solid";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import Button from "@/components/Button";
@@ -22,6 +24,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<MatchInputs>({
     /*
@@ -55,41 +58,48 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
     setIsOpen(false);
   };
 
-  const transitions = {
-    enter: "ease-out duration-200",
-    leave: "ease-in duration-150",
-    enterFrom: "opacity-0 scale-95",
-    enterTo: "opacity-100 scale-100",
-    leaveFrom: "opacity-100 scale-100",
-    leaveTo: "opacity-0 scale-95",
-  };
-
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={() => setIsOpen(false)}>
-        <Transition.Child as={Fragment} {...transitions}>
-          <div className="overlay" />
-        </Transition.Child>
+    <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+      <Modal.Backdrop>
+        <Modal.Container>
+          <Modal.Dialog className="w-full max-w-md">
+            <Modal.Header>
+              <Modal.Heading>Editar</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body>
+              <form className="flex flex-col gap-6 mt-4" onSubmit={handleSubmit(onSubmit)}>
+                {/*
+                    value on all three, or the dialog opens empty: React Aria initialises each field
+                    with its own state and overwrites what reset() had just put there. See TextInput.
+                  */}
+                <TextInput
+                  name="organizer"
+                  label="Organizador"
+                  error={!!errors.organizer}
+                  value={watch("organizer")}
+                  register={register}
+                />
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child as={Fragment} {...transitions}>
-              <Dialog.Panel className="modal w-full max-w-md transform overflow-hidden p-6 text-left align-middle transition-all">
-                <Dialog.Title as="h3" className="font-display text-xl font-bold uppercase tracking-wide text-text">
-                  Editar
-                </Dialog.Title>
-                <form className="flex flex-col gap-6 mt-4" onSubmit={handleSubmit(onSubmit)}>
-                  <TextInput name="organizer" label="Organizador" error={!!errors.organizer} register={register} />
-
-                  <TextInput name="location" label="Lugar" error={!!errors.location} register={register} />
-                  {/*
+                <TextInput
+                  name="location"
+                  label="Lugar"
+                  error={!!errors.location}
+                  value={watch("location")}
+                  register={register}
+                />
+                {/*
                     No future check here. Editing is also what you do ten minutes before kick-off,
                     when someone drops out — and a match starting in under fifteen minutes would
                     have failed a rule meant for creating one, making the location unfixable.
                   */}
-                  <DateInput register={register} error={!!errors.date} requireFuture={false} />
+                <DateInput
+                  register={register}
+                  error={!!errors.date}
+                  value={watch("date")}
+                  requireFuture={false}
+                />
 
-                  {/*
+                {/*
                     The draw is not editable, and that is the point of it.
 
                     It says the teams were not arranged by anyone, which is a claim made to the
@@ -101,33 +111,32 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     Replacing, dropping and renaming a player stay available, because those are
                     facts about who turned up, not about how the sides were picked.
                   */}
-                  {random && (
-                    <p className="flex items-center gap-2 rounded-lg border border-secondary-700 px-3 py-2.5 text-sm text-secondary-300">
-                      <ArrowsRightLeftIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                      Los equipos se sortearon al azar y no se pueden reordenar.
-                    </p>
-                  )}
-                  <Controller
-                    name="kit"
-                    control={control}
-                    render={({ field }) => <KitSelector value={field.value} onChange={field.onChange} />}
-                  />
-                  {/* Same two-button row as every other dialog: the confirm is the primary action. */}
-                  <div className="flex gap-3">
-                    <Button type="submit" className="flex-1">
-                      Confirmar
-                    </Button>
-                    <Button type="button" variant="ghost" className="flex-1" onClick={() => setIsOpen(false)}>
-                      Cancelar
-                    </Button>
-                  </div>
-                </form>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </div>
-      </Dialog>
-    </Transition>
+                {random && (
+                  <p className="flex items-center gap-2 rounded-lg border border-secondary-700 px-3 py-2.5 text-sm text-secondary-300">
+                    <ArrowsRightLeftIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    Los equipos se sortearon al azar y no se pueden reordenar.
+                  </p>
+                )}
+                <Controller
+                  name="kit"
+                  control={control}
+                  render={({ field }) => <KitSelector value={field.value} onChange={field.onChange} />}
+                />
+                {/* Same two-button row as every other dialog: the confirm is the primary action. */}
+                <div className="flex gap-3">
+                  <Button type="submit" className="flex-1">
+                    Confirmar
+                  </Button>
+                  <Button type="button" variant="ghost" className="flex-1" onClick={() => setIsOpen(false)}>
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </Modal.Body>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 };
 

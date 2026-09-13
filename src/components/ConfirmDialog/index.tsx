@@ -1,14 +1,17 @@
 "use client";
 
-import { FC, Fragment, useEffect, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { FC, useEffect, useState } from "react";
+import { AlertDialog, Input, Label, TextField } from "@heroui/react";
 import Button from "@/components/Button";
 import { useDialogStore } from "@/store";
 
 /*
   The app's only confirm dialog. It lives in the layout and is opened from anywhere through
-  useAlert, so every confirmation in the app is the same object, built from the same tokens as
-  every other surface.
+  useAlert, so every confirmation in the app is the same object.
+
+  HeroUI's AlertDialog rather than a hand-built one: focus trapping, the backdrop, scroll locking and
+  Escape are its problem now. isDismissable stays off — dropping a player is a decision, and a stray
+  tap on the backdrop should not answer it either way.
 */
 const ConfirmDialog: FC = () => {
   const { options, close } = useDialogStore();
@@ -31,65 +34,51 @@ const ConfirmDialog: FC = () => {
     close();
   };
 
-  const transitions = {
-    enter: "ease-out duration-200",
-    leave: "ease-in duration-150",
-    enterFrom: "opacity-0 scale-95",
-    enterTo: "opacity-100 scale-100",
-    leaveFrom: "opacity-100 scale-100",
-    leaveTo: "opacity-0 scale-95",
-  };
-
   return (
-    <Transition appear show={Boolean(options)} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={close}>
-        <Transition.Child as={Fragment} {...transitions}>
-          <div className="overlay" />
-        </Transition.Child>
+    <AlertDialog isOpen={Boolean(options)} onOpenChange={(open) => !open && close()}>
+      <AlertDialog.Backdrop>
+        <AlertDialog.Container>
+          <AlertDialog.Dialog className="w-full max-w-sm">
+            <AlertDialog.Header>
+              <AlertDialog.Heading>{options?.text}</AlertDialog.Heading>
+            </AlertDialog.Header>
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child as={Fragment} {...transitions}>
-              <Dialog.Panel className="modal w-full max-w-sm p-6">
-                <Dialog.Title as="p" className="text-base text-text">
-                  {options?.text}
-                </Dialog.Title>
+            {options?.input && (
+              <AlertDialog.Body>
+                <TextField
+                  aria-label={options.text}
+                  isInvalid={Boolean(error)}
+                  value={value}
+                  onChange={setValue}
+                  autoFocus
+                >
+                  <Label className="sr-only">{options.text}</Label>
+                  {/* data-testid, not id: HeroUI generates the input's id for the label to point at. */}
+                  <Input
+                    data-testid="dialog-input"
+                    onKeyDown={(event) => event.key === "Enter" && confirm()}
+                  />
+                  {error && (
+                    <p role="alert" className="mt-2 text-sm text-error-400">
+                      {error}
+                    </p>
+                  )}
+                </TextField>
+              </AlertDialog.Body>
+            )}
 
-                {options?.input && (
-                  <div className="mt-4">
-                    <label className="sr-only" htmlFor="dialog-input">
-                      {options.text}
-                    </label>
-                    <input
-                      id="dialog-input"
-                      autoFocus
-                      className="input"
-                      value={value}
-                      onChange={(event) => setValue(event.target.value)}
-                      onKeyDown={(event) => event.key === "Enter" && confirm()}
-                    />
-                    {error && (
-                      <p role="alert" className="mt-2 text-sm text-error-400">
-                        {error}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                <div className="mt-6 flex gap-3">
-                  <Button className="flex-1" onClick={confirm}>
-                    Confirmar
-                  </Button>
-                  <Button variant="ghost" className="flex-1" onClick={close}>
-                    Cancelar
-                  </Button>
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </div>
-      </Dialog>
-    </Transition>
+            <AlertDialog.Footer className="flex gap-3">
+              <Button className="flex-1" onClick={confirm}>
+                Confirmar
+              </Button>
+              <Button variant="ghost" className="flex-1" onClick={close}>
+                Cancelar
+              </Button>
+            </AlertDialog.Footer>
+          </AlertDialog.Dialog>
+        </AlertDialog.Container>
+      </AlertDialog.Backdrop>
+    </AlertDialog>
   );
 };
 

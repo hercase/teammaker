@@ -22,7 +22,7 @@ const Match = () => {
   const { date, location } = useMatchStore();
   const { players, hasHydrated, resetMatch } = usePlayers();
   const { showEditModal, setShowEditModal } = useUiStore();
-  const { ref: shareRef, share, isSharing, failed } = useShareTeams();
+  const { ref: shareRef, share, isSharing } = useShareTeams();
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -81,15 +81,11 @@ const Match = () => {
             {isSharing ? "Generando imagen…" : "Compartir"}
           </Button>
 
-          {failed && (
-            <p role="alert" className="text-sm text-error-400">
-              No se pudo generar la imagen. Probá de nuevo.
-            </p>
-          )}
-
           <div className="flex w-full gap-3">
+            {/* "Nueva lista", not "Crear nueva lista": beside Editar the verb is understood, and
+                the longer label wrapped to two lines on a phone. */}
             <Button variant="ghost" className="flex-1" onClick={handleCreateNewList}>
-              Crear nueva lista
+              Nueva lista
             </Button>
             <Button variant="ghost" className="flex-1" onClick={() => setShowEditModal(true)}>
               Editar
@@ -100,6 +96,7 @@ const Match = () => {
 
         {/* Only while the picture is being taken, and never where anyone can see it. */}
         {isSharing && <ShareCard ref={shareRef} />}
+
       </div>
     </DndProvider>
   );

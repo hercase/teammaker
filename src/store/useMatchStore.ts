@@ -16,9 +16,20 @@ export const useMatchStore = create(
   persist<MatchStore>(
     (set) => ({
       ...initialState,
-      // Sticky fields, saved as they are typed rather than waiting for a match to be created.
-      remember: ({ organizer, location }: { organizer: string; location: string }) => {
-        set(() => ({ organizer, location }));
+      /*
+        Sticky fields, saved as they are chosen rather than waiting for a match to be created. The
+        group plays the same way every week — same pitch, same person organising, same way of
+        telling the sides apart — so asking again every Tuesday is asking for nothing.
+
+        Partial, because the form remembers what you typed and the kit remembers what you picked,
+        and those happen at different moments.
+      */
+      remember: (fields) => {
+        set((state) => ({
+          ...state,
+          ...fields,
+          ...(fields.kit && { kit: parseKit(fields.kit) }),
+        }));
       },
       setMatch: (match: Omit<MatchInputs, "list">) => {
         set(

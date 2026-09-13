@@ -9,17 +9,37 @@ import { Kit, PresetColor, ShirtsKit, TeamSide } from "@/types";
   Desaturated and pulled cooler so the kits belong to the same world as the rest of the interface.
   Primary red, green and yellow each held up on their own but together they read as a sticker sheet
   from another app: saturation went from 79/69/90% down to 62/45/53%, and the contrast against the
-  panel held or improved everywhere. Black is the one that cannot win — a black shirt on a dark
+  panel held or improved everywhere. Blue was later brought down too: it had stayed at full
+  saturation while its five siblings sat between 15 and 62%, so it read as borrowed from somewhere
+  else. Black is the one that cannot win — a black shirt on a dark
   interface is a contradiction — so it is a charcoal that reads as a shape beside its own label.
 */
-export const KIT_PRESETS: Record<PresetColor, { label: string; hex: string }> = {
+/*
+  `edge` is what to draw when the garment has to be seen rather than shown: the contour of its icon,
+  and the border of the panel that means "this team wears it". Only the dark shirt needs one.
+
+  A dark garment on a dark interface cannot be solved with a fill. Measured against this panel, the
+  old charcoal reached 1.57:1 and making it darker only traded that for 1.06:1 — the shape vanishes
+  either way. So the fill is finally properly black, which is what it is called, and the contour
+  carries the shape at 4.06:1. The contour is --color-border-strong, not a colour of its own.
+*/
+/*
+  Celeste is the seventh, and the one an Argentine sideline actually has most of: the Selección,
+  Racing, Belgrano, Temperley. Lighter and greener than the blue so the two read apart at 26px —
+  hue 200 against 225, lightness 74% against 65% — and at the same restraint as its siblings.
+*/
+export const KIT_PRESETS: Record<PresetColor, { label: string; hex: string; edge?: string }> = {
   white: { label: "Blanca", hex: "#e7e9f2" },
-  black: { label: "Negra", hex: "#3d4150" },
-  blue: { label: "Azul", hex: "#4f7cff" },
+  black: { label: "Negra", hex: "#22242e", edge: "#827ca2" },
+  celeste: { label: "Celeste", hex: "#8fc7e8" },
+  blue: { label: "Azul", hex: "#6d8be1" },
   red: { label: "Roja", hex: "#d95f6a" },
   green: { label: "Verde", hex: "#45b58a" },
   yellow: { label: "Amarilla", hex: "#c9a951" },
 };
+
+// What a preset looks like as a line. Falls back to the fill for every colour that reads on its own.
+export const presetEdge = (color: PresetColor) => KIT_PRESETS[color].edge ?? KIT_PRESETS[color].hex;
 
 export const PRESET_COLORS = Object.keys(KIT_PRESETS) as PresetColor[];
 
@@ -33,6 +53,7 @@ export const BIB_HEX = "#f97316";
 // The two ends of the light/dark split, reusing the white and black shirts so nothing new is invented.
 export const LIGHT_HEX = KIT_PRESETS.white.hex;
 export const DARK_HEX = KIT_PRESETS.black.hex;
+export const DARK_EDGE = presetEdge("black");
 
 /*
   Light against dark is the default because it is what a pickup game falls back to: nobody has to
@@ -54,6 +75,17 @@ export function kitColor(kit: Kit, side: TeamSide): string | null {
 }
 
 /*
+  The same kit drawn as a line rather than as a garment: the panel border, and the contour of an
+  icon whose fill is too dark to hold a shape. A black panel border would not be a border.
+*/
+export function kitEdge(kit: Kit, side: TeamSide): string | null {
+  if (kit.mode === "bibs") return kit.bibTeam === side ? BIB_HEX : null;
+  if (kit.mode === "shades") return kit.lightTeam === side ? LIGHT_HEX : DARK_EDGE;
+
+  return presetEdge(side === "A" ? kit.teamA : kit.teamB);
+}
+
+/*
   In shirts mode the panel is titled by its colour, because the colour is what tells the teams
   apart and a colour on its own is not something everyone can read. In bibs mode neither panel
   carries a garment: only one side wears anything, so putting it in one header left the other with
@@ -67,7 +99,7 @@ export function kitLabel(kit: Kit, side: TeamSide): string {
   return KIT_PRESETS[side === "A" ? kit.teamA : kit.teamB].label;
 }
 
-const CHROMATIC_PRESETS: PresetColor[] = ["blue", "red", "green", "yellow"];
+const CHROMATIC_PRESETS: PresetColor[] = ["celeste", "blue", "red", "green", "yellow"];
 
 // Shortest way around the colour wheel.
 function hueDistance(a: number, b: number): number {

@@ -59,7 +59,7 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
         // the row menu off the right edge of the card instead of being truncated.
         // One line per player, always: a row that grows to two lines makes the two teams stop
         // reading as two even stacks. The surname gives way instead, with an ellipsis.
-        "flex min-h-11 w-full min-w-0 select-none items-center gap-2 touch-manipulation",
+        "flex min-h-11 w-full min-w-0 select-none items-center gap-1 touch-manipulation",
         {
           "opacity-50": isDragging,
           "cursor-move": !random,
@@ -72,12 +72,16 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
     >
       {/* The name itself never gives way; it is already capped at generatePlayer. */}
       <span className="shrink-0">{currentPlayers.name}</span>
+      {/*
+        In brackets like everything else hanging off a name. A bare "1" beside "Mati" read as a
+        count or a shirt number; "(1)" reads as which Mati, which is what it is.
+      */}
       {tags[currentPlayers.id] && (
-        <span className="shrink-0 text-xs font-semibold text-text-muted">{tags[currentPlayers.id]}</span>
+        <span className="shrink-0 text-xs font-medium text-text-muted">({tags[currentPlayers.id]})</span>
       )}
       {/* The rest of the name, smaller and in brackets. Not a badge: it is not a status. */}
       {currentPlayers.details && (
-        <span className="min-w-0 truncate text-2xs font-medium uppercase text-text-muted">
+        <span className="min-w-0 truncate text-xs font-medium uppercase text-text-muted">
           ({currentPlayers.details})
         </span>
       )}

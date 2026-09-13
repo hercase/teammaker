@@ -44,14 +44,17 @@ const CreateMatchForm: FC = () => {
 
   const typedName = watch("organizer");
   const typedLocation = watch("location");
+  const chosenKit = watch("kit");
+  const chosenRandom = watch("random");
 
   /*
-    These two are remembered as they are typed, not on submit. Someone who writes their name and
-    closes the tab before creating anything should not have to write it again.
+    Remembered as they are chosen, not on submit. Someone who writes their name and closes the tab
+    before creating anything should not have to write it again — and the kit and the draw are how
+    this group always plays, not a decision to be re-made every week.
   */
   useEffect(() => {
-    remember({ organizer: typedName, location: typedLocation });
-  }, [typedName, typedLocation, remember]);
+    remember({ organizer: typedName, location: typedLocation, kit: chosenKit, random: chosenRandom });
+  }, [typedName, typedLocation, chosenKit, chosenRandom, remember]);
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
     const names = generatePlayers(data.list);
@@ -73,6 +76,14 @@ const CreateMatchForm: FC = () => {
       className="grid w-full max-w-md gap-5 md:max-w-(--breakpoint-lg) md:grid-cols-[minmax(0,1fr)_20rem] md:items-stretch lg:grid-cols-[minmax(0,1fr)_24rem]"
       onSubmit={handleSubmit(onSubmit)}
     >
+      {/*
+        Present for the accessibility tree, absent from the screen. This page had no heading at all,
+        so a screen reader landed on a textarea with no idea what it had opened — but the app is one
+        page with its name already in the header, and a visible "Armar los equipos" above the form
+        was a title telling you what the only screen does.
+      */}
+      <h1 className="sr-only">Armar los equipos</h1>
+
       <ListInput
         register={register}
         error={!!errors.list}
@@ -106,7 +117,7 @@ const CreateMatchForm: FC = () => {
           register={register}
         />
 
-        <DateInput register={register} error={!!errors.date} />
+        <DateInput register={register} error={!!errors.date} value={watch("date")} />
 
         {/* No defaultValue: like the switch, it would win over the form's defaultValues and throw
             away the kit the last match was saved with. */}
@@ -116,18 +127,19 @@ const CreateMatchForm: FC = () => {
           render={({ field }) => <KitSelector value={field.value} onChange={field.onChange} />}
         />
 
-        {/* A labelled row rather than a floating switch: the control and what it does stay together. */}
-        <label className="panel flex cursor-pointer items-center justify-between gap-4 p-4">
-          <span>
-            <span className="block font-medium text-text">Orden aleatorio</span>
-            <span className="block text-sm text-text-muted">Mezcla la lista antes de dividir.</span>
-          </span>
-          <Controller
-            name="random"
-            control={control}
-            render={({ field }) => <ToggleSwitch checked={field.value} onChange={field.onChange} />}
-          />
-        </label>
+        {/* The switch carries its own label and explanation; see the note in the component. */}
+        <Controller
+          name="random"
+          control={control}
+          render={({ field }) => (
+            <ToggleSwitch
+              label="Orden aleatorio"
+              description="Mezcla la lista antes de dividir."
+              checked={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
 
         <Button type="submit" className="w-full">
           Crear equipos
