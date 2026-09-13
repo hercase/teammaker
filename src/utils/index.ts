@@ -1,4 +1,5 @@
 import { MatchEvent, Player } from "@/types";
+import { parseMessage } from "@/utils/message";
 
 // \p{L} with the u flag covers accents and ñ, which the previous [a-zA-Z] range stripped
 const NON_NAME_CHARS = /[^\p{L}\s]/gu;
@@ -61,6 +62,8 @@ const SURNAME_PARTICLES = new Set([
   "den",
   "san",
   "santa",
+  // Not a surname particle but a nickname's: "Andres (el titan)" is filed under "el titan", not "el".
+  "el",
   "mac",
   "mc",
   "st",
@@ -86,7 +89,8 @@ export function firstSurname(words: string[]): string {
 }
 
 export function generatePlayer(user_str: string): Player {
-  const onlyLetters = user_str.replace(NON_NAME_CHARS, "").replace(/\s+/g, " ").trim();
+  // Replaced with a space, not removed: "Andres(el titan)" used to come out as "Andresel titan".
+  const onlyLetters = user_str.replace(NON_NAME_CHARS, " ").replace(/\s+/g, " ").trim();
   const [name = "", ...rest] = onlyLetters.split(" ");
 
   return {
@@ -118,11 +122,20 @@ export function shortenFullName(fullName: string): string {
   return surname ? `${name} (${surname})` : name;
 }
 
+// Only the player lines of the message; see parseMessage for what the rest of it is.
 export function generatePlayers(str: string): Player[] {
-  return str
-    .split("\n")
-    .map((line) => generatePlayer(line))
+  return parseMessage(str)
+    .players.map((line) => generatePlayer(line))
     .filter((player) => player.name !== "");
+}
+
+/*
+  Who is actually on the pitch: someone who dropped out without a replacement is not, and someone
+  who was replaced counts once, as their substitute. The team header, the "falta uno" line and the
+  price per head all need the same number, so it is decided here.
+*/
+export function countPlaying(players: Player[]): number {
+  return players.filter((player) => !(player.isDeleted && !player.isReplacedBy)).length;
 }
 
 /*
@@ -132,7 +145,7 @@ export function generatePlayers(str: string): Player[] {
   button looking broken.
 */
 export function countPlayers(str: string): number {
-  return str.split("\n").filter((line) => line.replace(NON_NAME_CHARS, "").trim() !== "").length;
+  return parseMessage(str).players.filter((line) => line.replace(NON_NAME_CHARS, "").trim() !== "").length;
 }
 
 // teamB starts where teamA ends. Using slice(-half) overlaps by one on odd-sized lists.

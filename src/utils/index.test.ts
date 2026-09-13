@@ -36,9 +36,24 @@ describe("generatePlayer", () => {
   it("drops emoji and punctuation that come from the pasted message", () => {
     expect(generatePlayer("⚽ Lucho!").name).toBe("Lucho");
   });
+
+  it("keeps a nickname in brackets whole, and apart from the name", () => {
+    const player = generatePlayer("Andres(el titan)");
+
+    expect(player.name).toBe("Andres");
+    expect(player.details).toBe("el titan");
+  });
 });
 
 describe("generatePlayers", () => {
+  it("leaves the title, the day and the pitch of a real message off the teams", () => {
+    const message =
+      "Partido de los miercoles\n\n⏳Miércoles 18.30hrs\n🏟️ Cancha: Quintana y Salta\n\n⬇️ Esta semana:\n\n1. Lucho\n2. Mura\n3. Mauro\n4. Lihue";
+
+    expect(generatePlayers(message).map((p) => p.name)).toEqual(["Lucho", "Mura", "Mauro", "Lihue"]);
+    expect(countPlayers(message)).toBe(4);
+  });
+
   it("strips the list numbering that comes from the pasted message", () => {
     const players = generatePlayers("1. Lucho\n2. Mura\n3. Mauro");
 
