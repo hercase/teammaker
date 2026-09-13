@@ -329,13 +329,14 @@ test("el kit, el lado y el nombre persisten sin crear nada", async ({ page }) =>
 test("el menú de fila: abre desde el ⋮, renombra, se cierra con Escape y no se abre al arrastrar", async ({ page }) => {
   const errors = watchConsole(page);
   await openFixture(page, "Con un cambio y una baja");
-  await expect(rows(page)).toHaveCount(12);
+  /* Twelve signed up, one dropped out: eleven rows, and the one who left is in the history. */
+  await expect(rows(page)).toHaveCount(11);
 
   await page
     .getByRole("button", { name: /^Opciones de/ })
     .first()
     .click();
-  await expect(page.getByRole("menuitem")).toHaveCount(4);
+  await expect(page.getByRole("menuitem")).toHaveCount(3);
   await page.getByRole("menuitem", { name: "Renombrar" }).click();
   const input = page.locator('[data-testid="dialog-input"]');
   await expect(input).toBeVisible();
@@ -347,7 +348,7 @@ test("el menú de fila: abre desde el ⋮, renombra, se cierra con Escape y no s
     .getByRole("button", { name: /^Opciones de/ })
     .first()
     .click();
-  await expect(page.getByRole("menuitem")).toHaveCount(4);
+  await expect(page.getByRole("menuitem")).toHaveCount(3);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("menuitem")).toHaveCount(0);
 
@@ -558,7 +559,9 @@ test("pegar un mensaje real llena Lugar y Fecha y arma doce jugadores, no diecis
   expect(errors).toEqual([]);
 });
 
-test("una baja dice qué equipo quedó corto y ajusta la cuota, y Volver a sumar lo deshace", async ({ page }) => {
+test("una baja saca la fila, dice qué equipo quedó corto, ajusta la cuota, y Sumar jugador la deshace", async ({
+  page,
+}) => {
   const errors = watchConsole(page);
   await page.evaluate((m) => navigator.clipboard.writeText(m), REAL_MESSAGE);
   await page.getByRole("button", { name: "Pegar lista desde el portapapeles" }).click();
@@ -574,8 +577,15 @@ test("una baja dice qué equipo quedó corto y ajusta la cuota, y Volver a sumar
   /* Eleven left: $ 24.000 / 11 rounds up to $ 2.182. */
   await expect(page.getByText(/2\.182 cada uno/)).toBeVisible();
 
-  await page.getByRole("button", { name: /^Opciones de Mura/ }).click();
-  await page.getByRole("menuitem", { name: "Volver a sumar" }).click();
+  await expect(rows(page)).toHaveCount(11);
+  await expect(rows(page).filter({ hasText: "Mura" })).toHaveCount(0);
+  await expect(page.getByText(/Mura se dio de baja/)).toBeVisible();
+
+  /* The undo lives where the hole is: Sumar jugador offers Mura first. */
+  await page.getByRole("button", { name: "Sumar jugador" }).click();
+  await page.getByRole("group", { name: "Suplentes" }).getByRole("button", { name: "Mura" }).click();
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(rows(page)).toHaveCount(12);
   await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
   await expect(page.getByText(/2\.000 cada uno/)).toBeVisible();
   await expect(page.getByText(/volvió a sumarse/)).toBeVisible();
@@ -682,4 +692,17 @@ test("a la lista impar se le puede sumar el que falta, del lado que falta", asyn
   await expect(page.getByText(/Nico se sumó/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Sumar jugador" })).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test("el que entró por otro también puede bajarse, y el historial lo nombra a él", async ({ page }) => {
+  await openFixture(page, "Con un cambio y una baja");
+  /* Nico came in for Mauro; his row has to allow the same three actions as any other. */
+  await page.getByRole("button", { name: /^Opciones de Mauro/ }).click();
+  await expect(page.getByRole("menuitem", { name: "Dar de baja" })).toBeEnabled();
+  await expect(page.getByRole("menuitem", { name: "Reemplazar" })).toBeEnabled();
+  await page.getByRole("menuitem", { name: "Dar de baja" }).click();
+  await expect(page.getByRole("alertdialog")).toContainText("Nico");
+  await page.getByRole("button", { name: "Confirmar" }).click();
+  await expect(rows(page)).toHaveCount(10);
+  await expect(page.getByText(/Nico se dio de baja/)).toBeVisible();
 });

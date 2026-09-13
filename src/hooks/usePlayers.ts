@@ -12,6 +12,7 @@ const usePlayers = () => {
     removePlayer: _removePlayer,
     replacePlayer: _replacePlayer,
     renamePlayer: _renamePlayer,
+    restorePlayer,
     promoteSubstitute,
     addPlayer: _addPlayer,
     addSubstitute,
@@ -28,7 +29,8 @@ const usePlayers = () => {
     left, which may sit above the original; numbering down the rows made the newcomer "Keis (1)"
     and the Keis who signed up first "Keis (2)". The bench is in the order people came in.
   */
-  const drawn = (players ?? []).map((player) => bench?.find((p) => p.id === player.isReplacedBy) ?? player);
+  const shownOf = (player: Player) => bench?.find((p) => p.id === player.isReplacedBy) ?? player;
+  const drawn = (players ?? []).map(shownOf);
   const arrival = [
     ...drawn.filter((p) => !bench?.some((b) => b.id === p.id)),
     ...(bench ?? []).filter((b) => drawn.some((p) => p.id === b.id)),
@@ -52,15 +54,17 @@ const usePlayers = () => {
   };
 
   const removePlayer = (player: Player) => {
+    const name = shownOf(player).name;
+
     if (waiting.length === 0) {
       return alert({
-        text: `¿Estás seguro que deseas dar de baja a ${player.name}?`,
+        text: `¿Estás seguro que deseas dar de baja a ${name}?`,
         cb: () => _removePlayer(player.id),
       });
     }
 
     alert({
-      text: `${player.name} se baja. ¿Quién entra?`,
+      text: `${name} se baja. ¿Quién entra?`,
       input: "text",
       inputValidator: validateName,
       choices: waiting.map((sub) => generateFullName(sub).trim()),
@@ -76,7 +80,7 @@ const usePlayers = () => {
   */
   const replacePlayer = (player: Player) => {
     alert({
-      text: `¿Quién entra por ${player.name}?`,
+      text: `¿Quién entra por ${shownOf(player).name}?`,
       input: "text",
       inputValidator: validateName,
       choices: waiting.map((sub) => generateFullName(sub).trim()),
@@ -84,17 +88,26 @@ const usePlayers = () => {
     });
   };
 
-  // The eleventh player's missing partner, or the two the cap still has room for.
-  const addPlayer = (side: TeamSide, teamLabel: string) => {
+  /*
+    The eleventh player's missing partner, or the two the cap still has room for — or the undo of a
+    drop-out: whoever left this side is offered first, by the name their row showed, and picking
+    them brings the row back rather than adding a second one. Then the waiting list, then a name.
+  */
+  const addPlayer = (side: TeamSide, teamLabel: string, team: Player[]) => {
     // "a Oscuras", "a Azul", but "al equipo B": the label is a name in two modes and a noun in one.
-    const team = /^Equipo\b/.test(teamLabel) ? `al ${teamLabel.toLowerCase()}` : `a ${teamLabel}`;
+    const where = /^Equipo\b/.test(teamLabel) ? `al ${teamLabel.toLowerCase()}` : `a ${teamLabel}`;
+    const dropped = team.filter((p) => p.isDeleted).map((p) => ({ row: p, name: generateFullName(shownOf(p)).trim() }));
 
     alert({
-      text: `¿Quién se suma ${team}?`,
+      text: `¿Quién se suma ${where}?`,
       input: "text",
       inputValidator: validateName,
-      choices: waiting.map((sub) => generateFullName(sub).trim()),
+      choices: [...dropped.map((d) => d.name), ...waiting.map((sub) => generateFullName(sub).trim())],
       cb: (user: string) => {
+        const back = dropped.find((d) => d.name === user.trim());
+
+        if (back) return restorePlayer(back.row.id);
+
         const substitute = waiting.find((sub) => generateFullName(sub).trim() === user.trim());
 
         if (substitute) return addSubstitute(substitute.id, side);
@@ -106,7 +119,7 @@ const usePlayers = () => {
 
   const renamePlayer = (player: Player) => {
     alert({
-      text: `Ingresa el nuevo nombre para ${player.name}`,
+      text: `Ingresa el nuevo nombre para ${shownOf(player).name}`,
       input: "text",
       inputValidator: validateName,
       cb: (user: string) => _renamePlayer(player.id, user),

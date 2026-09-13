@@ -23,6 +23,10 @@ const join = (state: PlayersStore, player: Player, side: TeamSide) => {
   state.history.push(generateMatchEvent({ type: "join", old_player: player }));
 };
 
+// Who the row shows: the substitute, if one came in, else the player who signed up.
+const drawn = (state: PlayersStore, player: Player): Player =>
+  state.bench.find((p) => p.id === player.isReplacedBy) ?? player;
+
 const initialState = {
   players: [],
   bench: [],
@@ -50,12 +54,13 @@ export const usePlayersStore = create(
             if (!player || index === -1) return;
 
             const [substitute] = state.substitutes.splice(index, 1);
+            const leaving = drawn(state, player);
 
             state.bench.push(substitute);
             player.isReplacedBy = substitute.id;
             player.isDeleted = false;
 
-            state.history.push(generateMatchEvent({ type: "replace", old_player: player, new_player: substitute }));
+            state.history.push(generateMatchEvent({ type: "replace", old_player: leaving, new_player: substitute }));
           })
         ),
       renamePlayer: (id: string, player_name: string) =>
@@ -85,10 +90,15 @@ export const usePlayersStore = create(
           produce((state: PlayersStore) => {
             const player = state.players.find((p) => p.id === id);
 
-            if (player) {
+            /*
+              isDeleted is about the row, whoever it shows: a substitute who came in and then drops
+              out leaves the same hole, and the history names the person who left, not the one
+              they had replaced. isReplacedBy is kept, so Volver a sumar brings the right one back.
+            */
+            if (player && !player.isDeleted) {
               player.isDeleted = true;
 
-              state.history.push(generateMatchEvent({ type: "delete", old_player: player }));
+              state.history.push(generateMatchEvent({ type: "delete", old_player: drawn(state, player) }));
             }
           })
         ),
@@ -97,11 +107,11 @@ export const usePlayersStore = create(
           produce((state: PlayersStore) => {
             const player = state.players.find((p) => p.id === id);
 
-            if (player?.isDeleted && !player.isReplacedBy) {
+            if (player?.isDeleted) {
               player.isDeleted = false;
 
               // The drop-out stays in the history: both things happened.
-              state.history.push(generateMatchEvent({ type: "restore", old_player: player }));
+              state.history.push(generateMatchEvent({ type: "restore", old_player: drawn(state, player) }));
             }
           })
         ),
@@ -126,12 +136,13 @@ export const usePlayersStore = create(
 
             if (player) {
               const newPlayer = generatePlayer(player_name);
+              const leaving = drawn(state, player);
 
               state.bench.push(newPlayer);
               player.isReplacedBy = newPlayer.id;
               player.isDeleted = false;
 
-              state.history.push(generateMatchEvent({ type: "replace", old_player: player, new_player: newPlayer }));
+              state.history.push(generateMatchEvent({ type: "replace", old_player: leaving, new_player: newPlayer }));
             }
           })
         ),

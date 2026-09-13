@@ -367,11 +367,12 @@ describe("shortenFullName", () => {
 });
 
 describe("countPlaying", () => {
-  it("counts a substitute once and leaves a drop-out out", () => {
+  it("counts a substitute once, and a substitute who also left not at all", () => {
     const players = [
       { id: "1", name: "Lucho" },
       { id: "2", name: "Mura", isDeleted: true },
       { id: "3", name: "Mauro", isDeleted: false, isReplacedBy: "9" },
+      { id: "4", name: "Lihue", isDeleted: true, isReplacedBy: "8" },
     ];
 
     expect(countPlaying(players)).toBe(2);
@@ -422,6 +423,11 @@ describe("splitRoster", () => {
 
     expect(players).toHaveLength(12);
     expect(substitutes.map((p) => p.name)).toEqual(["Nico", "Juan"]);
+  });
+
+  it("treats a cap under two as no cap", () => {
+    expect(splitRoster(fourteen, 1).players).toHaveLength(14);
+    expect(splitRoster(fourteen, 0).players).toHaveLength(14);
   });
 
   it("plays everyone when there is no cap", () => {

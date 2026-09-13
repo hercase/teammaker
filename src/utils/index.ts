@@ -144,7 +144,8 @@ export const DEFAULT_CAPACITY = 12;
 export function splitRoster(str: string, capacity: number | null): { players: Player[]; substitutes: Player[] } {
   const parsed = parseMessage(str);
   const all = toPlayers(parsed.players);
-  const cut = capacity && capacity > 0 ? Math.min(capacity, all.length) : all.length;
+  // A cap under two is not a match; it is treated as no cap rather than as a silent refusal.
+  const cut = capacity && capacity >= 2 ? Math.min(capacity, all.length) : all.length;
 
   return {
     players: all.slice(0, cut),
@@ -153,12 +154,13 @@ export function splitRoster(str: string, capacity: number | null): { players: Pl
 }
 
 /*
-  Who is actually on the pitch: someone who dropped out without a replacement is not, and someone
-  who was replaced counts once, as their substitute. The team header, the "falta uno" line and the
-  price per head all need the same number, so it is decided here.
+  Who is actually on the pitch: a row that is out is out, whoever it shows — the player who signed
+  up, or the substitute who came in for them and then dropped out too. A replaced row counts once,
+  as its substitute. The team header, the "falta uno" line and the price per head all need the
+  same number, so it is decided here.
 */
 export function countPlaying(players: Player[]): number {
-  return players.filter((player) => !(player.isDeleted && !player.isReplacedBy)).length;
+  return players.filter((player) => !player.isDeleted).length;
 }
 
 /*

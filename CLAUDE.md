@@ -369,10 +369,18 @@ phone. The message's date overrides it; so does the person.
 - **"Falta uno en Claras"** under the teams when a drop-out leaves the sides uneven, in the same
   voice as the bibs line. Two small numbers in the headers were the only thing saying so, and it is
   the one thing the group has to act on before kick-off.
-- **Volver a sumar** in the row menu, for a player who is out and has no substitute: the undo of
-  Dar de baja. It used to be Reemplazar with the same name, which wrote a false substitution into
-  the history. Both events stay in the history, because both happened. `countPlaying` is the one
-  place that decides who is on the pitch; the headers, that line and the price all use it.
+- **A row that dropped out leaves the list.** It used to stay, struck through, so the group could
+  see who was missing; the "falta uno" line and the history ("Fede se dio de baja.") say so now,
+  and the struck name only made the team look one longer. The row stays in the data with
+  `isDeleted`, so the undo is possible: **Sumar jugador offers whoever left that side first**, by
+  the name their row showed, and picking them restores the row ("volvió a sumarse."). Both events
+  stay in the history, because both happened. `countPlaying` is the one place that decides who is
+  on the pitch (`!isDeleted`); the headers, the lines and the price all use it.
+- **`isDeleted` is about the row, whoever it shows.** A substitute who came in (`isReplacedBy`)
+  can drop out or be replaced like anyone else: the store names the *drawn* player in the event
+  ("Nico se dio de baja", not Mauro) and keeps `isReplacedBy`, so a restore brings Nico back. The
+  row menu used to freeze a replaced row — no Dar de baja, no Reemplazar — which after one
+  substitution left the organiser with no move at all.
 - **Precio de la cancha** is optional and the only numeric field. It is a *text* input with
   `inputMode="numeric"`: a number input drew spinner arrows and reported an empty box as 0. It
   starts empty and has no placeholder, because anything in the box reads as something to fill in.
