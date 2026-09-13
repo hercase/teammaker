@@ -379,6 +379,20 @@ phone. The message's date overrides it; so does the person.
   between matches like the pitch and the kit.
 - Required fields carry HeroUI's asterisk (`isRequired` on the TextField). With
   `validationBehavior="aria"` that is all it does; react-hook-form still decides what is missing.
+- **Cupo de jugadores** is optional and remembered. `splitRoster` cuts the list at it: the first N
+  numbered names play, the rest wait, in the order they signed up — and whoever the message lists
+  under a "Suplentes" heading waits behind them. The waiting list is `substitutes` in the players
+  store, distinct from `bench` (who already came in for someone). The picture prints
+  "Suplentes: Nico, Juan", and "Faltan 2 para completar el cupo de 12" when the sides are even and
+  still under the cap; when one side is short, "Falta uno en Claras" already says where the hole
+  is, so the cap line stays quiet.
+- **Reemplazar offers the waiting list** as one-tap buttons above the name box; a tap fills the
+  box, Confirmar confirms, so a slipped thumb costs nothing. A typed name that is a substitute's is
+  the substitute stepping in (`promoteSubstitute`: off the list, onto the bench, into the row) —
+  not a second person who happens to share the name. The fixture "Con suplentes" loads fourteen
+  for twelve spots.
+- The price line reads "$ 2.000 cada uno ($ 24.000)". It said "entre 12", which the chips already
+  say, and the total in brackets is enough.
 
 ## Still open
 

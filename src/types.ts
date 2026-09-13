@@ -58,6 +58,8 @@ export interface MatchInputs {
   kit: Kit;
   // What the pitch costs, in pesos, or null when nobody said. The picture divides it by whoever plays.
   price: number | null;
+  // How many play. Names past it are substitutes, and the picture says how many are still missing.
+  capacity: number | null;
 }
 export interface MatchStore {
   location: string;
@@ -66,19 +68,28 @@ export interface MatchStore {
   random: boolean;
   kit: Kit;
   price: number | null;
-  remember: (fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "random" | "price">>) => void;
+  capacity: number | null;
+  remember: (
+    fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "random" | "price" | "capacity">>
+  ) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
 }
 
 export interface PlayersStore {
   players: Player[];
+  // Who came in for someone: referenced by isReplacedBy, drawn in the replaced player's row.
   bench: Player[];
+  // Who is waiting for a spot: the names past the cap, and whoever the message listed as suplentes.
+  substitutes: Player[];
   history: MatchEvent[];
   hasHydrated: boolean;
   renamePlayer: (id: string, player_name: string) => void;
   setHasHydrated: (state: boolean) => void;
   setPlayers: (players: Player[]) => void;
   setBench: (bench: Player[]) => void;
+  setSubstitutes: (substitutes: Player[]) => void;
+  // A substitute takes a player's place: out of the waiting list, into the bench, into the row.
+  promoteSubstitute: (old_id: string, substitute_id: string) => void;
   removePlayer: (id: string) => void;
   // The undo of removePlayer: the person is back on the team and the history says so.
   restorePlayer: (id: string) => void;
@@ -95,6 +106,8 @@ export interface UIStore {
 export interface DialogOptions {
   text: string;
   input?: boolean;
+  // Names offered beside the input, one tap each: the substitutes, when there are any.
+  choices?: string[];
   inputValidator?: (value: string) => string | undefined;
   onConfirm: (value: string) => void;
 }

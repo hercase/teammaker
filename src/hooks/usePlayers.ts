@@ -1,18 +1,22 @@
 import { usePlayersStore } from "@/store";
 import { Player } from "@/types";
 import useAlert from "@/hooks/useAlert";
-import { duplicateTags, splitTeams, validateName } from "@/utils";
+import { duplicateTags, generateFullName, splitTeams, validateName } from "@/utils";
 
 const usePlayers = () => {
   const alert = useAlert();
   const {
     players,
     bench,
+    substitutes,
     removePlayer: _removePlayer,
     replacePlayer: _replacePlayer,
     renamePlayer: _renamePlayer,
+    promoteSubstitute,
     ...store
   } = usePlayersStore();
+
+  const waiting = substitutes ?? [];
 
   const { teamA, teamB } = splitTeams(players ?? []);
 
@@ -27,13 +31,24 @@ const usePlayers = () => {
     });
   };
 
+  /*
+    The substitutes are offered by name; picking one is the same as typing it, and a typed name
+    that is a substitute's is the substitute stepping in — off the waiting list, not a second
+    person who happens to share the name.
+  */
   const replacePlayer = (player: Player) => {
     alert({
-      text: `Ingresa el nombre del jugador que reemplazará a ${player.name}`,
+      text: `¿Quién entra por ${player.name}?`,
       input: "text",
       inputValidator: validateName,
+      choices: waiting.map((sub) => generateFullName(sub).trim()),
+      cb: (user: string) => {
+        const substitute = waiting.find((sub) => generateFullName(sub).trim() === user.trim());
 
-      cb: (user: string) => _replacePlayer(player.id, user),
+        if (substitute) return promoteSubstitute(player.id, substitute.id);
+
+        _replacePlayer(player.id, user);
+      },
     });
   };
 
@@ -49,6 +64,7 @@ const usePlayers = () => {
   return {
     players,
     bench,
+    substitutes: waiting,
     teamA,
     teamB,
     tags,

@@ -18,7 +18,7 @@ interface EditModalProps {
 }
 
 const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
-  const { organizer, location, date, kit, random, price, setMatch } = useMatchStore();
+  const { organizer, location, date, kit, random, price, capacity, setMatch } = useMatchStore();
 
   const {
     register,
@@ -34,7 +34,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
       every keystroke once the field has been visited.
     */
     mode: "onTouched",
-    defaultValues: { organizer, location, kit, date, random, price },
+    defaultValues: { organizer, location, kit, date, random, price, capacity },
   });
 
   /*
@@ -43,8 +43,8 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
     written to the store by the next Confirmar. Reopening now always starts from the saved match.
   */
   useEffect(() => {
-    if (isOpen) reset({ organizer, location, kit, date, random, price });
-  }, [isOpen, reset, organizer, location, kit, date, random, price]);
+    if (isOpen) reset({ organizer, location, kit, date, random, price, capacity });
+  }, [isOpen, reset, organizer, location, kit, date, random, price, capacity]);
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
     setMatch({
@@ -55,6 +55,7 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
       random,
       kit: data.kit,
       price: data.price,
+      capacity: data.capacity,
     });
 
     setIsOpen(false);
@@ -95,6 +96,16 @@ const EditModal: FC<EditModalProps> = ({ isOpen, setIsOpen }) => {
                     have failed a rule meant for creating one, making the location unfixable.
                   */}
                 <DateInput register={register} error={!!errors.date} value={watch("date")} requireFuture={false} />
+
+                <TextInput
+                  name="capacity"
+                  label="Cupo de jugadores"
+                  inputMode="numeric"
+                  required={false}
+                  valueAs={parsePrice}
+                  value={watch("capacity") == null ? "" : String(watch("capacity"))}
+                  register={register}
+                />
 
                 <TextInput
                   name="price"

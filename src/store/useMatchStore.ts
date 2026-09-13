@@ -11,6 +11,7 @@ const initialState = {
   random: false,
   kit: DEFAULT_KIT,
   price: null,
+  capacity: null,
 };
 
 export const useMatchStore = create(
@@ -42,6 +43,7 @@ export const useMatchStore = create(
             random: match.random,
             kit: parseKit(match.kit),
             price: match.price ?? null,
+            capacity: match.capacity ?? null,
           }))
         );
       },

@@ -6,7 +6,7 @@ import { shuffle } from "lodash";
 import { MatchInputs } from "@/types";
 import { useMatchStore } from "@/store";
 import { DEFAULT_KIT } from "@/utils/kit";
-import { generatePlayers } from "@/utils";
+import { splitRoster } from "@/utils";
 import { parseMessage } from "@/utils/message";
 import { proposeKickoff } from "@/utils/date";
 import { parsePrice } from "@/utils";
@@ -25,8 +25,8 @@ import TextInput from "@/components/TextInput";
   field still came up blank on every reload.
 */
 const CreateMatchForm: FC = () => {
-  const { organizer, random, location, date, kit, price, setMatch, remember } = useMatchStore();
-  const { setPlayers } = usePlayers();
+  const { organizer, random, location, date, kit, price, capacity, setMatch, remember } = useMatchStore();
+  const { setPlayers, setSubstitutes } = usePlayers();
 
   const {
     register,
@@ -48,7 +48,15 @@ const CreateMatchForm: FC = () => {
       the group plays on a schedule and the date wheel is the slowest field on a phone. It is a
       proposal: whatever the pasted message says overrides it, and so does the person.
     */
-    defaultValues: { organizer, location, random, kit: kit ?? DEFAULT_KIT, date: proposeKickoff(date), price },
+    defaultValues: {
+      organizer,
+      location,
+      random,
+      kit: kit ?? DEFAULT_KIT,
+      date: proposeKickoff(date),
+      price,
+      capacity,
+    },
   });
 
   /*
@@ -71,6 +79,7 @@ const CreateMatchForm: FC = () => {
   const chosenKit = watch("kit");
   const chosenRandom = watch("random");
   const typedPrice = watch("price");
+  const typedCapacity = watch("capacity");
 
   /*
     Remembered as they are chosen, not on submit. Someone who writes their name and closes the tab
@@ -84,13 +93,14 @@ const CreateMatchForm: FC = () => {
       kit: chosenKit,
       random: chosenRandom,
       price: typedPrice,
+      capacity: typedCapacity,
     });
-  }, [typedName, typedLocation, chosenKit, chosenRandom, typedPrice, remember]);
+  }, [typedName, typedLocation, chosenKit, chosenRandom, typedPrice, typedCapacity, remember]);
 
   const onSubmit: SubmitHandler<MatchInputs> = (data) => {
-    const names = generatePlayers(data.list);
+    const { players, substitutes } = splitRoster(data.list, data.capacity);
 
-    if (names.length < 2) return;
+    if (players.length < 2) return;
 
     setMatch({
       location: data.location,
@@ -99,8 +109,10 @@ const CreateMatchForm: FC = () => {
       random: data.random,
       kit: data.kit,
       price: data.price,
+      capacity: data.capacity,
     });
-    setPlayers(data.random ? shuffle(names) : names);
+    setPlayers(data.random ? shuffle(players) : players);
+    setSubstitutes(substitutes);
   };
 
   return (
@@ -157,6 +169,17 @@ const CreateMatchForm: FC = () => {
         />
 
         <DateInput register={register} error={!!errors.date} value={watch("date")} />
+
+        {/* Optional. Past it, the names on the list are substitutes, in the order they signed up. */}
+        <TextInput
+          name="capacity"
+          label="Cupo de jugadores"
+          inputMode="numeric"
+          required={false}
+          valueAs={parsePrice}
+          value={typedCapacity == null || Number.isNaN(typedCapacity) ? "" : String(typedCapacity)}
+          register={register}
+        />
 
         {/* Optional. The picture divides it by whoever plays, which is the message that otherwise
             follows the teams in the group by hand. */}

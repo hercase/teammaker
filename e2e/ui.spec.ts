@@ -593,3 +593,41 @@ test("Nueva lista propone la fecha del próximo partido y recuerda el precio", a
   await expect(page.locator("#date")).toHaveValue(/T18:30$/);
   await expect(page.locator("#price")).toHaveValue("24000");
 });
+
+test("con cupo, los que sobran son suplentes y Reemplazar los ofrece con un toque", async ({ page }) => {
+  const errors = watchConsole(page);
+  await openFixture(page, "Con suplentes");
+  await expect(rows(page)).toHaveCount(12);
+  await expect(page.locator("p", { hasText: "Suplentes:" })).toContainText("Nico, Juan");
+
+  await page.getByRole("button", { name: /^Opciones de Mura/ }).click();
+  await page.getByRole("menuitem", { name: "Reemplazar" }).click();
+  const choices = page.getByRole("group", { name: "Suplentes" });
+  await expect(choices.getByRole("button")).toHaveCount(2);
+  await choices.getByRole("button", { name: "Nico" }).click();
+  await expect(page.locator('[data-testid="dialog-input"]')).toHaveValue("Nico");
+  await page.getByRole("button", { name: "Confirmar" }).click();
+
+  /* Nico is on the pitch in Mura's row, off the waiting list, and the history says who came in. */
+  await expect(rows(page).filter({ hasText: "Nico" })).toHaveCount(1);
+  await expect(page.locator("p", { hasText: "Suplentes:" })).toContainText("Juan");
+  await expect(page.locator("p", { hasText: "Suplentes:" })).not.toContainText("Nico");
+  await expect(page.getByText(/reemplazado por/)).toBeVisible();
+  await expect(page.getByText(/Falta uno en/)).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test("el cupo dice cuántos faltan cuando la lista no lo llena", async ({ page }) => {
+  await page
+    .locator("textarea")
+    .fill("1. Lucho\n2. Mura\n3. Mauro\n4. Lihue\n5. Eze\n6. Patru\n7. Mati\n8. Nacho\n9. Fede\n10. Keis");
+  await page.locator("#organizer").fill("Hernán");
+  await page.locator("#location").fill("Quintana y Salta");
+  await page.locator("#capacity").fill("12");
+  const soon = new Date(Date.now() + 3 * 864e5);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  await page.locator("#date").fill(`${soon.getFullYear()}-${pad(soon.getMonth() + 1)}-${pad(soon.getDate())}T20:30`);
+  await page.getByRole("button", { name: "Crear equipos" }).click();
+  await page.waitForURL(`**${MATCH}`);
+  await expect(page.getByText(/Faltan 2 para completar el cupo de 12/)).toBeVisible();
+});

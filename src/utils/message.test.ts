@@ -89,6 +89,19 @@ describe("parseMessage", () => {
   });
 });
 
+describe("parseMessage: suplentes", () => {
+  it("puts the numbered lines after a 'Suplentes' heading on the waiting list", () => {
+    const parsed = parseMessage("1. Lucho\n2. Mura\n\nSuplentes:\n3. Nico\n4. Juan", NOW);
+
+    expect(parsed.players).toEqual(["1. Lucho", "2. Mura"]);
+    expect(parsed.substitutes).toEqual(["3. Nico", "4. Juan"]);
+  });
+
+  it("has an empty waiting list when the message names none", () => {
+    expect(parseMessage(WEDNESDAY_MESSAGE, NOW).substitutes).toEqual([]);
+  });
+});
+
 describe("nextKickoff", () => {
   it("aims at the coming occurrence of the day", () => {
     expect(nextKickoff(3, 18, 30, NOW)).toBe("2026-09-16T18:30");

@@ -15,6 +15,7 @@ import {
   MAX_NAME_CHARS,
   pricePerPlayer,
   shortenFullName,
+  splitRoster,
   splitTeams,
   validateName,
 } from "@/utils";
@@ -408,5 +409,32 @@ describe("parsePrice", () => {
     expect(parsePrice("  ")).toBeNull();
     expect(parsePrice(null)).toBeNull();
     expect(parsePrice(undefined)).toBeNull();
+  });
+});
+
+describe("splitRoster", () => {
+  // Letters only: the numbering is a symbol and gets stripped, and so would a digit in a name.
+  const NAMES = "Lucho Mura Mauro Lihue Eze Patru Mati Nacho Fede Keis Max Santi Nico Juan".split(" ");
+  const fourteen = NAMES.map((name, i) => `${i + 1}. ${name}`).join("\n");
+
+  it("plays the first names up to the cap and keeps the rest waiting, in order", () => {
+    const { players, substitutes } = splitRoster(fourteen, 12);
+
+    expect(players).toHaveLength(12);
+    expect(substitutes.map((p) => p.name)).toEqual(["Nico", "Juan"]);
+  });
+
+  it("plays everyone when there is no cap", () => {
+    const { players, substitutes } = splitRoster(fourteen, null);
+
+    expect(players).toHaveLength(14);
+    expect(substitutes).toEqual([]);
+  });
+
+  it("queues the message's own suplentes behind the ones past the cap", () => {
+    const { players, substitutes } = splitRoster("1. Lucho\n2. Mura\n3. Mauro\nSuplentes\n4. Nico", 2);
+
+    expect(players.map((p) => p.name)).toEqual(["Lucho", "Mura"]);
+    expect(substitutes.map((p) => p.name)).toEqual(["Mauro", "Nico"]);
   });
 });

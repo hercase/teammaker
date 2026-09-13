@@ -14,6 +14,7 @@ import { persist } from "zustand/middleware";
 const initialState = {
   players: [],
   bench: [],
+  substitutes: [],
   history: [],
 };
 
@@ -27,6 +28,24 @@ export const usePlayersStore = create(
       },
       setPlayers: (players) => set(() => ({ players })),
       setBench: (bench) => set(() => ({ bench })),
+      setSubstitutes: (substitutes) => set(() => ({ substitutes })),
+      promoteSubstitute: (old_id: string, substitute_id: string) =>
+        set(
+          produce((state: PlayersStore) => {
+            const player = state.players.find((p) => p.id === old_id);
+            const index = (state.substitutes ?? []).findIndex((p) => p.id === substitute_id);
+
+            if (!player || index === -1) return;
+
+            const [substitute] = state.substitutes.splice(index, 1);
+
+            state.bench.push(substitute);
+            player.isReplacedBy = substitute.id;
+            player.isDeleted = false;
+
+            state.history.push(generateMatchEvent({ type: "replace", old_player: player, new_player: substitute }));
+          })
+        ),
       renamePlayer: (id: string, player_name: string) =>
         set(
           produce((state: PlayersStore) => {
@@ -96,6 +115,7 @@ export const usePlayersStore = create(
             ...state,
             players: initialState.players,
             bench: initialState.bench,
+            substitutes: initialState.substitutes,
             history: initialState.history,
           }))
         ),

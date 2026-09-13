@@ -122,11 +122,29 @@ export function shortenFullName(fullName: string): string {
   return surname ? `${name} (${surname})` : name;
 }
 
+const toPlayers = (lines: string[]): Player[] =>
+  lines.map((line) => generatePlayer(line)).filter((player) => player.name !== "");
+
 // Only the player lines of the message; see parseMessage for what the rest of it is.
 export function generatePlayers(str: string): Player[] {
-  return parseMessage(str)
-    .players.map((line) => generatePlayer(line))
-    .filter((player) => player.name !== "");
+  return toPlayers(parseMessage(str).players);
+}
+
+/*
+  Who plays and who waits. The cap comes first: a Tuesday list of fourteen with a cap of twelve
+  is twelve players and two substitutes, in list order, which is the order they signed up in and
+  the order they expect to get a spot. Whoever the message listed under "Suplentes" waits behind
+  them. Without a cap every numbered name plays, as before.
+*/
+export function splitRoster(str: string, capacity: number | null): { players: Player[]; substitutes: Player[] } {
+  const parsed = parseMessage(str);
+  const all = toPlayers(parsed.players);
+  const cut = capacity && capacity > 0 ? Math.min(capacity, all.length) : all.length;
+
+  return {
+    players: all.slice(0, cut),
+    substitutes: [...all.slice(cut), ...toPlayers(parsed.substitutes)],
+  };
 }
 
 /*

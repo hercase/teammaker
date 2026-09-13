@@ -26,6 +26,11 @@ export const ODD_LIST = numbered(USUAL_NAMES.slice(0, 11));
 
 export const DUPLICATE_NAMES_LIST = numbered([...USUAL_NAMES.slice(0, 11), "Mati"]);
 
+// Fourteen signed up for twelve spots: the last two wait.
+export const WAITLIST_LIST = numbered([...USUAL_NAMES, "Nico", "Juan"]);
+
+export const USUAL_CAPACITY = 12;
+
 export const USUAL_LOCATION = "Quintana y Salta";
 
 export const USUAL_ORGANIZER = "Hernán";

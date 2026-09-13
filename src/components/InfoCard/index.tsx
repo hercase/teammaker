@@ -66,11 +66,7 @@ const InfoCard = () => {
             <Card.Description className="flex items-center gap-2 text-foreground">
               <BanknotesIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span>
-                {formatMoney(share)} cada uno
-                <span className="text-muted">
-                  {" "}
-                  · {formatMoney(price)} entre {playing}
-                </span>
+                {formatMoney(share)} cada uno <span className="text-muted">({formatMoney(price)})</span>
               </span>
             </Card.Description>
           )}

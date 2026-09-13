@@ -19,6 +19,8 @@ import { addDays, format, isBefore, setHours, setMinutes, setSeconds, startOfMin
 export interface ParsedMessage {
   // The player lines, numbering still attached; generatePlayer strips it like any other symbol.
   players: string[];
+  // The numbered lines after a heading that says "suplentes" (or reserva, or lista de espera).
+  substitutes: string[];
   location?: string;
   // In the datetime-local field's own spelling, ready to be written into it.
   date?: string;
@@ -51,6 +53,9 @@ const WEEKDAYS: Record<string, number> = {
 };
 
 const WEEKDAY = /\b(domingo|lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado)\b/i;
+
+// A heading that turns the rest of the list into the waiting list.
+const SUBSTITUTES_HEADING = /suplente|reserva|espera/i;
 
 // The words the group uses to introduce the pitch, in the samples and in the ways they get abbreviated.
 const LOCATION = /(?:cancha|lugar|direcci[oó]n|club|d[oó]nde)\s*:?\s*(.+)$/i;
@@ -109,12 +114,18 @@ export function parseMessage(text: string, now: Date = new Date()): ParsedMessag
   const numbered = lines.filter((line) => NUMBERED_LINE.test(line));
 
   // Nothing numbered: a list typed by hand, every line a name, as it always was.
-  if (numbered.length === 0) return { players: lines };
+  if (numbered.length === 0) return { players: lines, substitutes: [] };
 
-  const parsed: ParsedMessage = { players: numbered };
+  const parsed: ParsedMessage = { players: [], substitutes: [] };
+  let waiting = false;
 
   for (const line of lines) {
-    if (NUMBERED_LINE.test(line)) continue;
+    if (NUMBERED_LINE.test(line)) {
+      (waiting ? parsed.substitutes : parsed.players).push(line);
+      continue;
+    }
+
+    if (SUBSTITUTES_HEADING.test(line)) waiting = true;
 
     parsed.date ??= readDate(line, now);
     parsed.location ??= readLocation(line);
