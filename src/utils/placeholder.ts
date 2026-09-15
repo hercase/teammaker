@@ -12,7 +12,9 @@
 /*
   Names the group actually uses, from their own lists. Repeats are dropped below rather than here,
   so the same name can be pasted in twice from two different messages without anyone noticing.
-  One name carries a surname on purpose: it is the shape that shows the "(Camino)" rule exists.
+
+  First names only: a "Fede Camino" in the example reads as a rule about how to write the list,
+  and it is not one — the surname is only ever there to tell two Fedes apart.
 */
 const NAMES = [
   "Lucho",
@@ -23,7 +25,7 @@ const NAMES = [
   "Patru",
   "Mati",
   "Nacho",
-  "Fede Camino",
+  "Fede",
   "Keis",
   "Max",
   "Oski",

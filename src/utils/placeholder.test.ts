@@ -52,6 +52,14 @@ describe("PLACEHOLDER_NAMES", () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
+  /*
+    First names only. A surname in the example reads as a rule about how the list has to be written,
+    and it is not one: the bracketed half exists to tell two Fedes apart, nothing more.
+  */
+  it("carries no compound names", () => {
+    expect(PLACEHOLDER_NAMES.filter((name) => name.includes(" "))).toEqual([]);
+  });
+
   it("is every one a name the app can actually parse", () => {
     expect(generatePlayers(PLACEHOLDER_NAMES.join("\n"))).toHaveLength(PLACEHOLDER_NAMES.length);
   });
