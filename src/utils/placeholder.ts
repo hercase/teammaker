@@ -42,7 +42,7 @@ const NAMES = [
   "Inti",
   "Jorge",
   "Oveja",
-  "Gonzalo",
+  "Gonza",
   "Ale",
   "Maci",
   "Joel",
@@ -50,8 +50,7 @@ const NAMES = [
   "Andres",
   "Pablo",
   "Kun",
-  "Agus",
-  "Garro",
+  "Agustín",
 ];
 
 /*
