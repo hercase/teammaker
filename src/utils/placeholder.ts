@@ -47,6 +47,11 @@ const NAMES = [
   "Maci",
   "Joel",
   "Nata",
+  "Andres",
+  "Pablo",
+  "Kun",
+  "Agus",
+  "Garro",
 ];
 
 /*
