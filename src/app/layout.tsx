@@ -37,16 +37,59 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
+/*
+  The link lives in a WhatsApp group description and is opened from there, so the card WhatsApp
+  draws for it is the app's front door — more so than anything a search engine does with this. It
+  had none: no openGraph block at all, which is a bare grey row with a hostname in it.
+
+  metadataBase is what makes the relative image URL below absolute. Without it Next warns and the
+  card silently falls back to nothing, which is the same bare row.
+*/
+const URL_BASE = "https://teammaker.vercel.app";
+
+const TITLE = "Teammaker";
+const DESCRIPTION = "Pegá la lista del grupo y armá los dos equipos. Compartilos como imagen en un toque.";
+
 export const metadata: Metadata = {
-  title: "Team Maker",
-  description: "Vos también podés crear equipos rápidamente y compartirlos con tus amigos!",
+  metadataBase: new URL(URL_BASE),
+  /*
+    One word, the way the wordmark draws it. The tab used to say "Team Maker" while the header said
+    TEAMMAKER and the domain said teammaker — three spellings of the same name.
+  */
+  title: TITLE,
+  description: DESCRIPTION,
+  applicationName: TITLE,
+  // Spanish, Rioplatense, like everything else a person reads here.
+  openGraph: {
+    type: "website",
+    siteName: TITLE,
+    title: TITLE,
+    description: DESCRIPTION,
+    url: URL_BASE,
+    locale: "es_AR",
+  },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/img/isotipo.svg", type: "image/svg+xml" },
+    ],
+    apple: "/img/maskable_logo.png",
+  },
+  // Added to the home screen it is an app, not a browser tab with a URL bar over the teams.
+  appleWebApp: { capable: true, title: TITLE, statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "dark",
-  themeColor: "#17161b",
+  /*
+    The canvas, measured rather than remembered: --background is oklch(12% 0.019 293.76), which is
+    #06050c. The old value was #17161b, a neutral grey left over from before the theme carried the
+    brand hue — so Android drew its address bar a different, lighter colour than the page under it.
+  */
+  themeColor: "#06050c",
 };
 
 const Layout = ({
@@ -63,7 +106,7 @@ const Layout = ({
     app quietly fell through to the system UI face. On a Mac that is SF Pro, which is close enough
     to a grotesque that nobody noticed the web font was never loading.
   */
-  <html lang="es" data-theme="dark" className={classNames(body.variable, geistMono.variable)}>
+  <html lang="es-AR" data-theme="dark" className={classNames(body.variable, geistMono.variable)}>
     <body className="grid min-h-dvh grid-rows-[4rem_1fr] font-sans text-text antialiased">
       {/*
         No fill of its own, only blur. A flat bg-canvas/70 here was darker than the violet glow

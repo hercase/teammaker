@@ -191,6 +191,14 @@
     --scrollbar: oklch(70.5% 0.0088 293.76);
     --segment: oklch(39.64% 0.019 293.76);
     --segment-foreground: oklch(99.11% 0.0088 293.76);
+    /*
+      Unchosen hover/press of the kit controls, in the same recipe HeroUI uses for selected
+      (`--accent-soft` is 12% --accent over transparent). Mixed into --surface, not transparent:
+      the mode rows sit on the canvas and Equipo A/B sit on the settings panel, so a transparent
+      wash was two different colours. 6% / 8% sit under selected (12%) and selected-hover (16%).
+    */
+    --segment-hover: color-mix(in oklab, var(--accent) 6%, var(--surface));
+    --segment-pressed: color-mix(in oklab, var(--accent) 8%, var(--surface));
     --separator: oklch(25% 0.019 293.76);
     --success: oklch(73.29% 0.1969 156.32);
     --success-foreground: oklch(21.03% 0.0059 156.32);
@@ -317,6 +325,54 @@
 
   &:hover {
     background-color: color-mix(in oklab, var(--team-color, var(--surface-tertiary)) 7%, var(--surface-tertiary));
+  }
+}
+
+/*
+  The track around a segmented control. The edge is painted on ::after, above the options, because
+  an option's hover fill is opaque and covers a border or an inward outline on the parent — which
+  is how the Equipo A/B pair lost its edge the moment the pointer sat on a half.
+
+  A border on the parent also costs height, and this recipe wraps three rows in one place and one
+  row in the other, so those 2px used to make the pair 46 next to mode rows of 44. ::after is
+  absolutely positioned and costs nothing.
+*/
+@utility segment-track {
+  @apply relative w-full overflow-hidden rounded-card bg-surface;
+
+  &::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    border-radius: inherit;
+    border: 1px solid var(--color-border);
+  }
+}
+
+/*
+  An unchosen option of that control. Shared by the mode rows (the class) and the Equipo A/B
+  halves (the same two colours pointed at HeroUI's hover/pressed tokens), so the two cannot drift.
+
+  Ghost's own hover is --default at 51% lightness — a washed grey bar that ate the pair's edge.
+  Selected is --segment; these two are a weaker mix of --accent into --surface, so hover cannot
+  dress as chosen.
+*/
+@utility segment-option {
+  background-color: transparent;
+
+  &:hover,
+  &:has([data-slot="radio-content"][data-hovered="true"]) {
+    background-color: var(--segment-hover);
+  }
+
+  /*
+    React Aria hangs data-pressed on Radio.Content, and that is what has to be read: it calls
+    preventDefault on the mousedown, so :active on the row never arrives.
+  */
+  &:has([data-slot="radio-content"][data-pressed="true"]) {
+    background-color: var(--segment-pressed);
   }
 }
 

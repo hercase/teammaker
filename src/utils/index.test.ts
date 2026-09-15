@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  assignTeams,
   clampName,
   countPlayers,
   countPlaying,
@@ -97,29 +98,58 @@ describe("generatePlayers", () => {
   });
 });
 
-describe("splitTeams", () => {
+describe("assignTeams", () => {
   const playersNamed = (count: number) =>
     generatePlayers(Array.from({ length: count }, (_, i) => `Jugador${i}`).join("\n"));
 
   it("splits an even list in half", () => {
-    const { teamA, teamB } = splitTeams(playersNamed(12));
+    const { teamA, teamB } = splitTeams(assignTeams(playersNamed(12)));
 
     expect(teamA).toHaveLength(6);
     expect(teamB).toHaveLength(6);
   });
 
   it("puts the extra player on team A when the list is odd", () => {
-    const { teamA, teamB } = splitTeams(playersNamed(11));
+    const { teamA, teamB } = splitTeams(assignTeams(playersNamed(11)));
 
     expect(teamA).toHaveLength(6);
     expect(teamB).toHaveLength(5);
   });
 
   it("never puts the same player on both teams", () => {
-    const { teamA, teamB } = splitTeams(playersNamed(11));
+    const { teamA, teamB } = splitTeams(assignTeams(playersNamed(11)));
     const shared = teamA.filter((player) => teamB.some((other) => other.id === player.id));
 
     expect(shared).toEqual([]);
+  });
+
+  it("keeps the list order inside each team", () => {
+    const { teamA, teamB } = splitTeams(assignTeams(playersNamed(4)));
+
+    expect(teamA.map((p) => p.name)).toEqual(["Jugador", "Jugador"]);
+    expect(teamB).toHaveLength(2);
+  });
+
+  it("handles an empty list", () => {
+    expect(assignTeams([])).toEqual([]);
+  });
+});
+
+describe("splitTeams", () => {
+  /*
+    The side is read off the row and never recomputed, so a team may be bigger than the other one.
+    The old rule made team A the first ceil(n/2) rows, which could not express this shape at all.
+  */
+  it("lets team B be the bigger side", () => {
+    const players = generatePlayers("Uno\nDos\nTres").map((player, index) => ({
+      ...player,
+      team: index === 0 ? ("A" as const) : ("B" as const),
+    }));
+
+    const { teamA, teamB } = splitTeams(players);
+
+    expect(teamA).toHaveLength(1);
+    expect(teamB).toHaveLength(2);
   });
 
   it("handles an empty list", () => {
@@ -144,7 +174,7 @@ describe("validateName", () => {
 
 describe("fixtures", () => {
   it("splits the odd fixture into teams of six and five", () => {
-    const { teamA, teamB } = splitTeams(generatePlayers(ODD_LIST));
+    const { teamA, teamB } = splitTeams(assignTeams(generatePlayers(ODD_LIST)));
 
     expect(teamA).toHaveLength(6);
     expect(teamB).toHaveLength(5);

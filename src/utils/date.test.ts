@@ -1,18 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { proposeKickoff, shareCaption } from "./date";
+import { proposeKickoff, shareCaption, titleCasePlace } from "./date";
+
+describe("titleCasePlace", () => {
+  it("capitalises the pitch the way Spanish writes it", () => {
+    expect(titleCasePlace("luro y mexico")).toBe("Luro y Mexico");
+    expect(titleCasePlace("QUINTANA Y SALTA")).toBe("Quintana y Salta");
+    expect(titleCasePlace("  cancha de la costa  ")).toBe("Cancha de la Costa");
+  });
+});
 
 describe("shareCaption", () => {
   const date = "2026-09-16T18:30";
 
-  it("reads as a sentence to the group, not as a heading", () => {
-    expect(shareCaption("Quintana y Salta", date)).toBe(
-      "Equipos para el miércoles 16/09 a las 18:30 hs en Quintana y Salta"
+  it("reads as a heading the group can scan, with place and weekday capitalised", () => {
+    expect(shareCaption("luro y mexico", "2026-09-15T19:30", 2000)).toBe(
+      "Luro y Mexico · Martes 15/09 19:30hs · $ 2.000 c/u"
     );
   });
 
   it("leaves out whatever the match does not have yet", () => {
-    expect(shareCaption("", date)).toBe("Equipos para el miércoles 16/09 a las 18:30 hs");
-    expect(shareCaption("Quintana y Salta", null)).toBe("Equipos en Quintana y Salta");
+    expect(shareCaption("Quintana y Salta", date)).toBe("Quintana y Salta · Miércoles 16/09 18:30hs");
+    expect(shareCaption("", date, 2000)).toBe("Miércoles 16/09 18:30hs · $ 2.000 c/u");
+    expect(shareCaption("Quintana y Salta", null)).toBe("Quintana y Salta");
     expect(shareCaption("", null)).toBe("Equipos");
   });
 });

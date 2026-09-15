@@ -1,14 +1,22 @@
+export type TeamSide = "A" | "B";
+
 export type Player = {
   id: string;
   name: string;
   details?: string;
   isDeleted?: boolean;
   isReplacedBy?: Player["id"];
+  /*
+    Which side this row is on, written down. It used to be derived from where the row sat in the
+    list — the first ceil(n/2) rows were team A — and that cannot represent a B bigger than A, so
+    every Sumar jugador that should have grown the smaller side silently stole a player from the
+    other one instead. Optional only because a Player is also minted for a rename event and for
+    the bench, where no side applies; every row in players carries one.
+  */
+  team?: TeamSide;
 };
 
 export type PresetColor = "white" | "black" | "celeste" | "blue" | "red" | "green" | "yellow";
-
-export type TeamSide = "A" | "B";
 
 /*
   A discriminated union rather than a bag of optional fields: shirt colours and bibs are mutually
@@ -16,8 +24,15 @@ export type TeamSide = "A" | "B";
 */
 export interface ShirtsKit {
   mode: "shirts";
-  teamA: PresetColor;
-  teamB: PresetColor;
+  /*
+    A hex, not one of seven names. The group wears the shirts it owns, and a list of presets can
+    only ever be somebody else's guess at them — the seven are still offered as swatches, they are
+    just no longer the whole vocabulary. What the presets bought is kept by measurement instead:
+    the contour a dark garment needs is computed from its contrast against the panel rather than
+    hardcoded onto one of them, and the name a colour is called comes from the nearest preset.
+  */
+  teamA: string;
+  teamB: string;
 }
 
 export interface BibsKit {
@@ -42,8 +57,13 @@ export type KitMode = Kit["mode"];
 export type MatchEvent = {
   // Optional because matches persisted before this existed have events without one.
   id?: string;
-  type: "replace" | "delete" | "rename" | "restore" | "join";
-  old_name: string;
+  type: "replace" | "delete" | "rename" | "restore" | "join" | "shuffle";
+  /*
+    Who the event is about. Optional because a shuffle is the one thing that happens to the match
+    rather than to a person: "se mezclaron los equipos" names nobody, and inventing a name for it
+    would put a arrow and a colour next to something that neither arrived nor left.
+  */
+  old_name?: string;
   new_name?: string;
   date: Date;
 };
@@ -65,14 +85,27 @@ export interface MatchStore {
   location: string;
   date: string | Date | null;
   organizer: string;
+  /*
+    Whether *these* teams were drawn at random. A fact about the match that already happened, which
+    is why the card states it to the group and why dragging is off while it holds.
+  */
   random: boolean;
+  /*
+    How this group builds teams, remembered for the next list. Separate from `random` because
+    Mezclar sets the fact mid-match, and one Tuesday's rescue has no business deciding how the
+    following Tuesday's form opens. Every other sticky field is the same value in both roles; this
+    is the only one where they came apart.
+  */
+  prefersRandom: boolean;
   kit: Kit;
   price: number | null;
   capacity: number | null;
   remember: (
-    fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "random" | "price" | "capacity">>
+    fields: Partial<Pick<MatchStore, "organizer" | "location" | "kit" | "prefersRandom" | "price" | "capacity">>
   ) => void;
   setMatch: (match: Omit<MatchInputs, "list">) => void;
+  // These teams were drawn: what Mezclar says about the match without touching what is remembered.
+  markAsDrawn: () => void;
 }
 
 export interface PlayersStore {
@@ -99,6 +132,8 @@ export interface PlayersStore {
   // The undo of removePlayer: the person is back on the team and the history says so.
   restorePlayer: (id: string) => void;
   replacePlayer: (old_id: string, player_name: string) => void;
+  // Deals the sides again, to whoever is still playing: the way out of a 6v4 nobody can fill.
+  shuffleTeams: () => void;
   resetMatch: () => void;
   exchangePlayers: (playerId1: string, playerId2: string) => void;
 }

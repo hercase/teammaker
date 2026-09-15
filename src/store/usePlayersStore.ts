@@ -1,4 +1,6 @@
 import {
+  assignTeams,
+  uid,
   firstSurname,
   generateMatchEvent,
   generatePlayer,
@@ -7,19 +9,20 @@ import {
   shortenFullName,
 } from "@/utils";
 import { MatchEvent, Player, PlayersStore, TeamSide } from "@/types";
+import { shuffle } from "lodash";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 /*
-  Where a new row has to go for splitTeams to hand it to the right side: team A is the first
-  ceil(n/2) rows, so a player for A goes in at the end of that half and one for B at the end.
+  A new row goes at the end carrying its side, which is the whole of it now that the side is on
+  the row. It used to be spliced at a computed index so that splitTeams' halfway point would land
+  on the right side of it, and that arithmetic could not win: the point moves when the list grows,
+  so half the adds handed the newcomer to the side that asked for them and a bystander to the
+  other. Team order is list order, so the last one to sign up shows last on their panel.
 */
-const insertionIndex = (count: number, side: TeamSide): number =>
-  side === "B" ? count : Math.ceil((count + 1) / 2) - 1;
-
 const join = (state: PlayersStore, player: Player, side: TeamSide) => {
-  state.players.splice(insertionIndex(state.players.length, side), 0, player);
+  state.players.push({ ...player, team: side });
   state.history.push(generateMatchEvent({ type: "join", old_player: player }));
 };
 
@@ -42,14 +45,15 @@ export const usePlayersStore = create(
       setHasHydrated: (state: boolean) => {
         set({ hasHydrated: state });
       },
-      setPlayers: (players) => set(() => ({ players })),
+      // Both doors a whole list comes through draw the sides, so no row in players is ever sideless.
+      setPlayers: (players) => set(() => ({ players: assignTeams(players) })),
       /*
         One action, so a new list can never inherit the last match's bench or history. The home
         page only shows the form once a match has been reset, so in the app this was theoretical;
         the dev bar, which loads fixtures over a match in progress, showed the old events under
         the new teams — and the same door is open to any future caller.
       */
-      startMatch: (players, substitutes) => set(() => ({ ...initialState, players, substitutes })),
+      startMatch: (players, substitutes) => set(() => ({ ...initialState, players: assignTeams(players), substitutes })),
       setBench: (bench) => set(() => ({ bench })),
       setSubstitutes: (substitutes) => set(() => ({ substitutes })),
       promoteSubstitute: (old_id: string, substitute_id: string) =>
@@ -153,6 +157,50 @@ export const usePlayersStore = create(
             }
           })
         ),
+      /*
+        The way out of a 6v4. Two drop-outs on one side and nobody coming leaves a match that
+        cannot be evened: Sumar jugador needs people who are not there, and dragging is off while
+        the draw is a claim. Re-drawing is the one move that fixes the sides without breaking that
+        claim — nobody picked the teams before and nobody picks them now.
+
+        Only whoever is playing is dealt again. A row that dropped out keeps its side, so Volver a
+        sumar still puts the person back where the group last saw them, and the bench and the
+        waiting list are not part of a draw at all.
+
+        The deal is plain copies, not the immer drafts, and the list is rebuilt from it — not just
+        a new `.team` painted onto the old row order. Panel order is list order, so writing the
+        side alone left everyone where they signed up: a mix that kept four people on each side
+        looked identical to the last one, and Mezclar three times read as a no-op even while the
+        history said otherwise. Retries until the partition actually changes, because a button
+        that claims to mix and leaves the same two teams is lying.
+      */
+      shuffleTeams: () =>
+        set(
+          produce((state: PlayersStore) => {
+            const playing = state.players.filter((player) => !player.isDeleted);
+
+            if (playing.length < 2) return;
+
+            const partition = (roster: Player[]) =>
+              roster
+                .map((player) => `${player.id}:${player.team}`)
+                .sort()
+                .join("|");
+
+            const before = partition(playing);
+            const deal = () => assignTeams(shuffle(playing.map((player) => ({ ...player }))));
+            let dealt = deal();
+
+            // A dozen players have hundreds of partitions; the retries are only for the tiny lists
+            // where chance could keep handing the same split back.
+            for (let attempt = 0; attempt < 10 && partition(dealt) === before; attempt++) dealt = deal();
+
+            state.players = [...dealt, ...state.players.filter((player) => player.isDeleted)];
+
+            // No name on it: this happened to the match, not to anybody in particular.
+            state.history.push({ id: uid(), type: "shuffle", date: new Date() });
+          })
+        ),
       resetMatch: () =>
         set(
           produce((state: PlayersStore) => ({
@@ -169,9 +217,19 @@ export const usePlayersStore = create(
             const index1 = draft.players.findIndex((p) => p.id === playerId1);
             const index2 = draft.players.findIndex((p) => p.id === playerId2);
 
-            if (index1 !== -1 && index2 !== -1) {
-              [draft.players[index1], draft.players[index2]] = [draft.players[index2], draft.players[index1]];
-            }
+            if (index1 === -1 || index2 === -1) return;
+
+            const first = draft.players[index1];
+            const second = draft.players[index2];
+
+            /*
+              The side belongs to the row, not to the player, so a drag across the gap has to hand
+              it over: each one lands in the other's place, on the other's team. Swapping only the
+              positions left both of them where they were once the side stopped being derived from
+              the index.
+            */
+            [first.team, second.team] = [second.team, first.team];
+            [draft.players[index1], draft.players[index2]] = [second, first];
           })
         ),
     }),
@@ -181,28 +239,40 @@ export const usePlayersStore = create(
         Version 1 keeps only the first surname. Everything saved before it kept whatever the group
         chat had written, so a match already on someone's phone still read "Ezequiel (Hernandez
         Palomero De La Mancha)" in the list and in every event that mentions him.
+
+        Version 2 writes the side onto the row. Applying the old halfway rule once, here, is what
+        keeps a match already on someone's phone on the same two teams it was showing.
+
+        Each step is its own `if` rather than an early return: a phone that skipped a release
+        arrives at version 0 and has to walk through both.
       */
-      version: 1,
+      version: 2,
       migrate: (persisted, version) => {
-        const state = persisted as PlayersStore;
+        let state = persisted as PlayersStore;
 
-        if (version >= 1 || !state) return state;
+        if (!state) return state;
 
-        const shorten = (player: Player): Player => ({
-          ...player,
-          details: clampName(firstSurname((player.details ?? "").split(/\s+/).filter(Boolean)), MAX_DETAILS_CHARS),
-        });
+        if (version < 1) {
+          const shorten = (player: Player): Player => ({
+            ...player,
+            details: clampName(firstSurname((player.details ?? "").split(/\s+/).filter(Boolean)), MAX_DETAILS_CHARS),
+          });
 
-        return {
-          ...state,
-          players: (state.players ?? []).map(shorten),
-          bench: (state.bench ?? []).map(shorten),
-          history: (state.history ?? []).map((event: MatchEvent) => ({
-            ...event,
-            old_name: shortenFullName(event.old_name),
-            ...(event.new_name && { new_name: shortenFullName(event.new_name) }),
-          })),
-        };
+          state = {
+            ...state,
+            players: (state.players ?? []).map(shorten),
+            bench: (state.bench ?? []).map(shorten),
+            history: (state.history ?? []).map((event: MatchEvent) => ({
+              ...event,
+              ...(event.old_name && { old_name: shortenFullName(event.old_name) }),
+              ...(event.new_name && { new_name: shortenFullName(event.new_name) }),
+            })),
+          };
+        }
+
+        if (version < 2) state = { ...state, players: assignTeams(state.players ?? []) };
+
+        return state;
       },
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

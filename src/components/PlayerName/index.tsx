@@ -55,15 +55,22 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
     <p
       ref={ref}
       className={classNames(
-        // min-w-0: without it a flex item refuses to shrink below its text, so a long name pushed
-        // the row menu off the right edge of the card instead of being truncated.
-        // One line per player, always: a row that grows to two lines makes the two teams stop
-        // reading as two even stacks. The surname gives way instead, with an ellipsis.
-        "flex min-h-11 w-full min-w-0 select-none items-center gap-1 touch-manipulation",
+        // flex-1, not w-full: this sits beside the ⋮ in a flex row, and w-full sizes to the
+        // text — so the drag ghost and the drop outline hugged the letters. flex-1 takes the
+        // rest of the row, which is the block you are actually moving.
+        //
+        // Padding inside the outline, not margin around it: the dashed drop target has to look
+        // like the name card, not a tight ring on the word. Margin would push neighbours away
+        // without growing what the border wraps.
+        //
+        // Border colour is switched, not layered: border-transparent and border-primary-400 both
+        // set the same property, and in Tailwind the one that wins is stylesheet order, not
+        // className order — so the permanent transparent used to hide the dashed drop target.
+        "flex min-h-11 min-w-0 flex-1 select-none items-center gap-1 rounded-md border-2 px-1.5 touch-manipulation",
+        isOver && !isDragging ? "border-dashed border-primary-400" : "border-solid border-transparent",
         {
           "opacity-50": isDragging,
           "cursor-move": !random,
-          "border-2 border-dashed border-primary-400 rounded-md": isOver && !isDragging,
           "text-error-400 line-through decoration-error-400/60": isOut,
           "text-secondary-300": isSubstitute,
         },

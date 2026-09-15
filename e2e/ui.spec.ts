@@ -75,6 +75,14 @@ const rgb = (c: Rgb) => `rgb(${c.join(",")})`;
 test.beforeEach(async ({ page }) => {
   await installColourTools(page);
   await page.goto(HOME);
+  /*
+    That this is Teammaker at all. The config reuses whatever already answers on the port, which
+    is what makes the suite quick during a session and, on 3000, what once made it measure a
+    different Next app end to end: every number came back plausible and wrong, because a 200 is a
+    200 and a dark theme is a dark theme. One assertion is cheaper than reading a screenshot to
+    find out whose app it is.
+  */
+  await expect(page).toHaveTitle(/Teammaker/i);
   await page.evaluate(() => localStorage.clear());
   await page.reload({ waitUntil: "networkidle" });
 });
@@ -108,7 +116,27 @@ const checkedValue = (page: Page, values: string[]) =>
 const rows = (page: Page) => page.locator("li", { has: page.getByRole("button", { name: /^Opciones de/ }) });
 
 const MODE_VALUES = ["shades", "shirts", "bibs"];
-const SIDE_VALUES = ["A", "B"];
+
+/*
+  The side is a ToggleButtonGroup, so the answer is a <button role="radio"> and not an input: same
+  role and same announcement as the RadioGroup it replaced, but nothing to read a `value` off. The
+  label is what it is read from.
+*/
+const checkedSide = (page: Page) =>
+  page.evaluate(() =>
+    document
+      .querySelector('.kit-settings [role="radio"][aria-checked="true"]')
+      ?.textContent?.trim()
+      .replace(/^Equipo\s+/, "")
+  );
+
+/* The garment drawn on each of the two triggers, which is where the chosen shirt is visible. */
+const shirtHexes = (page: Page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll<SVGPathElement>(".kit-settings .toggle-button svg path[fill]")].map((p) =>
+      p.getAttribute("fill")
+    )
+  );
 
 const fillForm = async (page: Page) => {
   await page.locator("textarea").fill("1. Lucho\n2. Mura\n3. Mauro\n4. Lihue");
@@ -185,22 +213,36 @@ test("el selector de kit: cambia de modo, elige el lado, nunca repite camiseta y
 
   await page.getByText("Pecheras", { exact: true }).click();
   expect(await checkedValue(page, MODE_VALUES)).toBe("bibs");
-  await page
-    .locator("label", { hasText: /^Equipo B$/ })
-    .first()
-    .click();
-  expect(await checkedValue(page, SIDE_VALUES)).toBe("B");
+  await page.getByRole("radio", { name: "Equipo B" }).click();
+  expect(await checkedSide(page)).toBe("B");
 
   /* Picking the other team's colour swaps them; two teams never wear the same shirt. */
   await page.getByText("Colores", { exact: true }).click();
   expect(await checkedValue(page, MODE_VALUES)).toBe("shirts");
-  const teamA = page.getByRole("radiogroup", { name: "Camiseta del equipo A" });
-  const teamB = page.getByRole("radiogroup", { name: "Camiseta del equipo B" });
-  await expect(teamA.getByRole("radio", { name: "Blanca" })).toBeChecked();
-  await expect(teamB.getByRole("radio", { name: "Azul" })).toBeChecked();
-  await teamA.locator("label", { has: page.getByRole("radio", { name: "Azul" }) }).click();
-  await expect(teamA.getByRole("radio", { name: "Azul" })).toBeChecked();
-  await expect(teamB.getByRole("radio", { name: "Blanca" })).toBeChecked();
+
+  const [aBefore, bBefore] = await shirtHexes(page);
+  expect(aBefore).not.toBe(bBefore);
+
+  /*
+    The seven swatches sharing the card are gone: each side opens a ColorPicker, so the preset is
+    picked inside the popover and the trigger is what shows the result.
+  */
+  await page.getByRole("button", { name: "Camiseta del equipo A" }).click();
+  /* HeroUI's ColorSwatchPicker is a listbox of options, not a radio group. */
+  const swatches = page.getByRole("listbox", { name: "Color swatches" });
+  await expect(swatches).toBeVisible();
+  /* A wears white and B blue to start with, and the swatch row says so. */
+  await expect(swatches.getByRole("option", { name: "Blanca" })).toHaveAttribute("aria-selected", "true");
+
+  /* Handing A the colour B is already wearing has to move B, not leave them identical. */
+  await swatches.getByRole("option", { name: "Azul" }).click();
+  await page.keyboard.press("Escape");
+  await expect(swatches).toBeHidden();
+
+  const [aAfter, bAfter] = await shirtHexes(page);
+  expect(aAfter).toBe(bBefore);
+  expect(bAfter).toBe(aBefore);
+  expect(aAfter).not.toBe(bAfter);
 
   /* No Radio.Control anywhere in here, so HeroUI draws no focus ring of its own: the cards used
      to take keyboard focus with nothing on screen saying so. */
@@ -217,6 +259,37 @@ test("el selector de kit: cambia de modo, elige el lado, nunca repite camiseta y
   });
   expect(ring).toEqual({ focusVisible: "true", painted: true });
 
+  /*
+    And the two sides, which are toggle buttons rather than radios and are marked with an outline
+    rather than a ring. Both halves of that are load-bearing: inside a `.toggle-button` the ring
+    resolves in --tw-ring-shadow and never reaches box-shadow, and `outline-2` alone leaves the
+    style at the `none` HeroUI set. So this asserts the painted outline, not the attribute.
+  */
+  await page.getByText("Pecheras", { exact: true }).click();
+  await page.getByRole("radio", { name: "Equipo A" }).focus();
+  await page.keyboard.press("ArrowRight");
+  const sideRing = await page.evaluate(() => {
+    const half = document.activeElement as HTMLElement | null;
+    if (!half?.classList.contains("toggle-button")) return null;
+    const cs = getComputedStyle(half);
+    return {
+      label: half.textContent?.trim(),
+      focusVisible: half.getAttribute("data-focus-visible"),
+      outline: `${cs.outlineStyle} ${cs.outlineWidth}`,
+    };
+  });
+  expect(sideRing).toEqual({ label: "Equipo B", focusVisible: "true", outline: "solid 2px" });
+  /*
+    And here the component is not quite the radio group it announces itself as: the arrow moved
+    focus without choosing, so the side is still A. A real RadioGroup checks as it moves, which is
+    what the ARIA pattern asks of role="radio"; React Aria gives ToggleButtonGroup toolbar-style
+    keys and radio roles. Space is what picks. Asserted as it actually behaves rather than as it
+    ought to, so that a library fix shows up here as a failure instead of passing unnoticed.
+  */
+  expect(await checkedSide(page)).toBe("A");
+  await page.keyboard.press("Space");
+  expect(await checkedSide(page)).toBe("B");
+
   expect(errors).toEqual([]);
 });
 
@@ -229,80 +302,254 @@ test("el selector de kit: la opción se distingue de sus ajustes y de las otras,
 
   const m = await page.evaluate(() => {
     const { over, ratio, groundOf } = window.__c;
-    /* The three mode cards, told apart from the radios nested inside the chosen one by their value. */
+    const rgb = (c: number[]) => `rgb(${c.join(",")})`;
+
+    /* The three mode cards. The settings row is a sibling of the group now, not inside the chosen
+       card, so the chosen one is the one whose input is checked. */
     const cards = [...document.querySelectorAll<HTMLElement>(".radio-group > .radio")].filter((c) =>
       ["shades", "shirts", "bibs"].includes(c.querySelector<HTMLInputElement>("input[type=radio]")?.value ?? "")
     );
-    const chosen = cards.find((c) => c.querySelector(".kit-settings"))!;
-    const other = cards.find((c) => !c.querySelector(".kit-settings"))!;
+    const chosen = cards.find((c) => c.querySelector<HTMLInputElement>("input[type=radio]")?.checked)!;
+    const other = cards.find((c) => !c.querySelector<HTMLInputElement>("input[type=radio]")?.checked)!;
     const head = chosen.querySelector<HTMLElement>(".radio__content")!;
-    const settings = chosen.querySelector<HTMLElement>(".kit-settings")!;
-    const separator = chosen.querySelector<HTMLElement>(".separator")!;
-    const hint = head.querySelector<HTMLElement>("span > span:last-child")!;
+    const settings = document.querySelector<HTMLElement>(".kit-settings")!;
+    /* The one label saying what the two buttons under it are for. */
+    const question = settings.querySelector<HTMLElement>("span")!;
 
     const settingsGround = groundOf(settings);
     const headGround = groundOf(head);
     const otherGround = groundOf(other);
 
     const cardRects = cards.map((c) => c.getBoundingClientRect());
-    const gapsBetweenCards = cardRects.slice(1).map((r, i) => Math.round(r.top - cardRects[i].bottom));
-    const targets = [...settings.querySelectorAll<HTMLElement>(".radio")].map((t) => t.getBoundingClientRect());
-    const gapsBetweenTargets = targets
-      .slice(1)
-      .map((r, i) => Math.round(r.left - targets[i].right))
-      .filter((g) => g >= 0);
+
+    /* One segmented control, so its edge is the boundary that has to be visible — not each half's. */
+    const group = settings.querySelector<HTMLElement>(".toggle-button-group")!;
+    const halves = [...group.querySelectorAll<HTMLElement>(".toggle-button")];
 
     return {
       optionVsSettings: ratio(headGround, settingsGround),
-      separatorVsSettings: ratio(
-        over(getComputedStyle(separator).backgroundColor, rgb(settingsGround)),
+      chosenVsOther: ratio(headGround, otherGround),
+      chosenLabel: ratio(over(getComputedStyle(head).color, rgb(headGround)), headGround),
+      questionOnSettings: ratio(over(getComputedStyle(question).color, rgb(settingsGround)), settingsGround),
+      questionSize: parseFloat(getComputedStyle(question).fontSize),
+      gapsBetweenCards: cardRects.slice(1).map((r, i) => Math.round(r.top - cardRects[i].bottom)),
+      /*
+        The edge is on ::after, above the options, so a hover fill cannot cover it. An outline on
+        the parent disappeared the moment the pointer sat on a half.
+      */
+      trackBorder: ratio(
+        over(getComputedStyle(group, "::after").borderTopColor, rgb(settingsGround)),
         settingsGround
       ),
-      chosenVsOther: ratio(headGround, otherGround),
-      hintOnChosen: ratio(over(getComputedStyle(hint).color, rgb(headGround)), headGround),
-      hintSize: parseFloat(getComputedStyle(hint).fontSize),
-      gapsBetweenCards,
-      targetHeights: [...new Set(targets.map((r) => Math.round(r.height)))],
-      minTargetWidth: Math.min(...targets.map((r) => Math.round(r.width))),
-      minGapBetweenTargets: Math.min(...gapsBetweenTargets),
+      panelBorder: ratio(over(getComputedStyle(settings).borderTopColor, rgb(settingsGround)), settingsGround),
+      halfCount: halves.length,
+      halfHeights: [...new Set(halves.map((h) => Math.round(h.getBoundingClientRect().height)))],
+      /*
+        The pair's own box, and not only its halves. With a border it came to 46 around a 44px row
+        while a mode row stayed at 44, because the mode track shares those same 2px out between
+        three rows — and 2px on a 44px object is exactly what "one of these is taller" looks like.
+      */
+      pairTrack: Math.round(group.getBoundingClientRect().height),
+      minHalfWidth: Math.min(...halves.map((h) => Math.round(h.getBoundingClientRect().width))),
+      /* Every label on whatever that half is actually filled with. */
+      labels: halves.map((h) => {
+        const ground = groundOf(h);
+        return ratio(over(getComputedStyle(h).color, rgb(ground)), ground);
+      }),
+      /* The garment must survive HeroUI's `svg { size-5; sm:size-4 }` inside a toggle button. */
+      iconSizes: [...new Set(halves.map((h) => Math.round(h.querySelector("svg")!.getBoundingClientRect().width)))],
+      /* A mode row is something you press, so it is 44 like everything else. It was 48. */
+      modeRowHeights: [
+        ...new Set(cards.map((c) => Math.round(c.querySelector(".radio__content")!.getBoundingClientRect().height))),
+      ],
+      /* One garment size on the card, not 26 in the rows and 28 in the buttons under them. */
+      garmentSizes: [
+        ...new Set(
+          [...settings.parentElement!.querySelectorAll("svg")]
+            .map((s) => Math.round(s.getBoundingClientRect().width))
+            /* The caret is not a garment; it says the shirt buttons open rather than choose. */
+            .filter((w) => w > 20)
+        ),
+      ],
+      /*
+        A half is drawn like the mode row above it — same height, same radius, same type — so the
+        pair reads as the answer to those rows and not as a control of its own. Asserted as one
+        shape rather than three numbers, because all three came from HeroUI's `lg` and all three
+        differed: a 16px label in a rounded-3xl pill, 40px tall above 768.
+      */
+      rowShape: [
+        head.getBoundingClientRect().height,
+        /* The radius that shows is the track's in both controls; a row and a half are square. */
+        getComputedStyle(chosen.parentElement!).borderTopLeftRadius,
+        getComputedStyle(head).fontSize,
+      ].join(" "),
+      halfShapes: [
+        ...new Set(
+          halves.map((half) => {
+            const cs = getComputedStyle(half);
+            /* The radius that shows is the track's; the half's own corners are squared into it. */
+            return [half.getBoundingClientRect().height, getComputedStyle(group).borderTopLeftRadius, cs.fontSize].join(
+              " "
+            );
+          })
+        ),
+      ],
+      squareHalves: [...new Set(halves.map((half) => getComputedStyle(half).borderTopLeftRadius))],
+      /* The two panels the form stacks: their text has to start at the same place. */
+      panelInsets: [
+        ...new Set(
+          [settings, document.querySelector<HTMLElement>(".switch")!].map((p) => getComputedStyle(p).paddingLeft)
+        ),
+      ],
     };
-    function rgb(c: number[]) {
-      return `rgb(${c.join(",")})`;
-    }
   });
 
-  /* The option lit, its settings dark, and a line that clears 3:1 where --border read 1.07:1. */
-  expect(m.optionVsSettings).toBeGreaterThanOrEqual(1.8);
-  expect(m.separatorVsSettings).toBeGreaterThanOrEqual(3);
-  /* Selection by fill, no white ring: it was 1.24:1 against the unchosen cards. */
-  expect(m.chosenVsOther).toBeGreaterThanOrEqual(2);
-  expect(m.hintOnChosen).toBeGreaterThanOrEqual(4.5);
-  expect(m.hintSize).toBeGreaterThanOrEqual(12);
-  /* 8px between cards, not HeroUI's mt-4 on top of it. */
-  expect(m.gapsBetweenCards).toEqual([8, 8]);
-  expect(m.targetHeights).toEqual([44]);
-  /* Seven shirts across a 390px phone: 39px wide each, and the height is what holds at 44. */
-  expect(m.minTargetWidth).toBeGreaterThanOrEqual(38);
-  expect(m.minGapBetweenTargets).toBeGreaterThanOrEqual(8);
+  /*
+    Selected is --segment: a lighter fill, not a 12% violet wash. --accent-soft sat next to
+    Crear equipos and read as a second primary. A ~1.8 fill is this lift; the label going
+    white at font-medium is the other half of the signal.
+  */
+  expect(m.optionVsSettings).toBeGreaterThan(1.4);
+  expect(m.optionVsSettings).toBeLessThan(2.3);
+  expect(m.chosenVsOther).toBeGreaterThan(1.4);
+  expect(m.chosenVsOther).toBeLessThan(2.3);
+  expect(m.chosenLabel).toBeGreaterThanOrEqual(4.5);
+  expect(m.questionOnSettings).toBeGreaterThanOrEqual(4.5);
+  expect(m.questionSize).toBeGreaterThanOrEqual(12);
+  /*
+    Attached, and that is the whole reason the two controls stopped reading as different
+    components: three boxes 8px apart say "three objects" where the pair below says "one object
+    with two parts", for the same question asked twice. It also takes HeroUI's mt-4 off the rows.
+  */
+  expect(m.gapsBetweenCards).toEqual([0, 0]);
+  /* Same --border as the panel it sits with, not the outline button's border-strong/60. */
+  expect(m.trackBorder).toBeCloseTo(m.panelBorder, 1);
+  /*
+    Two halves, and no gap between them on purpose: they are one control, which is why the 8px this
+    app asks between tappable rows does not apply here. Seven shirts sharing the card used to come
+    out 39px wide; half a 320px row is 130.
+  */
+  expect(m.halfCount).toBe(2);
+  expect(m.halfHeights).toHaveLength(1);
+  expect(m.halfHeights[0]).toBeGreaterThanOrEqual(80);
+  expect(m.pairTrack).toBe(m.halfHeights[0]);
+  expect(m.minHalfWidth).toBeGreaterThanOrEqual(120);
+  m.labels.forEach((l) => expect(l).toBeGreaterThanOrEqual(4.5));
+  expect(m.iconSizes).toEqual([32]);
+  expect(m.modeRowHeights).toEqual([44]);
+  /* Modes stay 28; the A/B tiles are a step bigger. */
+  expect([...m.garmentSizes].sort((a, b) => a - b)).toEqual([28, 32]);
+  expect(m.squareHalves).toEqual(["0px"]);
+  /* One panel recipe: this card wrote its own and landed 4px in from the switch below it. */
+  expect(m.panelInsets).toEqual(["16px"]);
+
+  /*
+    Pecheras is the mode that used to look broken: one half drew a bib, the other drew nothing,
+    and "Equipo A" floated in the middle of its tile. Both labels have to sit on the same line,
+    and the empty half has to show a shirt outline — not a hollow bib, and not nothing.
+  */
+  await page.getByText("Pecheras", { exact: true }).click();
+  await page.waitForTimeout(400);
+  const bibs = await page.evaluate(() => {
+    const halves = [...document.querySelectorAll<HTMLElement>(".kit-settings .toggle-button")];
+    const labelTop = (half: HTMLElement) => {
+      const label = [...half.querySelectorAll("span")].find((s) => s.textContent?.trim().startsWith("Equipo"));
+      return Math.round(label!.getBoundingClientRect().top);
+    };
+    return {
+      tops: halves.map(labelTop),
+      svgs: halves.map((h) => h.querySelectorAll("svg").length),
+      fills: halves.map((h) => h.querySelector("path")?.getAttribute("fill")),
+    };
+  });
+  expect(bibs.svgs).toEqual([1, 1]);
+  expect(bibs.tops[0]).toBe(bibs.tops[1]);
+  /* Default bibs: Equipo A wears them (orange fill), B is the shirt contour (no fill). */
+  expect(bibs.fills).toEqual(["#f97316", "none"]);
 });
 
 test("el selector de kit en Colores no desborda un teléfono de 320px", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 });
+  /* The form is two columns on a laptop and one here, and the reflow is not synchronous: measured
+     straight after the resize, the textarea still reported its desktop width and the page looked
+     348px wide when it is 320. */
+  await page.waitForTimeout(200);
   await page.getByText("Colores", { exact: true }).click();
+  await page.waitForTimeout(200);
   const m = await page.evaluate(() => {
-    const targets = [...document.querySelectorAll<HTMLElement>(".kit-settings .radio")].map((t) =>
+    const halves = [...document.querySelectorAll<HTMLElement>(".kit-settings .toggle-button")].map((t) =>
       t.getBoundingClientRect()
     );
     return {
       scrollWidth: document.documentElement.scrollWidth,
-      heights: [...new Set(targets.map((r) => Math.round(r.height)))],
-      minWidth: Math.min(...targets.map((r) => Math.round(r.width))),
+      count: halves.length,
+      heights: [...new Set(halves.map((r) => Math.round(r.height)))],
+      minWidth: Math.min(...halves.map((r) => Math.round(r.width))),
     };
   });
-  /* It overflowed to 382px. Seven in a row cannot be 44 wide here; the height is what holds. */
+  /* It overflowed to 382px when seven shirts shared the card. Two halves have room to spare. */
   expect(m.scrollWidth).toBe(320);
-  expect(m.heights).toEqual([44]);
-  expect(m.minWidth).toBeGreaterThanOrEqual(28);
+  expect(m.count).toBe(2);
+  expect(m.heights).toHaveLength(1);
+  expect(m.heights[0]).toBeGreaterThanOrEqual(72);
+  expect(m.minWidth).toBeGreaterThanOrEqual(44);
+});
+
+test("en un laptop la lista va arriba a todo el ancho y Pegar queda dentro", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.waitForTimeout(200);
+  const m = await page.evaluate(() => {
+    const list = document.querySelector("textarea")!;
+    const form = document.querySelector("form")!;
+    const paste = document.querySelector<HTMLElement>('button[aria-label^="Pegar"]')!;
+    const kit = document.querySelector<HTMLElement>(".radio-group")!;
+    const listBox = list.getBoundingClientRect();
+    const pasteBox = paste.getBoundingClientRect();
+    const formBox = form.getBoundingClientRect();
+    const kitBox = kit.getBoundingClientRect();
+    return {
+      listH: Math.round(listBox.height),
+      listW: Math.round(listBox.width),
+      formW: Math.round(formBox.width),
+      formH: Math.round(formBox.height),
+      kitTop: Math.round(kitBox.top),
+      listBottom: Math.round(listBox.bottom),
+      kitLeft: Math.round(kitBox.left),
+      formMid: Math.round(formBox.left + formBox.width / 2),
+      pasteInside:
+        pasteBox.left >= listBox.left &&
+        pasteBox.right <= listBox.right + 1 &&
+        pasteBox.top >= listBox.top &&
+        pasteBox.bottom <= listBox.bottom + 1,
+    };
+  });
+  /* Fourteen lines (min-h-84 is 336), across the form, not a stub in one column. */
+  expect(m.listH).toBeGreaterThanOrEqual(320);
+  expect(m.listH).toBeLessThan(400);
+  expect(m.listW).toBeGreaterThan(m.formW * 0.9);
+  expect(m.formH - m.listH).toBeGreaterThan(120);
+  expect(m.kitTop).toBeGreaterThan(m.listBottom);
+  expect(m.kitLeft).toBeGreaterThan(m.formMid);
+  expect(m.pasteInside).toBe(true);
+
+  /* The Equipo A/B pair is still HeroUI's ToggleButtonGroup; from md it is a tile, not a 44px bar. */
+  const sides = await page.evaluate(() => {
+    const halves = [...document.querySelectorAll<HTMLElement>(".kit-settings .toggle-button")];
+    return {
+      heights: [...new Set(halves.map((h) => Math.round(h.getBoundingClientRect().height)))],
+      garments: [
+        ...new Set(
+          halves
+            .map((h) => h.querySelector("svg"))
+            .filter(Boolean)
+            .map((s) => Math.round(s!.getBoundingClientRect().width))
+        ),
+      ],
+    };
+  });
+  expect(sides.heights.length).toBe(1);
+  expect(sides.heights[0]).toBeGreaterThanOrEqual(88);
+  expect(sides.garments).toEqual([40]);
 });
 
 // ─── persistencia ─────────────────────────────────────────────────────────────
@@ -310,16 +557,13 @@ test("el selector de kit en Colores no desborda un teléfono de 320px", async ({
 test("el kit, el lado y el nombre persisten sin crear nada", async ({ page }) => {
   const errors = watchConsole(page);
   await page.getByText("Pecheras", { exact: true }).click();
-  await page
-    .locator("label", { hasText: /^Equipo B$/ })
-    .first()
-    .click();
+  await page.getByRole("radio", { name: "Equipo B" }).click();
   await page.locator("#organizer").fill("Hernán");
   await page.waitForTimeout(400);
 
   await page.reload({ waitUntil: "networkidle" });
   expect(await checkedValue(page, MODE_VALUES)).toBe("bibs");
-  expect(await checkedValue(page, SIDE_VALUES)).toBe("B");
+  expect(await checkedSide(page)).toBe("B");
   await expect(page.locator("#organizer")).toHaveValue("Hernán");
   expect(errors).toEqual([]);
 });
@@ -424,6 +668,164 @@ test("Compartir produce una sola imagen PNG", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+// ─── la tira de botones del partido ───────────────────────────────────────────
+
+test("los botones del partido son tres pesos distintos, y Mezclar reparte de nuevo", async ({ page }) => {
+  const errors = watchConsole(page);
+  await openFixture(page, "Con un cambio y una baja");
+  await page.mouse.move(0, 0);
+
+  /*
+    Compartir is the filled action; Mezclar and the pair are outline. Compartir and Mezclar came out identical
+    once — same violet, same everything — because the wrapper had no "tertiary" in its map and an
+    unmapped name falls through to HeroUI's default, which is primary. Nothing threw; the screen
+    just quietly had two main actions.
+  */
+  const strip = await page.evaluate(() => {
+    const { over, ratio, groundOf } = window.__c;
+    const find = (label: string) =>
+      [...document.querySelectorAll<HTMLElement>("button")].find((b) => b.textContent?.trim() === label)!;
+
+    return ["Compartir", "Mezclar equipos", "Nueva lista", "Editar"].map((label) => {
+      const el = find(label);
+      const cs = getComputedStyle(el);
+      const ground = groundOf(el.parentElement!);
+      const fill = over(cs.backgroundColor, `rgb(${ground.join(",")})`);
+      return {
+        label,
+        height: Math.round(el.getBoundingClientRect().height),
+        fill: ratio(fill, ground),
+        text: ratio(over(cs.color, `rgb(${fill.join(",")})`), fill),
+        border: ratio(over(cs.borderTopColor, `rgb(${ground.join(",")})`), ground),
+        borderWidth: parseFloat(cs.borderTopWidth),
+      };
+    });
+  });
+
+  const [share, mix, fresh, edit] = strip;
+
+  /* Every one of them is a thumb target, and lg is 44px exactly — nothing overrides a height. */
+  for (const b of strip) expect(b.height, b.label).toBe(44);
+
+  /* Readable labels. Compartir is the filled action; Mezclar and the pair are outline — a
+     visible edge, no fill — so Mezclar does not read as disabled and does not disappear. */
+  for (const b of strip) expect(b.text, `${b.label} label`).toBeGreaterThanOrEqual(4.5);
+  expect(share.fill).toBeGreaterThanOrEqual(3);
+  expect(mix.fill).toBeLessThan(1.2);
+  expect(mix.border).toBeGreaterThanOrEqual(3);
+  expect(mix.borderWidth).toBeGreaterThan(0);
+  for (const b of [fresh, edit]) {
+    expect(b.fill, `${b.label} fill`).toBeLessThan(1.2);
+    expect(b.border, `${b.label} edge`).toBeGreaterThanOrEqual(3);
+    expect(b.borderWidth, `${b.label} edge`).toBeGreaterThan(0);
+  }
+
+  /* And they are actually different from each other, which is the part that regressed. */
+  expect(share.fill - mix.fill).toBeGreaterThan(0.2);
+
+  /* The two halves share one edge and one divider, which is the whole reason for ButtonGroup. */
+  const group = await page.evaluate(() => {
+    const g = document.querySelector<HTMLElement>(".button-group")!;
+    const widths = [...g.children].map((c) => Math.round(c.getBoundingClientRect().width));
+    return {
+      full: Math.round(g.getBoundingClientRect().width),
+      widths,
+      separators: g.querySelectorAll(".button-group__separator").length,
+    };
+  });
+  expect(group.widths).toHaveLength(2);
+  expect(group.widths[0]).toBe(group.widths[1]);
+  expect(group.widths[0] + group.widths[1]).toBe(group.full);
+  expect(group.separators).toBe(1);
+
+  /*
+    Mezclar lives here rather than in Editar, and it has to deal a genuinely different partition:
+    writing only `.team` onto the signup order left everyone where they were, so three mixes in a
+    row read as a no-op while the history said otherwise.
+  */
+  const sides = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll("ul")]
+        .slice(0, 2)
+        .map((ul) => [...ul.querySelectorAll("li")].map((li) => li.textContent?.trim()).sort().join(","))
+        .join("|")
+    );
+
+  const seen = new Set<string>();
+  seen.add(await sides());
+  for (let i = 0; i < 3; i++) {
+    await page.getByRole("button", { name: "Mezclar equipos" }).click();
+    await page.getByRole("button", { name: "Confirmar" }).click();
+    await expect(page.getByRole("alertdialog")).toHaveCount(0);
+    seen.add(await sides());
+  }
+  expect(seen.size, "tres mezclas tienen que dar particiones distintas").toBeGreaterThanOrEqual(3);
+
+  /* Mixing is a claim, so it turns dragging off and says so in the history. */
+  await expect(page.getByText(/se mezclaron los equipos/i).first()).toBeVisible();
+
+  expect(errors).toEqual([]);
+});
+
+test("el objetivo de drop se dibuja punteado y violeta, no transparente", async ({ page }) => {
+  await openFixture(page, "Con un cambio y una baja");
+
+  /*
+    The name block is what moves, so the outline has to wrap the block: flex-1 for the width the
+    row leaves beside the ⋮, padding rather than margin so the border grows around the name
+    instead of pushing its neighbours, and a permanent 2px so nothing shifts when it lights up.
+  */
+  const idle = await page.evaluate(() => {
+    const li = document.querySelector("li")!;
+    const p = li.querySelector("p")!;
+    const cs = getComputedStyle(p);
+    return {
+      grows: cs.flexGrow,
+      padding: parseFloat(cs.paddingLeft),
+      margin: parseFloat(cs.marginLeft),
+      borderWidth: parseFloat(cs.borderTopWidth),
+      fillsRow: Math.round(p.getBoundingClientRect().right) <= Math.round(li.getBoundingClientRect().right),
+    };
+  });
+  expect(idle.grows).toBe("1");
+  expect(idle.padding).toBeGreaterThan(0);
+  expect(idle.margin).toBe(0);
+  expect(idle.borderWidth).toBe(2);
+  expect(idle.fillsRow).toBe(true);
+
+  /*
+    And the colour survives. react-dnd's HTML5 backend needs a real drag to set isOver, which
+    synthetic mouse events cannot produce, so what is measured here is the thing that actually
+    broke: border-transparent and border-primary-400 set the same property, so layering them left
+    a dashed border painted in nothing — and swapping their order in the className changes
+    nothing, because what decides is the order Tailwind emits them in. The branches are exclusive
+    now, and this is what would catch them being merged back.
+  */
+  const painted = await page.evaluate(() => {
+    const host = document.querySelector("li")!;
+    const base = "border-2 rounded-md px-1.5";
+    const read = (extra: string) => {
+      const el = document.createElement("p");
+      el.className = `${base} ${extra}`;
+      host.appendChild(el);
+      const cs = getComputedStyle(el);
+      const out = { style: cs.borderTopStyle, colour: cs.borderTopColor };
+      el.remove();
+      return out;
+    };
+    return {
+      layered: read("border-transparent border-dashed border-primary-400"),
+      switched: read("border-dashed border-primary-400"),
+      resting: read("border-solid border-transparent"),
+    };
+  });
+
+  expect(painted.layered.colour, "layering the two is the bug this replaced").toBe("rgba(0, 0, 0, 0)");
+  expect(painted.switched.style).toBe("dashed");
+  expect(painted.switched.colour).not.toBe("rgba(0, 0, 0, 0)");
+  expect(painted.resting.colour).toBe("rgba(0, 0, 0, 0)");
+});
+
 // ─── calidad: texto, tamaños, desborde ────────────────────────────────────────
 
 for (const [label, prepare] of [
@@ -466,36 +868,92 @@ for (const [label, prepare] of [
 test("los controles se ven: toggle apagado, borde del botón outline, opciones del kit y contador", async ({ page }) => {
   /* A different rule from text contrast. Both of these shipped invisible once: the unset switch at
      1.20:1 and the outline button's edge at 1.07:1. */
+  await page.mouse.move(0, 0);
   const home = await page.evaluate(() => {
     const { over, ratio, groundOf } = window.__c;
     const track = document.querySelector<HTMLElement>(".switch__control")!;
+    const thumb = document.querySelector<HTMLElement>('[data-slot="switch-thumb"]')!;
     const paste = document.querySelector<HTMLElement>('button[aria-label^="Pegar"]')!;
     const g = (el: Element) => groundOf(el.parentElement!);
+    const trackFill = over(getComputedStyle(track).backgroundColor, `rgb(${g(track).join(",")})`);
     return {
-      track: ratio(over(getComputedStyle(track).backgroundColor, `rgb(${g(track).join(",")})`), g(track)),
+      track: ratio(trackFill, g(track)),
+      thumb: ratio(over(getComputedStyle(thumb).backgroundColor, `rgb(${trackFill.join(",")})`), trackFill),
       outline: ratio(over(getComputedStyle(paste).borderColor, `rgb(${g(paste).join(",")})`), g(paste)),
     };
   });
   expect(home.track).toBeGreaterThanOrEqual(3);
   expect(home.outline).toBeGreaterThanOrEqual(3);
 
-  await page.getByText("Pecheras", { exact: true }).click();
-  const side = await page.evaluate(() => {
+  /*
+    Off is turquoise too — a darker step of the same cyan, not the neutral grey it used to be — so
+    the thumb has to clear its track in this state as well, and not only against the card.
+  */
+  expect(home.thumb).toBeGreaterThanOrEqual(3);
+
+  /*
+    And the on state, which is a second colour and therefore a second measurement. Both come
+    through the tokens the library declares for them, --switch-control-bg and its -checked, and the
+    thumb carries the arrows the match card puts on "Sorteo al azar". Only two steps of the ramp
+    keep the track visible against the card *and* the thumb visible against the track, so these are
+    the two numbers there are to hit. The pointer is moved away first: hovering swaps in
+    --switch-control-bg-checked-hover, which is a step brighter and a different number.
+  */
+  await page.locator(".switch__control").click();
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(350);
+  const on = await page.evaluate(() => {
     const { over, ratio, groundOf } = window.__c;
-    const unset = [...document.querySelectorAll<HTMLElement>(".kit-settings .radio")].find(
-      (r) => !r.className.includes("bg-segment")
-    )!;
-    const chosen = [...document.querySelectorAll<HTMLElement>(".kit-settings .radio")].find((r) =>
-      r.className.includes("bg-segment")
-    )!;
-    const ground = groundOf(unset.parentElement!);
+    const track = document.querySelector<HTMLElement>(".switch__control")!;
+    const thumb = document.querySelector<HTMLElement>('[data-slot="switch-thumb"]')!;
+    const icon = document.querySelector<HTMLElement>('[data-slot="switch-icon"]');
+    const ground = groundOf(track.parentElement!);
+    const trackFill = over(getComputedStyle(track).backgroundColor, `rgb(${ground.join(",")})`);
+    const thumbFill = over(getComputedStyle(thumb).backgroundColor, `rgb(${trackFill.join(",")})`);
     return {
-      unsetBorder: ratio(over(getComputedStyle(unset).borderTopColor, `rgb(${ground.join(",")})`), ground),
-      chosenFill: ratio(over(getComputedStyle(chosen).backgroundColor, `rgb(${ground.join(",")})`), ground),
+      hasIcon: Boolean(icon),
+      track: ratio(trackFill, ground),
+      thumb: ratio(thumbFill, trackFill),
+      icon: icon ? ratio(over(getComputedStyle(icon).color, `rgb(${thumbFill.join(",")})`), thumbFill) : 0,
     };
   });
-  expect(side.unsetBorder).toBeGreaterThanOrEqual(3);
-  expect(side.chosenFill).toBeGreaterThanOrEqual(1.8);
+  expect(on.hasIcon, "el switch encendido lleva su ícono").toBe(true);
+  expect(on.track).toBeGreaterThanOrEqual(3);
+  expect(on.thumb).toBeGreaterThanOrEqual(3);
+  expect(on.icon).toBeGreaterThanOrEqual(3);
+  await page.locator(".switch__control").click();
+
+  await page.getByText("Pecheras", { exact: true }).click();
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(350);
+  const side = await page.evaluate(() => {
+    const { over, ratio, groundOf } = window.__c;
+    /*
+      The two sides are one segmented control, so the edge that has to clear 3:1 is the track's,
+      around the pair. The chosen half is --segment, the same lift as the mode row above.
+    */
+    const group = document.querySelector<HTMLElement>(".kit-settings .toggle-button-group")!;
+    const chosen = group.querySelector<HTMLElement>('.toggle-button[aria-checked="true"]')!;
+    const ground = groundOf(group.parentElement!);
+    const fill = over(getComputedStyle(chosen).backgroundColor, `rgb(${ground.join(",")})`);
+    return {
+      /* On ::after, above the options, so a hover fill cannot cover it — see SEGMENT_TRACK. */
+      trackBorder: ratio(
+        over(getComputedStyle(group, "::after").borderTopColor, `rgb(${ground.join(",")})`),
+        ground
+      ),
+      panelBorder: ratio(
+        over(getComputedStyle(group.parentElement!).borderTopColor, `rgb(${ground.join(",")})`),
+        ground
+      ),
+      chosenFill: ratio(fill, ground),
+      chosenLabel: ratio(over(getComputedStyle(chosen).color, `rgb(${fill.join(",")})`), fill),
+    };
+  });
+  expect(side.trackBorder).toBeCloseTo(side.panelBorder, 1);
+  expect(side.chosenFill).toBeGreaterThan(1.4);
+  expect(side.chosenFill).toBeLessThan(2.3);
+  expect(side.chosenLabel).toBeGreaterThanOrEqual(4.5);
 
   await openFixture(page, "Con un cambio y una baja");
   const chip = await page.evaluate(() => {

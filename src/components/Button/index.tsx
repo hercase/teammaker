@@ -7,7 +7,7 @@ import { Button as HeroButton } from "@heroui/react";
 type ButtonProps = {
   type?: "button" | "submit" | "reset";
   children: ReactNode;
-  variant?: "primary" | "secondary" | "danger" | "ghost";
+  variant?: "primary" | "tertiary" | "danger" | "ghost";
   disabled?: boolean;
   className?: string;
   onClick?: () => void;
@@ -38,10 +38,22 @@ type ButtonProps = {
   is shorter *and* sets its text to 16px, so the proportion comes out right instead of stretched.
 
   There was a size prop too, offering "sm". No call site ever passed it.
+
+  "tertiary" is the step between primary and the outline pair. It used to be HeroUI's tertiary,
+  which paints --default — 51% lightness, the same grey a disabled control wears. On this strip
+  that read as Mezclar equipos being off. HeroUI's ghost (no fill, no border) was the next try
+  and the control disappeared: a label on the page, not a button. Outline is the remaining
+  step that is still a control — the same 3:1 edge as the pair below, one full-width row rather
+  than two halves, no grey slab. Hover is --surface-tertiary, not outline's 60% --default, or
+  the grey comes back the moment the pointer sits on it.
+
+  secondary is gone from this map on purpose. It looks like the obvious mid step and it is the one
+  that cannot be read: HeroUI paints its label with --accent-soft-foreground, a soft violet, over
+  --default's grey, and 1.60:1 is not a dim label, it is an invisible one.
 */
 const VARIANTS = {
   primary: "primary",
-  secondary: "secondary",
+  tertiary: "outline",
   danger: "danger",
   ghost: "outline",
 } as const;
@@ -60,7 +72,14 @@ const Button: FC<ButtonProps> = ({
     variant={VARIANTS[variant]}
     size="lg"
     isDisabled={disabled}
-    className={classNames({ "border-border-strong/60": variant === "ghost" }, className)}
+    className={classNames(
+      {
+        "border-border-strong/60": variant === "ghost" || variant === "tertiary",
+      },
+      variant === "tertiary" &&
+        "![--button-bg-hover:var(--surface-tertiary)] ![--button-bg-pressed:var(--surface-tertiary)]",
+      className
+    )}
     onPress={onClick}
     aria-label={ariaLabel}
   >

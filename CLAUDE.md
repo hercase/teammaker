@@ -117,6 +117,11 @@ the z-index scale all live there with the reasoning attached. Read it before wri
   background — `--segment` is literally the token for it — and this app used to draw a white
   `ring-text` border instead, left over from before the migration. Two different languages for the
   same idea on the same screen, and the outline one was ours.
+- **Hover and press of an unchosen option are the same wash as selected, weaker.** Selected is
+  `--segment`, the lift HeroUI named for this. `--accent-soft` (12% `--accent`) was tried and sat
+  in the same column as Crear equipos: a second violet, and the brand is for actions. Unchosen
+  hover/press are 6% / 8% of `--accent` over `--surface`, under selected. Ghost's own hover is
+  `--default` at 51% and has to be overridden with `!important`.
 - **A control's boundary needs 3:1, and text contrast does not cover it.** WCAG 1.4.11 is a separate
   rule from 1.4.3, so a screen can pass every text check and still ship controls nobody can see.
   Two did: the unset switch measured **1.20:1** against its card — not a dim toggle, not visibly a
@@ -153,10 +158,22 @@ the z-index scale all live there with the reasoning attached. Read it before wri
   `--field-radius`, which cuts that derivation — the base said small and the fields stayed at 12px.
   Left to derive, and `--radius-card` is `calc(var(--radius) * 2)` so panels stay a step rounder
   than a field however the base is set.
-- **`--default` paints two things: the switch's off state and the team counter's `Chip`** (soft
-  variant, which is `--default` at 50%). Its 51% lightness was chosen for the switch — 3:1 against
-  the panel — and the chip rides along; measured, its text sits at 10.45:1. Move the token and check
-  both.
+- **`--default` paints the team counter's `Chip`** (soft variant, which is `--default` at 50%) and
+  a toggle button's unselected state. It used to paint Mezclar equipos too, and that 51% grey
+  read as the button being off. Ghost (no chrome) made it disappear. It is outline now, same
+  3:1 edge as Nueva lista / Editar. Move the token and check the chip and the toggles.
+- **The draw switch is turquoise on *and* off, and which two turquoises is measured.** Off used to
+  be `--default`, the neutral grey, which said "asleep" about a setting whose off value is a real
+  choice (the list's own order). Two things have to clear 3:1 at rest: the track against its card,
+  or there is no visible control, and the white thumb against the track, or nothing says which side
+  it is on. Across the whole cyan ramp exactly **two steps satisfy both** — `secondary-600` off
+  (3.87:1 track, 4.49:1 thumb) and `secondary-500` on (5.53:1 and 3.15:1). Everything lighter loses
+  the thumb (`secondary-400`, which the on state was, leaves it at **2.13:1**) and everything darker
+  loses the track. The step between them is gentle on purpose; the thumb's position and the arrows
+  are what carry the state and the colour agrees with them. Set through `--switch-control-bg` and
+  `--switch-control-bg-checked`, the tokens `.switch` declares, never by painting `.switch__control`
+  — that has to win a specificity fight with the checked rule. `-checked-hover` is a step brighter
+  and is the one ratio under the floor, so the suite measures with the pointer parked away.
 - **`--field-background` sits one step above `--surface`, on purpose.** The builder ships them
   identical, which is fine where fields sit on the page and invisible where they sit in a dialog:
   the Editar fields measured 1.00:1 against the dialog body — not dim, gone. Anything that changes
@@ -167,12 +184,25 @@ the z-index scale all live there with the reasoning attached. Read it before wri
 - Cyan (`secondary`) means *came in*; rose (`error`) means *went out*. Consistent in the team list
   and the history.
 - **Buttons are HeroUI's `lg`, and nothing overrides a height.** Its scale is sm 36 / md 40 / lg 44,
-  so lg *is* the 44px touch floor. What was here before forced `min-h-12` on top of md: a 48px box
-  around 14px text, which reads as a button with too much air rather than a bigger button.
+ so lg *is* the 44px touch floor. What was here before forced `min-h-12` on top of md: a 48px box
+ around 14px text, which reads as a button with too much air rather than a bigger button. The kit's
+ three mode rows kept that 48 after the buttons gave it up, which made the row nobody has to hit
+ accurately the biggest target on the card — 4px taller than the two buttons right under it, the
+ fields above it and Crear equipos at the foot. 44 is the floor, not a size to beat.
+- **There is one panel recipe and one garment size.** `panel` in `globals.css` is the whole of what
+ a panel is; the kit's settings card used to write it out by hand and arrive at the same thing
+ minus the shadow, at `px-3 py-2.5`. Stacked 8px under the draw switch, that put one panel's text
+ 4px in from the other's and left one of the two flat on the page — invisible until measured,
+ obvious afterwards. The garment had the same split: 26px in the mode rows, 28px in the buttons
+ 8px below them, which is one shirt at two sizes on one card. `GARMENT` is the size, and with the
+ row's own padding it is what makes the row exactly 44.
 - Touch targets are at least 44px with at least 8px between them. `gap-1` between tappable rows is a
   known anti-pattern here; it was introduced once and reverted. HeroUI's own fields are 40px, so
   every `Input` carries `min-h-11` in its own className — and `w-full`, because its Input sizes to
-  its content and the clear button is positioned against the wrapper.
+  its content and the clear button is positioned against the wrapper. **The 8px is between separate
+  controls, and the two halves of a segmented control are not that** — they share an edge because
+  they are one control, and the 8px gap the kit's sides used to have is exactly what made them read
+  as two unrelated buttons.
 
 ### Layout: the `min-w-0` chain
 
@@ -202,41 +232,136 @@ team's colour **swaps** them); in bibs mode only the wearing team is labelled, i
 teams rather than a label in both headers; `parseKit` distrusts persisted JSON and falls back to the
 default.
 
-**A dark garment on a dark interface cannot be solved with a fill.** Measured against the panel, the
-old charcoal reached 1.57:1 and going darker only traded that for 1.06:1 — the shape vanishes either
-way. So a preset can carry an `edge`: what to draw when it has to be *seen* rather than shown — the
-contour of its icon, and the border of the panel that means "this team wears it". Only `black` has
-one, and it is `--color-border-strong`, not a colour of its own. `kitColor` returns the garment;
-`kitEdge` returns the line. A black panel border would not be a border.
+**A shirt is any hex, and the seven presets are swatches now, not the vocabulary.** The group wears
+what it owns; a list of seven could only ever be a guess at it. What the presets were carrying is
+kept by measurement instead:
 
-The three modes are cards, and **each card holds its own settings**, opened inside it when chosen.
-They used to sit under all three, which read as a second unrelated question. They carry no heading:
-if a card needs a caption to explain its own controls, fix the card.
+- **A dark garment on a dark interface cannot be solved with a fill.** Measured against the panel a
+  charcoal reaches 1.57:1 and going darker trades that for 1.06:1 — the shape vanishes either way.
+  `garmentEdge` computes the contour from contrast against `--surface`, at the 3:1 WCAG 1.4.11 asks
+  of a boundary. It used to be an `edge` hardcoded onto the one preset that needed it; with any hex
+  on offer there is no list to mark up, and the rule was never about black.
+- **A colour that is not a preset has no name, so no shirt is named.** `kitLabel` titles both panels
+  `Equipo A` / `Equipo B`, the way bibs mode titles its own. Naming a teal "Verde" because green is
+  the nearest of six is not a shorthand, it is a title nobody chose and nobody can correct — and the
+  header is read off the shared picture. Half a rule, right for six colours and wrong for the rest,
+  is worse than none. `nearestPreset` stays for the v0 migration and nothing else.
+- **Two teams still cannot wear the same shirt.** `freeShirt` has two candidates, not one: a single
+  fallback cannot move a team off itself, and two navies both migrated to blue, were both replaced
+  with blue, and stayed identical.
+- **A hex has two spellings and `setShirt` normalises before it compares.** `KIT_PRESETS` and
+  `tinycolor` are lowercase; react-aria's `Color.toString("hex")` — what the `ColorPicker` hands
+  over — is upper. Compared raw, picking the colour the other team was already wearing read as a
+  *different* colour, so nothing swapped and the kit came out
+  `{ teamA: "#6085EE", teamB: "#6085ee" }`: both teams in the same blue, the one thing this screen
+  must never say. It could only appear once the presets became a picker, since until then every hex
+  came from the same table.
 
-**The chosen option is lit, its settings are not.** The card's header takes `--segment` — the token
-HeroUI paints a selected tab with — and the settings below it stay on `--surface`, with a
-`Separator` at `--color-border-strong/60` between them. Measured: option against settings 1.9:1,
-separator against settings 3.24:1, chosen against the other cards 2.08:1. Before, the whole card
-was one fill with a `--border` hairline across it: that line measured **1.07:1** and selection
-**1.24:1**, so the option and its settings were one undivided block and the chosen one barely
-differed from the rest. On the lit header the hint loses its dimming, because `--muted` on
-`--segment` is 3.56:1 and 12px text needs 4.5.
+**The three modes are the same control, and the control lives under all three.** Each mode is a row
+with a label; below the three sits one settings row that answers whichever is chosen, and every
+mode's answer is the same shape — which of the two teams. That row is why the block cannot change
+height: picking Colores used to make the card 100px taller and shove the rest of the form down.
 
-**HeroUI gives every radio in a vertical group `mt-4`**, on top of any gap you set. The cards sat
-24px apart with `gap-2` in the class, and the side buttons floated 16px below their padding. Every
-`RadioGroup` here carries `**:data-[slot=radio]:mt-0`, which is how the library's own card demo
-removes it. None of these radios has a `Radio.Control`, and the control is the only part HeroUI
-draws a focus ring on — so the cards took keyboard focus invisibly until `Radio.Content` got an
-inset ring of its own.
+This reverses two earlier decisions on purpose, and the reasons they were made no longer hold:
 
-The shirts are seven columns sharing the card's width, the team's name above them rather than
-beside: six 44px targets with a label to the left did not fit a 390px phone (they were squeezed to
-40px and 4px gaps) and at 320px the row overflowed the page by 62px. Seven fill a desktop card at
-48px and a 390px phone at **39px wide** — under the 44px this app asks of a target, with the
-height holding at 44 — and 29px at 320. That is a known trade, not an oversight.
+- Settings used to sit inside the chosen card, because under all three they "read as a second
+  unrelated question". They did, while Colores was two labelled rows of seven shirts and the others
+  were two buttons — three different things in one frame. They are one thing now.
+- Each row used to carry a line of explanation, because nobody found the kit picker on their own.
+  The rows and their words stayed; the second line went once the settings row got a visible label,
+  since the card said "Elegís las dos camisetas" and the row under it asked the same thing again.
+  Eight lines of text for one setting is its own kind of invisible.
+
+The settings row is labelled with a **question**: `¿Quién va de claro?` / `¿Qué camiseta lleva cada
+uno?` / `¿Quién lleva la pechera?`. This reverses the noun the row used to carry (`Van de claro`),
+and the reason is that the row moved out from under the cards: with the per-row explanations gone it
+is the only thing on the screen saying what the two buttons do, and a question is what asks for an
+answer. **The trade is real and worth re-reading** — it is the only interrogative on a form whose
+every other field is labelled with a noun.
+
+**The row is one `ToggleButtonGroup`, not two cards.** `selectionMode="single"` with
+`disallowEmptySelection` *is* "one of the two teams, always one"; `fullWidth` splits it in half and
+`size="lg"` is the 44px floor — on a phone. It replaced a `RadioGroup` with the dot removed and the fill, border,
+radius and height written out by hand — a segmented control reimplemented badly next to a library
+that ships one. React Aria renders it as `role="radio"` with `aria-checked`, so the announcement is
+the same as the radios it replaced; the suite reads the chosen side off that, not off an input.
+
+**It is not quite the radio group it announces itself as**, and the suite pins the difference: the
+arrow keys move focus *without* choosing, and `Space` is what picks. The ARIA pattern for
+`role="radio"` asks that arrows check as they move, and a real `RadioGroup` does; React Aria pairs
+radio roles with toolbar-style keys. Asserted as it behaves rather than as it ought to, so a library
+fix shows up as a failure instead of passing unnoticed.
+
+Four things about it are ours and are load-bearing:
+
+- **The edge belongs to the control, not to each half, and it is painted on `::after`.** Per-option
+  borders made the row read as two adjacent buttons; one track around the pair reads as one
+  question. Same `--border` as `panel` — `border-strong/60` (the outline button) made the mode
+  block a heavier box than the settings and the switch stacked under it. A border on the parent is
+  2px of height (the pair measured 46 next to mode rows of 44) and an inward outline on the parent
+  disappears under an opaque hover fill. `::after` sits above the options, costs no layout, and
+  cannot be covered.
+- **A half is a tile: garment over the name, on every width.** `lg` is `h-11 text-base md:h-10
+  rounded-3xl`. The pair used to follow the mode rows at 44; from `md` it grew and left the phone
+  on the small bar. In bibs the other team wears nothing, and an empty hole collapsed — the
+  group stretched both tiles to the taller one, so "Equipo A" floated in the middle while the
+  bib sat above "Equipo B". The other half now draws the outline of a shirt (`empty` on
+  `ShirtIcon`): a filled shirt would invent a colour, and nothing there floated the label.
+  `min-h-20` on a phone, `md:min-h-24` on a laptop, `text-sm`, squared corners.
+- **The chosen half is `--segment`, overridden per button.** HeroUI marks a selected toggle with
+  `--accent-soft`, 12% violet: it sat next to Crear equipos and read as a second primary. `--segment`
+  is the lift the token is for (about 1.9:1, label above 9:1). It goes on each `ToggleButton` and
+  **not** on the group: `.toggle-button` declares the token on itself, and a declaration on the
+  element beats one inherited from a parent.
+- **The halves pay for their own width at 320px.** `.toggle-button` is `px-4` with a 12px gap and
+  `whitespace-nowrap`, which fixed a min-content of **150px** per half where half the row is 128 —
+  so the pair widened the *form's grid* and took the textarea and the whole page with it (348px at a
+  320 viewport). `px-2`/`gap-1.5` up to `sm` gives back exactly that; `min-w-0` and a truncated
+  label are the backstop, so the worst case is a clipped word rather than a sideways page.
+- **The focus mark is an `outline`, and everywhere else in that file it is a ring.** Inside a
+  `.toggle-button` the ring resolves in `--tw-ring-shadow` and never reaches `box-shadow` — measured,
+  all five composed layers come back transparent — so focus moved with the keys and nothing said
+  where it was. `outline` is a different property and survives it. It needs `outline-solid` by name
+  as well: `outline-2` leaves the style to `--tw-outline-style`, which HeroUI has already set to
+  `none`, so the width and the colour both landed and the outline still computed to `none`.
+
+In Colores the two buttons open a `ColorPicker` — six swatches, then the area and the hue slider —
+and wear the segmented control's own clothes (`toggleButtonVariants`, the composition path HeroUI
+documents) so all three modes present one shape. What they never get is a selected state, because
+they are not a choice: each opens a colour. The caret is the only thing saying so, and the only
+thing telling this row apart from the identical pair in the other two modes. No hex field: this is a
+group chat picking a shirt. This also retired a trade the picker used to carry — seven targets
+sharing a card came out 39px wide on a 390px phone and 29px at 320, under the 44px this app asks.
+
+One HeroUI trap lives here: **it sizes every `svg` inside a toggle button itself** (`size-5`, and
+`sm:size-4` above 640px), and CSS beats the `width`/`height` attributes an icon sets, so a garment
+handed `size={28}` came out 20px on a phone and 16px on a laptop. A utility class wins over the
+components layer at any width, which is what `GARMENT` is for.
 
 The chosen mode, the chosen sides and the draw toggle are all remembered as they are picked, not on
 submit — `remember()` takes a partial. The group plays the same way every week.
+
+### `Player.team` — which side a row is on
+
+**A team is written on the row, not derived from where it sits in the list.** `assignTeams` draws
+the sides once, when the match starts (first half A, the odd one to A); `splitTeams` only reads
+`player.team` back. The store is at `version: 2` and the migration applies the old rule once, so a
+match already open on a phone stays on the two teams it was showing.
+
+It used to be derived: team A was the first `ceil(n/2)` rows, and `insertionIndex` tried to splice
+a new row where that halfway point would land on the right side of it. That arithmetic cannot win,
+because the rule can only ever express `|A| = |B|` or `|A| = |B| + 1` — and **Sumar jugador exists
+precisely to break that**. Adding to B on an even list, or to A on an odd one, put the newcomer on
+the side that asked for them and pushed a bystander across to the other. Measured, from the group's
+own screenshots: a 5v5 with a drop-out covered in Oscuras came out **6v4 with Keis in Claras**, and
+"Falta uno en Claras" plus Sumar jugador on Claras left Claras just as short.
+
+Two consequences worth keeping in mind:
+
+- **A new row is pushed to the end carrying its side.** Panel order is list order, so whoever
+  signed up last shows last. There is no index to compute.
+- **A drag across the gap swaps the sides too.** `exchangePlayers` hands each player the other's
+  slot *and* the other's `team`; swapping only positions left both of them where they were.
 
 ### Player names
 
@@ -309,6 +434,29 @@ The card is still laid out by the real viewport's media queries, so `sm:` paddin
 on a desktop and not on a phone — about 16px of height between the two. Container queries would
 close that if it ever matters.
 
+## The form's layout
+
+**One block across the top, two columns under it, and the kit alone on the right.** Side-by-side
+columns were tried three ways first and the measurements are the argument, not taste:
+
+| arrangement | columns | picking Colores |
+| --- | --- | --- |
+| list beside every control | 384 / 900 | grows |
+| list + the blocks that talk about it, beside the rest | 785 / 408 | grows |
+| list on top, settings split evenly | 348 / 381 | **grows the page 65px** |
+| list on top, kit full width | 256 / 166 | flat, but seven shirts stranded across 900px |
+| **list on top, everything but the kit on the left** | **442 / 287** | **flat** |
+
+The last one works because the left column is deliberately the taller one: the space beside the kit
+is not a hole, it is the room `Colores` opens into, so changing mode moves nothing on the page. The
+list gets the full width because it is the one element that can use it — a long name prints instead
+of wrapping — and it keeps its own height (fourteen lines) rather than stretching to whatever the
+field stack beside it happens to measure. It used to: 620×901 of box on a laptop for a list that
+fills 120×274, which is 94% empty.
+
+`Cupo` and `Precio` share a row. They are the only pair alike enough — both short, both numeric,
+both skippable — and it is the one exception the single-column research allows.
+
 ## Traps that have already cost time
 
 - **`<Controller defaultValue>` overrides the form's `defaultValues`.** Hit twice: the random toggle
@@ -316,11 +464,26 @@ close that if it ever matters.
 - **`useForm` reads its defaults once, on first render.** `CreateMatchForm` is its own component
   precisely so it mounts after zustand has rehydrated; when it lived in the page it captured an
   empty store and the saved name came back blank every reload.
+- **`random` and `prefersRandom` are two different things.** `random` is a fact about *this* match
+  — these teams were drawn — and it is what the card claims to the group and what turns dragging
+  off. `prefersRandom` is how the group usually plays and is all the form's switch writes. They
+  were one field until Mezclar had to set the fact mid-match, at which point one Tuesday's rescue
+  started deciding how the next Tuesday's form opened.
+- **A deleted row still takes up a slot in `players`.** `isDeleted` hides a row, it does not remove
+  it, so the list can grow while the number of people on the pitch does not. Anything that counts
+  has to go through `countPlaying`; anything that decides a side has to read `player.team`.
 - **A dialog that never unmounts keeps what was typed into it.** `EditModal` resets on open, or
   Cancelar only hides the form and the abandoned values are written by the next Confirmar.
 - **`mode: "onTouched"`, not `"onBlur"`** — `onBlur` leaves a field red while you are fixing it.
 - **Anything put in an effect's dependency array must be stable.** `useAlert` is memoised; when it
   was not, the "partido ya finalizó" dialog reopened on every render.
+- **Mezclar equipos lives on the match screen, and it is the only way out of a 6v4.** Two drop-outs
+  on one side leaves a match nothing can even: Sumar jugador asks for people who are not there, and
+  dragging is off while the draw is a claim. Dealing again is the one move that fixes the sides
+  without breaking the claim — nobody picked them before and nobody picks them now — and the
+  history says `se mezclaron los equipos.` out loud, which is what keeps it honest. It marks the
+  match as drawn, so a hand-arranged match that gets mixed starts telling the truth about itself.
+  It used to sit in Editar, under Confirmar, and nobody looking at the uneven teams found it.
 - **The draw flag is not editable, on purpose.** "Sorteo al azar" is a claim made to the group about
   something that already happened. It used to be a switch that could be turned off, which re-enabled
   dragging players between teams — the promise laundered in three taps. Replacing, dropping and
@@ -359,6 +522,24 @@ and never from typing. A list with no numbering at all still works the old way, 
 WhatsApp puts U+2060 WORD JOINER between the number and the name (42 in one message); it is neither
 whitespace nor a letter, and it is stripped first with the other zero-width characters. The three
 real messages the rule was written against are in `message.test.ts`; keep them.
+
+**The empty box's example is six names off the group's own roster, dealt fresh on every load**
+(`placeholderList` in `src/utils/placeholder.ts`). Five hardcoded names meant the same five people
+were the example forever, which in a group that all reads the same screen looks like the app has
+favourites. `ListInput` memoises the call, so the deal happens once per mount and then holds —
+a placeholder that reshuffled under the cursor while someone pastes would read as the box doing
+something. It is safe to compute at render because `CreateMatchForm` only mounts after the stores
+rehydrate, so it never renders on the server and cannot mismatch on hydration.
+
+**The draw is stratified, not free.** `NAMES` is written in the order the names arrived, one
+night's list after another, and the deal takes one name out of each equal slice of it. A free
+uniform draw measured identical to a real shuffle — it was not biased — but six names out of
+thirty-four land in the same third of the list about one day in ten, and the pool is grouped by
+night: so one load in ten the example was a photograph of a single Tuesday, which is exactly what
+it exists not to be. Slicing makes spanning the roster a guarantee: measured over 120 draws, zero
+miss either end, and nobody is left out. **Keep `NAMES` grouped by where each name came from** —
+append a new night's list at the end rather than sprinkling it in, or the slices stop meaning
+anything.
 
 The form opens with a proposed date: the coming occurrence of the last match's weekday and hour
 (`proposeKickoff`). The group plays on a schedule and the date wheel is the slowest field on a

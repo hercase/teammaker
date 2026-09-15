@@ -173,13 +173,30 @@ export function countPlayers(str: string): number {
   return parseMessage(str).players.filter((line) => line.replace(NON_NAME_CHARS, "").trim() !== "").length;
 }
 
-// teamB starts where teamA ends. Using slice(-half) overlaps by one on odd-sized lists.
-export function splitTeams(players: Player[]): { teamA: Player[]; teamB: Player[] } {
+/*
+  The draw: the first half of the list is team A, the rest team B, and the odd one out goes to A.
+  It happens once, when the match starts — from then on the side is a fact written on the row.
+*/
+export function assignTeams(players: Player[]): Player[] {
   const half = Math.ceil(players.length / 2);
 
+  return players.map((player, index): Player => ({ ...player, team: index < half ? "A" : "B" }));
+}
+
+/*
+  Reads the side off the row; it is not recomputed from the list. It used to be — team A was the
+  first ceil(n/2) rows — which meant the split point moved whenever the list grew, so adding a
+  player to the smaller side pushed somebody across to the bigger one: a 5v5 plus one for Oscuras
+  came out 6v4, with Keis on the wrong team. A list where |A| = |B| + 1 is the only shape that
+  rule could express, and Sumar jugador exists precisely to break it.
+
+  Anything without a side reads as A, so a row that somehow escaped the draw still gets drawn
+  rather than disappearing off the screen.
+*/
+export function splitTeams(players: Player[]): { teamA: Player[]; teamB: Player[] } {
   return {
-    teamA: players.slice(0, half),
-    teamB: players.slice(half),
+    teamA: players.filter((player) => player.team !== "B"),
+    teamB: players.filter((player) => player.team === "B"),
   };
 }
 
