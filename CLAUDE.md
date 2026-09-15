@@ -238,6 +238,28 @@ height holding at 44 — and 29px at 320. That is a known trade, not an oversigh
 The chosen mode, the chosen sides and the draw toggle are all remembered as they are picked, not on
 submit — `remember()` takes a partial. The group plays the same way every week.
 
+### `Player.team` — which side a row is on
+
+**A team is written on the row, not derived from where it sits in the list.** `assignTeams` draws
+the sides once, when the match starts (first half A, the odd one to A); `splitTeams` only reads
+`player.team` back. The store is at `version: 2` and the migration applies the old rule once, so a
+match already open on a phone stays on the two teams it was showing.
+
+It used to be derived: team A was the first `ceil(n/2)` rows, and `insertionIndex` tried to splice
+a new row where that halfway point would land on the right side of it. That arithmetic cannot win,
+because the rule can only ever express `|A| = |B|` or `|A| = |B| + 1` — and **Sumar jugador exists
+precisely to break that**. Adding to B on an even list, or to A on an odd one, put the newcomer on
+the side that asked for them and pushed a bystander across to the other. Measured, from the group's
+own screenshots: a 5v5 with a drop-out covered in Oscuras came out **6v4 with Keis in Claras**, and
+"Falta uno en Claras" plus Sumar jugador on Claras left Claras just as short.
+
+Two consequences worth keeping in mind:
+
+- **A new row is pushed to the end carrying its side.** Panel order is list order, so whoever
+  signed up last shows last. There is no index to compute.
+- **A drag across the gap swaps the sides too.** `exchangePlayers` hands each player the other's
+  slot *and* the other's `team`; swapping only positions left both of them where they were.
+
 ### Player names
 
 `generatePlayer` in `src/utils/index.ts` is the only door a name comes through — the pasted list,
@@ -316,6 +338,9 @@ close that if it ever matters.
 - **`useForm` reads its defaults once, on first render.** `CreateMatchForm` is its own component
   precisely so it mounts after zustand has rehydrated; when it lived in the page it captured an
   empty store and the saved name came back blank every reload.
+- **A deleted row still takes up a slot in `players`.** `isDeleted` hides a row, it does not remove
+  it, so the list can grow while the number of people on the pitch does not. Anything that counts
+  has to go through `countPlaying`; anything that decides a side has to read `player.team`.
 - **A dialog that never unmounts keeps what was typed into it.** `EditModal` resets on open, or
   Cancelar only hides the form and the abandoned values are written by the next Confirmar.
 - **`mode: "onTouched"`, not `"onBlur"`** — `onBlur` leaves a field red while you are fixing it.
@@ -359,6 +384,15 @@ and never from typing. A list with no numbering at all still works the old way, 
 WhatsApp puts U+2060 WORD JOINER between the number and the name (42 in one message); it is neither
 whitespace nor a letter, and it is stripped first with the other zero-width characters. The three
 real messages the rule was written against are in `message.test.ts`; keep them.
+
+**The empty box's example is six names off the group's own roster, dealt fresh every day**
+(`placeholderList` in `src/utils/placeholder.ts`). Five hardcoded names meant the same five people
+were the example forever, which in a group that all reads the same screen looks like the app has
+favourites. The deal is seeded by the local calendar day, not `Math.random`: everyone opening the
+link on a Tuesday sees the same six, and the placeholder does not reshuffle under the cursor while
+someone pastes over it. Measured over 120 days nobody is left out and the spread is 16–30
+appearances against an expected 23. It is safe to compute at render because `CreateMatchForm` only
+mounts after the stores rehydrate, so it never renders on the server and cannot mismatch.
 
 The form opens with a proposed date: the coming occurrence of the last match's weekday and hour
 (`proposeKickoff`). The group plays on a schedule and the date wheel is the slowest field on a

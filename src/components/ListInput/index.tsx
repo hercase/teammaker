@@ -1,12 +1,13 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { UseFormRegister } from "react-hook-form";
 import { FieldError, Label, TextArea, TextField } from "@heroui/react";
 import { ClipboardIcon } from "@heroicons/react/20/solid";
 import Button from "@/components/Button";
 import { MatchInputs } from "@/types";
 import { countPlayers } from "@/utils";
+import { placeholderList } from "@/utils/placeholder";
 
 interface ListInputProps {
   error: boolean;
@@ -22,6 +23,14 @@ interface ListInputProps {
 
 const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPaste, onPasted, ...rest }) => {
   const isEmpty = !value?.trim();
+
+  /*
+    Six names off the group's own roster, a different six every day, so the example never reads as
+    the app having favourites. Memoised because the box re-renders on every keystroke and the deal
+    has no business being recomputed while someone is typing over it. The form only mounts once
+    the stores have rehydrated, so this never renders on the server and cannot mismatch on hydration.
+  */
+  const placeholder = useMemo(() => placeholderList(), []);
 
   /*
     validationBehavior="aria", not the default "native": react-hook-form owns the rules here, and with
@@ -72,7 +81,7 @@ const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPa
             stretches to the form.
           */
           className="h-auto min-h-84 flex-1 resize-none font-mono text-sm leading-relaxed md:min-h-0"
-          placeholder={"1. Lucho\n2. Mura\n3. Mauro\n4. Lihue\n5. Eze ..."}
+          placeholder={placeholder}
           {...register("list", {
             required: true,
             /*
