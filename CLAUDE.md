@@ -202,38 +202,48 @@ team's colour **swaps** them); in bibs mode only the wearing team is labelled, i
 teams rather than a label in both headers; `parseKit` distrusts persisted JSON and falls back to the
 default.
 
-**A dark garment on a dark interface cannot be solved with a fill.** Measured against the panel, the
-old charcoal reached 1.57:1 and going darker only traded that for 1.06:1 — the shape vanishes either
-way. So a preset can carry an `edge`: what to draw when it has to be *seen* rather than shown — the
-contour of its icon, and the border of the panel that means "this team wears it". Only `black` has
-one, and it is `--color-border-strong`, not a colour of its own. `kitColor` returns the garment;
-`kitEdge` returns the line. A black panel border would not be a border.
+**A shirt is any hex, and the seven presets are swatches now, not the vocabulary.** The group wears
+what it owns; a list of seven could only ever be a guess at it. What the presets were carrying is
+kept by measurement instead:
 
-The three modes are cards, and **each card holds its own settings**, opened inside it when chosen.
-They used to sit under all three, which read as a second unrelated question. They carry no heading:
-if a card needs a caption to explain its own controls, fix the card.
+- **A dark garment on a dark interface cannot be solved with a fill.** Measured against the panel a
+  charcoal reaches 1.57:1 and going darker trades that for 1.06:1 — the shape vanishes either way.
+  `garmentEdge` computes the contour from contrast against `--surface`, at the 3:1 WCAG 1.4.11 asks
+  of a boundary. It used to be an `edge` hardcoded onto the one preset that needed it; with any hex
+  on offer there is no list to mark up, and the rule was never about black.
+- **A colour that is not a preset has no name.** `kitLabel` titles that panel `Equipo A` the way
+  bibs mode titles both of its own. Naming a teal "Verde" because green is the nearest of six is
+  not a shorthand, it is a title nobody chose and nobody can correct — and the header is read off
+  the shared picture. `presetOf` is the exact match; `nearestPreset` stays for the v0 migration.
+- **Two teams still cannot wear the same shirt.** `freeShirt` has two candidates, not one: a single
+  fallback cannot move a team off itself, and two navies both migrated to blue, were both replaced
+  with blue, and stayed identical.
 
-**The chosen option is lit, its settings are not.** The card's header takes `--segment` — the token
-HeroUI paints a selected tab with — and the settings below it stay on `--surface`, with a
-`Separator` at `--color-border-strong/60` between them. Measured: option against settings 1.9:1,
-separator against settings 3.24:1, chosen against the other cards 2.08:1. Before, the whole card
-was one fill with a `--border` hairline across it: that line measured **1.07:1** and selection
-**1.24:1**, so the option and its settings were one undivided block and the chosen one barely
-differed from the rest. On the lit header the hint loses its dimming, because `--muted` on
-`--segment` is 3.56:1 and 12px text needs 4.5.
+**The three modes are the same control, and the control lives under all three.** Each mode is a row
+with a label; below the three sits one settings row that answers whichever is chosen, and every
+mode's answer is the same shape — which of the two teams. That row is why the block cannot change
+height: picking Colores used to make the card 100px taller and shove the rest of the form down.
 
-**HeroUI gives every radio in a vertical group `mt-4`**, on top of any gap you set. The cards sat
-24px apart with `gap-2` in the class, and the side buttons floated 16px below their padding. Every
-`RadioGroup` here carries `**:data-[slot=radio]:mt-0`, which is how the library's own card demo
-removes it. None of these radios has a `Radio.Control`, and the control is the only part HeroUI
-draws a focus ring on — so the cards took keyboard focus invisibly until `Radio.Content` got an
-inset ring of its own.
+This reverses two earlier decisions on purpose, and the reasons they were made no longer hold:
 
-The shirts are seven columns sharing the card's width, the team's name above them rather than
-beside: six 44px targets with a label to the left did not fit a 390px phone (they were squeezed to
-40px and 4px gaps) and at 320px the row overflowed the page by 62px. Seven fill a desktop card at
-48px and a 390px phone at **39px wide** — under the 44px this app asks of a target, with the
-height holding at 44 — and 29px at 320. That is a known trade, not an oversight.
+- Settings used to sit inside the chosen card, because under all three they "read as a second
+  unrelated question". They did, while Colores was two labelled rows of seven shirts and the others
+  were two buttons — three different things in one frame. They are one thing now.
+- Each row used to carry a line of explanation, because nobody found the kit picker on their own.
+  The rows and their words stayed; the second line went once the settings row got a visible label,
+  since the card said "Elegís las dos camisetas" and the row under it asked the same thing again.
+  Eight lines of text for one setting is its own kind of invisible.
+
+The settings row is labelled with a **noun**, not a question: `Van de claro` / `Camisetas` /
+`Llevan la pechera`. "¿Quién va de claro?" was the only interrogative on a form whose every other
+field is a noun, and it read as a different voice. The label names what is being assigned rather
+than the mode, or the Pecheras card followed by a "Pecheras" label is one word doing nothing twice.
+
+In Colores the two buttons open a `ColorPicker` — six swatches, then the area and the hue slider.
+They carry a caret, and it is the only thing telling them apart from the identical pair in the
+other two modes, where the buttons are a choice rather than two openers. No hex field: this is a
+group chat picking a shirt. This also retired a trade the picker used to carry — seven targets
+sharing a card came out 39px wide on a 390px phone and 29px at 320, under the 44px this app asks.
 
 The chosen mode, the chosen sides and the draw toggle are all remembered as they are picked, not on
 submit — `remember()` takes a partial. The group plays the same way every week.

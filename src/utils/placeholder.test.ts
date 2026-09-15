@@ -16,7 +16,7 @@ describe("placeholderNames", () => {
     expect(placeholderNames(1234)).toEqual(placeholderNames(1234));
   });
 
-  it("deals six names", () => {
+  it("deals a full list, not a sample of one", () => {
     expect(placeholderNames(day(260915))).toHaveLength(PLACEHOLDER_COUNT);
   });
 
@@ -105,6 +105,6 @@ describe("placeholderList", () => {
 
     expect(lines).toHaveLength(PLACEHOLDER_COUNT);
     expect(lines[0]).toMatch(/^1\. /);
-    expect(lines.at(-1)).toMatch(/^6\. .+ \.\.\.$/);
+    expect(lines.at(-1)).toMatch(new RegExp(`^${PLACEHOLDER_COUNT}\\. .+ \\.\\.\\.$`));
   });
 });

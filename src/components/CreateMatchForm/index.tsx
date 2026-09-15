@@ -117,25 +117,7 @@ const CreateMatchForm: FC = () => {
 
   return (
     <form
-      /*
-        The list across the top, the rest in two columns under it, and the kit alone on the right.
-
-        Side-by-side columns were tried three ways before this one, and the measurements are the
-        argument. The box alone against seven controls: 384 against 900. Moving the two blocks that
-        talk about the list over to the box: 785 against 408, the same problem mirrored. Splitting
-        the settings evenly under the box: 33 apart at rest, but picking Colores opened fourteen
-        shirts and grew the page 65px, which is the jump you feel rather than see. Giving the kit
-        the full width stopped the jump and stranded seven shirts across 900px.
-
-        What works is putting everything except the kit on the left, so the left column is the
-        taller one — 442 against 287 — and the gap beside the kit is not a hole but the room Colores
-        opens into. The page height does not change at all when the mode changes.
-
-        Related fields may share a row: the research that says a single column is completed some 15
-        seconds faster allows exactly that exception, and Cupo/Precio is the one pair that qualifies.
-        On a phone every column becomes one and the reading order is the one the form always had.
-      */
-      className="grid w-full max-w-md gap-5 md:max-w-3xl lg:max-w-4xl"
+      className="grid w-full max-w-md gap-5 md:max-w-(--breakpoint-lg) md:grid-cols-[minmax(0,1fr)_20rem] md:items-stretch lg:grid-cols-[minmax(0,1fr)_24rem]"
       onSubmit={handleSubmit(onSubmit)}
     >
       {/*
@@ -146,8 +128,6 @@ const CreateMatchForm: FC = () => {
       */}
       <h1 className="sr-only">Armar los equipos</h1>
 
-      {/* The list gets the full width: it is the one element that can use it, so a long name
-          prints instead of wrapping. */}
       <ListInput
         register={register}
         error={!!errors.list}
@@ -160,108 +140,98 @@ const CreateMatchForm: FC = () => {
         onPasted={fillFromMessage}
       />
 
-      {/* md:items-start so a short column does not stretch to the tall one and hide the seam. */}
-      <div className="grid gap-5 md:grid-cols-2 md:items-start">
-        <div className="flex min-w-0 flex-col gap-5">
-          {/*
-            This used to be a modal that opened before anything else and asked for a name, which is a
-            lot to ask of someone who followed a link from the group and has not seen the app yet. It
-            is one more field next to the two it belongs with, and it comes back filled in next time.
-          */}
-          <TextInput
-            name="organizer"
-            label="Tu nombre"
-            error={!!errors.organizer}
-            value={watch("organizer")}
-            onClear={() => setValue("organizer", "", { shouldValidate: true })}
-            register={register}
-          />
+      <div className="flex flex-col gap-5">
+        {/*
+          This used to be a modal that opened before anything else and asked for a name, which is a
+          lot to ask of someone who followed a link from the group and has not seen the app yet. It
+          is one more field next to the two it belongs with, and it comes back filled in next time.
+        */}
+        <TextInput
+          name="organizer"
+          label="Tu nombre"
+          error={!!errors.organizer}
+          value={watch("organizer")}
+          onClear={() => setValue("organizer", "", { shouldValidate: true })}
+          register={register}
+        />
 
-          <TextInput
-            name="location"
-            label="Lugar"
-            /* Describes what goes in the box, not an example of it. "Quintana y Salta" is where the
-               group actually plays, so an empty field looked filled in — and, once marked invalid,
-               filled in and rejected at the same time. */
-            placeholder="Cancha o dirección"
-            error={!!errors.location}
-            value={watch("location")}
-            onClear={() => setValue("location", "", { shouldValidate: true })}
-            register={register}
-          />
+        <TextInput
+          name="location"
+          label="Lugar"
+          /* Describes what goes in the box, not an example of it. "Quintana y Salta" is where the
+             group actually plays, so an empty field looked filled in — and, once marked invalid,
+             filled in and rejected at the same time. */
+          placeholder="Cancha o dirección"
+          error={!!errors.location}
+          value={watch("location")}
+          onClear={() => setValue("location", "", { shouldValidate: true })}
+          register={register}
+        />
 
-          <DateInput register={register} error={!!errors.date} value={watch("date")} />
-
-          {/*
-            The two optional numbers share a row. They are the only fields alike enough to pair —
-            both short, both numeric, both things you may well skip — and side by side they read as
-            one question about the match rather than two more things being asked of you. It buys back
-            a field's worth of height on a phone, which is where the form is longest.
-
-            Nothing else pairs: Lugar takes a whole address, and the date wheel needs its width.
-          */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Optional. Past it, the names on the list are substitutes, in the order they signed up. */}
-            <TextInput
-              name="capacity"
-              label="Cupo"
-              inputMode="numeric"
-              required={false}
-              valueAs={parsePrice}
-              value={typedCapacity == null || Number.isNaN(typedCapacity) ? "" : String(typedCapacity)}
-              register={register}
-            />
-
-            {/* Optional. The picture divides it by whoever plays, which is the message that otherwise
-                follows the teams in the group by hand. */}
-            <TextInput
-              name="price"
-              label="Precio de la cancha"
-              prefix="$"
-              inputMode="numeric"
-              required={false}
-              valueAs={parsePrice}
-              value={typedPrice == null || Number.isNaN(typedPrice) ? "" : String(typedPrice)}
-              register={register}
-            />
-          </div>
-
-          {/* The switch carries its own label and explanation; see the note in the component. */}
-          <Controller
-            name="random"
-            control={control}
-            render={({ field }) => (
-              <ToggleSwitch
-                label="Orden aleatorio"
-                description="Mezcla la lista antes de dividir."
-                checked={field.value}
-                onChange={field.onChange}
-              />
-            )}
-          />
-        </div>
+        <DateInput register={register} error={!!errors.date} value={watch("date")} />
 
         {/*
-          The kit on its own. It is the one block that changes size — Colores opens fourteen shirts
-          under it — and a column is the place where that costs nothing: it has the room, and the
-          column beside it does not move. Given the full width instead, the seven shirts were
-          stranded across 900px with the gaps doing all the talking.
+          The two optional numbers share a row. They are the only fields alike enough to pair —
+          both short, both numeric, both things you may well skip — and side by side they read as
+          one question about the match rather than two more things being asked of you. It buys back
+          a field's worth of height on a phone, which is where this form is longest.
 
-          No defaultValue on the Controller: like the switch, it would win over the form's own
-          defaultValues and throw away the kit the last match was saved with.
+          The research that puts a single column ahead allows exactly this exception, for fields
+          that are tightly related. Nothing else here qualifies: Lugar takes a whole address and
+          the date wheel needs its width.
         */}
-        <div className="flex min-w-0 flex-col gap-5">
-          <Controller
-            name="kit"
-            control={control}
-            render={({ field }) => <KitSelector value={field.value} onChange={field.onChange} />}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Optional. Past it, the names on the list are substitutes, in the order they signed up. */}
+          <TextInput
+            name="capacity"
+            label="Cupo"
+            inputMode="numeric"
+            required={false}
+            valueAs={parsePrice}
+            value={typedCapacity == null || Number.isNaN(typedCapacity) ? "" : String(typedCapacity)}
+            register={register}
+          />
+
+          {/* Optional. The picture divides it by whoever plays, which is the message that otherwise
+              follows the teams in the group by hand. */}
+          <TextInput
+            name="price"
+            label="Precio de la cancha"
+            prefix="$"
+            inputMode="numeric"
+            required={false}
+            valueAs={parsePrice}
+            value={typedPrice == null || Number.isNaN(typedPrice) ? "" : String(typedPrice)}
+            register={register}
           />
         </div>
-      </div>
 
-      <Button type="submit" className="w-full">
-        Crear equipos
-      </Button>
+        {/* No defaultValue: like the switch, it would win over the form's defaultValues and throw
+            away the kit the last match was saved with. */}
+        <Controller
+          name="kit"
+          control={control}
+          render={({ field }) => <KitSelector value={field.value} onChange={field.onChange} />}
+        />
+
+        {/* The switch carries its own label and explanation; see the note in the component. */}
+        <Controller
+          name="random"
+          control={control}
+          render={({ field }) => (
+            <ToggleSwitch
+              label="Orden aleatorio"
+              description="Mezcla la lista antes de dividir."
+              checked={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+
+        <Button type="submit" className="w-full">
+          Crear equipos
+        </Button>
+      </div>
     </form>
   );
 };

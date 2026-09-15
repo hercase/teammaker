@@ -1,8 +1,29 @@
 import { FC, ReactNode } from "react";
 import classNames from "classnames";
-import { Label, Radio, RadioGroup, Separator } from "@heroui/react";
-import { Kit, KitMode, PresetColor, TeamSide } from "@/types";
-import { BIB_HEX, DARK_EDGE, DARK_HEX, KIT_PRESETS, LIGHT_HEX, PRESET_COLORS, setShirt, TEAM_SIDES } from "@/utils/kit";
+import {
+  ColorArea,
+  ColorPicker,
+  ColorSlider,
+  ColorSwatchPicker,
+  Label,
+  parseColor,
+  Radio,
+  RadioGroup,
+} from "@heroui/react";
+import { Kit, KitMode, ShirtsKit, TeamSide } from "@/types";
+import {
+  BIB_HEX,
+  DARK_EDGE,
+  DARK_HEX,
+  DEFAULT_SHIRTS,
+  garmentEdge,
+  KIT_PRESETS,
+  LIGHT_HEX,
+  SWATCH_COLORS,
+  setShirt,
+  TEAM_SIDES,
+} from "@/utils/kit";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import ShirtIcon from "@/components/Icons/ShirtIcon";
 import BibIcon from "@/components/Icons/BibIcon";
 
@@ -49,32 +70,26 @@ function Pair({ left, right, rightOutline }: { left: string; right: string; righ
   own controls, the card is the thing to fix. The question survives only as the group's accessible
   name, where there is no drawing to read.
 */
-const MODES: { mode: KitMode; label: string; hint: string; question: string; icon: ReactNode }[] = [
+const MODES: { mode: KitMode; label: string; icon: ReactNode }[] = [
   {
     mode: "shades",
     label: "Claras y oscuras",
-    hint: "Cada uno lleva lo que tiene",
-    question: "¿Quién va de claro?",
     icon: <Pair left={LIGHT_HEX} right={DARK_HEX} rightOutline={DARK_EDGE} />,
   },
   {
     mode: "shirts",
     label: "Colores",
-    hint: "Elegís las dos camisetas",
-    question: "¿Qué camiseta lleva cada uno?",
     icon: <Pair left={KIT_PRESETS.blue.hex} right={KIT_PRESETS.red.hex} />,
   },
   {
     mode: "bibs",
     label: "Pecheras",
-    hint: "Un equipo se las pone",
-    question: "¿Quién lleva la pechera?",
     icon: <BibIcon size={26} />,
   },
 ];
 
 const STARTING_KIT: Record<KitMode, Kit> = {
-  shirts: { mode: "shirts", teamA: "white", teamB: "blue" },
+  shirts: DEFAULT_SHIRTS,
   shades: { mode: "shades", lightTeam: "A" },
   bibs: { mode: "bibs", bibTeam: "A" },
 };
@@ -113,7 +128,8 @@ const SideChoice: FC<SideChoiceProps> = ({ label, selected, icon, onSelect }) =>
           selected segment.
         */
         className={classNames(
-          "min-h-11 flex-1 rounded-lg border text-sm transition-colors",
+          // No transition: these two stopped moving when the settings row stopped changing size.
+          "min-h-11 flex-1 rounded-lg border text-sm",
           selected === side
             ? "border-transparent bg-segment font-medium text-segment-foreground"
             : "border-border-strong/60 text-text-muted hover:bg-surface-hover"
@@ -130,89 +146,183 @@ const SideChoice: FC<SideChoiceProps> = ({ label, selected, icon, onSelect }) =>
   </RadioGroup>
 );
 
-interface ShirtRowProps {
-  side: TeamSide;
-  selected: PresetColor;
-  onSelect: (color: PresetColor) => void;
+/*
+  The same shape as SideChoice, and that is the point of it. Colores used to be two labelled rows
+  of seven shirts, which made the card 100px taller than the other two modes — so choosing a mode
+  moved everything under it, on a form where what is under it is the rest of the form.
+
+  Two buttons instead, one per team, each opening the colour in a popover. The seven presets are
+  still the first thing in it, as swatches, so the common answer is still one tap; below them the
+  group can reach the shirt it actually owns, which a list of seven could only ever approximate.
+
+  It also retires a trade this file used to carry in a comment: seven targets sharing a card came
+  out 39px wide on a 390px phone and 29px at 320, under the 44px this app asks of anything you
+  press. In a popover they have room, and the two triggers are full-height buttons.
+*/
+const SHIRT_TRIGGER =
+  "flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-border-strong/60 text-sm text-text-muted hover:bg-surface-hover";
+
+interface ShirtChoiceProps {
+  kit: ShirtsKit;
+  onChange: (kit: ShirtsKit) => void;
 }
 
-/*
-  The team's name sits above its shirts, not beside them. Six 44px targets with 8px between them
-  are 304px wide, and a phone at 390px leaves the card 324px inside — so a label to the left had the
-  shirts squeezed to 40px with 4px gaps, and at 320px the row overflowed the page by 62px.
+const ShirtChoice: FC<ShirtChoiceProps> = ({ kit, onChange }) => (
+  <div className="flex flex-row gap-2">
+    {TEAM_SIDES.map((side) => {
+      const hex = side === "A" ? kit.teamA : kit.teamB;
+      /* The contour only appears when the fill cannot hold the shape on this panel; see garmentEdge. */
+      const edge = garmentEdge(hex);
 
-  Seven columns sharing the card's width, one per preset. Six capped at 44px left a quarter of the
-  row empty on a desktop; six uncapped spread them 65px apart. Seven fill a 24rem card at 48px each
-  and a 390px phone at 39px — narrower than the 44px this app asks of a target, and the height is
-  what holds at 44. At 320 they are 29px wide, which is the price of a row of seven on the smallest
-  screen the layout is checked at.
-*/
-const ShirtRow: FC<ShirtRowProps> = ({ side, selected, onSelect }) => (
-  <div className="flex flex-col gap-1">
-    <span className="text-sm text-text-muted">Equipo {side}</span>
-
-    <RadioGroup
-      aria-label={`Camiseta del equipo ${side}`}
-      className="grid grid-cols-7 gap-2 **:data-[slot=radio]:mt-0"
-      value={selected}
-      onChange={(color) => onSelect(color as PresetColor)}
-    >
-      {PRESET_COLORS.map((color) => (
-        /*
-          The chosen kit is at full strength and the rest are held back just enough to recede. The
-          app draws nothing else with a glow, so a glow here read as a different product.
-        */
-        <Radio
-          key={color}
-          value={color}
-          aria-label={KIT_PRESETS[color].label}
-          className={classNames(
-            "min-h-11 rounded-lg transition-all",
-            selected === color ? "bg-segment" : "opacity-80 hover:bg-surface-hover hover:opacity-100"
-          )}
+      return (
+        <ColorPicker
+          key={side}
+          className="flex-1"
+          value={parseColor(hex)}
+          onChange={(color) => onChange(setShirt(kit, side, color.toString("hex")))}
         >
-          <Radio.Content className={classNames("grid h-full w-full place-items-center rounded-lg", FOCUS_RING)}>
-            <ShirtIcon color={KIT_PRESETS[color].hex} outline={KIT_PRESETS[color].edge} size={26} />
-          </Radio.Content>
-        </Radio>
-      ))}
-    </RadioGroup>
+          <ColorPicker.Trigger
+            className={classNames(SHIRT_TRIGGER, FOCUS_RING)}
+            aria-label={`Camiseta del equipo ${side}`}
+          >
+            <ShirtIcon color={hex} outline={edge !== hex ? edge : undefined} size={28} />
+            Equipo {side}
+            {/*
+              The one thing that tells these two apart from the identical pair in the other two
+              modes. There, the buttons are a choice and picking one answers the question; here each
+              opens a colour of its own. Same shape, different behaviour, and nothing on the screen
+              said so — a caret is the smallest honest way to say "this opens".
+            */}
+            <ChevronDownIcon className="size-4 shrink-0 text-text-subtle" aria-hidden="true" />
+          </ColorPicker.Trigger>
+          {/* Six swatches in one row at HeroUI's own size, and never wider than the screen. The
+              hex field that came with the demo is gone: this is a group chat picking a shirt, and
+              a colour anyone here wants is already under the thumb. */}
+          <ColorPicker.Popover className="flex w-[min(100vw-1.5rem,17rem)] flex-col gap-3 p-3">
+            {/* The sideline's usual answers, first and one tap away. */}
+            <ColorSwatchPicker className="flex justify-between gap-2">
+              {SWATCH_COLORS.map((preset) => (
+                <ColorSwatchPicker.Item
+                  key={preset}
+                  color={KIT_PRESETS[preset].hex}
+                  aria-label={KIT_PRESETS[preset].label}
+                >
+                  <ColorSwatchPicker.Swatch />
+                </ColorSwatchPicker.Item>
+              ))}
+            </ColorSwatchPicker>
+
+            <ColorArea.Root className="h-40 w-full rounded-lg">
+              <ColorArea.Thumb />
+            </ColorArea.Root>
+
+            <ColorSlider.Root channel="hue" colorSpace="hsb">
+              <ColorSlider.Track>
+                <ColorSlider.Thumb />
+              </ColorSlider.Track>
+            </ColorSlider.Root>
+          </ColorPicker.Popover>
+        </ColorPicker>
+      );
+    })}
+  </div>
+);
+
+/*
+  One row, under all three cards, that answers whichever is chosen.
+
+  This lived inside the selected card until the three modes became the same control. They were not:
+  Colores was two labelled rows of seven shirts while the others were two buttons, so a shared row
+  would have been three different things wearing one frame, and it read — the note this replaces
+  said so — as a second unrelated question. Now every mode asks exactly "which of the two teams",
+  and only the garment on the buttons changes, so a single row is the answer to the card above it
+  rather than a question of its own. It also means the block cannot change height at all.
+*/
+/*
+  A label, not a question. It was "¿Quién va de claro?", and it was the only interrogative on a form
+  whose every other field is a noun — Tu nombre, Lugar, Fecha, Cupo, Precio de la cancha — so it
+  read as a different voice rather than as the same form asking one more thing.
+
+  It names what is being assigned rather than the mode, or it would just say the card above it
+  again: the Pecheras card followed by a "Pecheras" label is one word doing nothing twice.
+*/
+const SETTING_LABELS: Record<KitMode, string> = {
+  shades: "Van de claro",
+  shirts: "Camisetas",
+  bibs: "Llevan la pechera",
+};
+
+const KitSettings: FC<{ kit: Kit; onChange: (kit: Kit) => void }> = ({ kit, onChange }) => (
+  <div className="kit-settings flex flex-col gap-2 rounded-card border border-border bg-surface px-3 py-2.5">
+    {/*
+      On the screen, not only in the accessibility tree. It used to sit inside the chosen card;
+      moving the row out from under the cards left two buttons reading "Equipo A" and "Equipo B"
+      with nothing saying what answering them does — which is the whole of why nobody could tell
+      they were allowed to swap the sides, or that Colores opens a colour.
+    */}
+    <span className="text-sm text-text-muted">{SETTING_LABELS[kit.mode]}</span>
+    {kit.mode === "shades" && (
+      <SideChoice
+        label={SETTING_LABELS[kit.mode]}
+        selected={kit.lightTeam}
+        icon={(side) => {
+          const light = kit.lightTeam === side;
+
+          return <ShirtIcon color={light ? LIGHT_HEX : DARK_HEX} outline={light ? undefined : DARK_EDGE} size={28} />;
+        }}
+        onSelect={(lightTeam) => onChange({ mode: "shades", lightTeam })}
+      />
+    )}
+
+    {kit.mode === "shirts" && <ShirtChoice kit={kit} onChange={onChange} />}
+
+    {kit.mode === "bibs" && (
+      <SideChoice
+        label={SETTING_LABELS[kit.mode]}
+        selected={kit.bibTeam}
+        /* Nothing for the other side: it is not wearing a white shirt, it is wearing
+           whatever it turned up in. Drawing one invents a kit nobody agreed to. */
+        icon={(side) => (side === kit.bibTeam ? <BibIcon color={BIB_HEX} size={28} /> : null)}
+        onSelect={(bibTeam) => onChange({ mode: "bibs", bibTeam })}
+      />
+    )}
   </div>
 );
 
 const KitSelector: FC<KitSelectorProps> = ({ value, onChange }) => (
-  /*
+  <div className="flex flex-col gap-2">
+    {/*
     **:data-[slot=radio]:mt-0 — HeroUI gives every radio of a vertical group mt-4, on top of any
-    gap, so the cards sat 24px apart when the class said 8, and the side buttons inside a card
-    floated 16px below its padding. Its own card demo removes it the same way.
-  */
-  <RadioGroup
-    className="flex flex-col gap-2 **:data-[slot=radio]:mt-0"
-    value={value.mode}
-    onChange={(mode) => onChange(STARTING_KIT[mode as KitMode])}
-  >
-    <Label className="mb-2">Cómo se distinguen los equipos</Label>
+      gap, so the cards sat 24px apart when the class said 8, and the side buttons inside a card
+      floated 16px below its padding. Its own card demo removes it the same way.
+    */}
+    <RadioGroup
+      className="flex flex-col gap-2 **:data-[slot=radio]:mt-0"
+      value={value.mode}
+      onChange={(mode) => onChange(STARTING_KIT[mode as KitMode])}
+    >
+      <Label className="mb-2">Cómo se distinguen los equipos</Label>
 
-    {MODES.map(({ mode, label, hint, question, icon }) => {
-      const chosen = value.mode === mode;
+      {MODES.map(({ mode, label, icon }) => {
+        const chosen = value.mode === mode;
 
-      return (
-        /*
+        return (
+          /*
           The settings are a sibling of Radio.Content, which is what makes this work: Content is
           the clickable part, so anything outside it can be operated without picking the mode
           again. That used to be a div with a hand-rolled radio and a comment explaining that the
           settings must not go inside the <label>; the library's anatomy says the same thing
           structurally, so it cannot be got wrong by accident.
         */
-        <Radio
-          key={mode}
-          value={mode}
-          className={classNames(
-            "flex-col items-stretch overflow-hidden rounded-card border border-border transition-colors",
-            chosen ? "bg-surface" : "bg-surface/40 hover:bg-surface"
-          )}
-        >
-          {/*
+          <Radio
+            key={mode}
+            value={mode}
+            className={classNames(
+              "flex-col items-stretch overflow-hidden rounded-card border border-border transition-colors",
+              chosen ? "bg-surface" : "bg-surface/40 hover:bg-surface"
+            )}
+          >
+            {/*
             The chosen option is lit with --segment, the token HeroUI paints a selected tab with,
             and only the option: its settings stay on --surface below it. That step in fill is what
             separates the two, measured at 1.9:1 — the whole card used to be one fill with a
@@ -220,80 +330,32 @@ const KitSelector: FC<KitSelectorProps> = ({ value, onChange }) => (
             the option and its settings were one undivided block. Selection itself went from 1.24:1
             against the other cards to 2.08:1.
 
-            The hint keeps its size and drops its dimming on the lit card: --muted on --segment is
-            3.56:1, under the 4.5:1 that 12px text needs.
           */}
-          <Radio.Content
-            className={classNames(
-              "flex min-h-12 w-full items-center gap-3 px-3 py-2 transition-colors",
-              FOCUS_RING,
-              chosen && "bg-segment text-segment-foreground"
-            )}
-          >
-            {icon}
-            <span className="min-w-0">
-              <span className={classNames("block text-sm", chosen ? "font-medium" : "text-text-muted")}>{label}</span>
-              <span className={classNames("block text-xs", !chosen && "text-text-subtle")}>{hint}</span>
-            </span>
-          </Radio.Content>
+            <Radio.Content
+              className={classNames(
+                "flex min-h-12 w-full items-center gap-3 px-3 py-2 transition-colors",
+                FOCUS_RING,
+                chosen && "bg-segment text-segment-foreground"
+              )}
+            >
+              {icon}
+              {/*
+                The label alone. Each row used to carry a line explaining itself, and the reason is
+                written down: nobody found the kit picker on their own, so the modes are rows with
+                words rather than segments of a bar. The words stayed; the second line went, because
+                once the question moved out from under the cards it was said twice — the card read
+                "Elegís las dos camisetas" and the row below asked "¿Qué camiseta lleva cada uno?".
+                Eight lines of text for one setting is its own kind of invisible.
+              */}
+              <span className={classNames("min-w-0 text-sm", chosen ? "font-medium" : "text-text-muted")}>{label}</span>
+            </Radio.Content>
+          </Radio>
+        );
+      })}
+    </RadioGroup>
 
-          {chosen && (
-            <>
-              {/* --separator is 1.1:1 on this ground and --border 1.2:1; the line has to clear 3:1
-                  against the settings it caps, or it is the invisible hairline it replaces. */}
-              <Separator className="bg-border-strong/60" />
-              <div className="kit-settings flex flex-col gap-2 px-3 py-2.5">
-                {value.mode === "shades" && (
-                  <SideChoice
-                    label={question}
-                    selected={value.lightTeam}
-                    icon={(side) => {
-                      const light = value.lightTeam === side;
-
-                      return (
-                        <ShirtIcon
-                          color={light ? LIGHT_HEX : DARK_HEX}
-                          outline={light ? undefined : DARK_EDGE}
-                          size={28}
-                        />
-                      );
-                    }}
-                    onSelect={(lightTeam) => onChange({ mode: "shades", lightTeam })}
-                  />
-                )}
-
-                {value.mode === "shirts" && (
-                  <>
-                    <ShirtRow
-                      side="A"
-                      selected={value.teamA}
-                      onSelect={(color) => onChange(setShirt(value, "A", color))}
-                    />
-                    <ShirtRow
-                      side="B"
-                      selected={value.teamB}
-                      onSelect={(color) => onChange(setShirt(value, "B", color))}
-                    />
-                  </>
-                )}
-
-                {value.mode === "bibs" && (
-                  <SideChoice
-                    label={question}
-                    selected={value.bibTeam}
-                    /* Nothing for the other side: it is not wearing a white shirt, it is wearing
-                     whatever it turned up in. Drawing one invents a kit nobody agreed to. */
-                    icon={(side) => (side === value.bibTeam ? <BibIcon color={BIB_HEX} size={28} /> : null)}
-                    onSelect={(bibTeam) => onChange({ mode: "bibs", bibTeam })}
-                  />
-                )}
-              </div>
-            </>
-          )}
-        </Radio>
-      );
-    })}
-  </RadioGroup>
+    <KitSettings kit={value} onChange={onChange} />
+  </div>
 );
 
 export default KitSelector;

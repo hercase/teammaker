@@ -52,6 +52,7 @@ const NAMES = [
   "Pablo",
   "Kun",
   "Agustín",
+  "Chapa",
 ];
 
 /*
@@ -75,7 +76,8 @@ const dedupe = (names: string[]): string[] => {
 
 export const PLACEHOLDER_NAMES = dedupe(NAMES);
 
-export const PLACEHOLDER_COUNT = 6;
+// Ten, because a real list is ten to fourteen: six read as a short list rather than as an example.
+export const PLACEHOLDER_COUNT = 10;
 
 /* mulberry32: small, seeded, and good enough to deal six names out of thirty-four. */
 const random = (seed: number) => () => {

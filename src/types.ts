@@ -24,8 +24,15 @@ export type PresetColor = "white" | "black" | "celeste" | "blue" | "red" | "gree
 */
 export interface ShirtsKit {
   mode: "shirts";
-  teamA: PresetColor;
-  teamB: PresetColor;
+  /*
+    A hex, not one of seven names. The group wears the shirts it owns, and a list of presets can
+    only ever be somebody else's guess at them — the seven are still offered as swatches, they are
+    just no longer the whole vocabulary. What the presets bought is kept by measurement instead:
+    the contour a dark garment needs is computed from its contrast against the panel rather than
+    hardcoded onto one of them, and the name a colour is called comes from the nearest preset.
+  */
+  teamA: string;
+  teamB: string;
 }
 
 export interface BibsKit {

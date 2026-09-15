@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_KIT,
   KIT_PRESETS,
+  PRESET_COLORS,
   kitColor,
   kitLabel,
   migrateColorsToKit,
@@ -38,8 +39,8 @@ describe("migrateColorsToKit", () => {
   it("turns a match saved before the kit existed into a shirts kit", () => {
     expect(migrateColorsToKit({ teamA: "#e3e3e3", teamB: "#151d65" })).toEqual({
       mode: "shirts",
-      teamA: "white",
-      teamB: "blue",
+      teamA: KIT_PRESETS.white.hex,
+      teamB: KIT_PRESETS.blue.hex,
     });
   });
 
@@ -53,8 +54,21 @@ describe("parseKit", () => {
     expect(parseKit({ mode: "bibs", bibTeam: "B" })).toEqual({ mode: "bibs", bibTeam: "B" });
   });
 
-  it("rejects a shirts kit whose colours are not presets", () => {
-    expect(parseKit({ mode: "shirts", teamA: "fucsia", teamB: "blue" })).toEqual(DEFAULT_KIT);
+  it("rejects a shirts kit whose colours are not colours", () => {
+    expect(parseKit({ mode: "shirts", teamA: "fucsia mate", teamB: "#6085ee" })).toEqual(DEFAULT_KIT);
+  });
+
+  /*
+    A shirt is any hex now, so the check is that it reads as a colour rather than that it is one of
+    seven. Spellings are normalised, or the same shirt written two ways would not compare equal and
+    the two-teams-one-shirt rule would stop catching it.
+  */
+  it("keeps a shirts kit in colours nobody picked from a list", () => {
+    expect(parseKit({ mode: "shirts", teamA: "#FF00AA", teamB: "rebeccapurple" })).toEqual({
+      mode: "shirts",
+      teamA: "#ff00aa",
+      teamB: "#663399",
+    });
   });
 
   it("rejects a bibs kit without a team", () => {
@@ -76,8 +90,20 @@ describe("kitLabel", () => {
     expect(kitLabel(kit, "B")).toBe("Equipo B");
   });
 
+  /*
+    A colour off the swatches has no name, so the panel is titled the way bibs mode titles both of
+    its own: naming a teal "Verde" because green is the nearest of six would be a title nobody
+    chose and nobody can correct.
+  */
+  it("titles the team when the shirt is not one of the named colours", () => {
+    const kit = { mode: "shirts", teamA: "#1fa2a2", teamB: KIT_PRESETS.red.hex } as const;
+
+    expect(kitLabel(kit, "A")).toBe("Equipo A");
+    expect(kitLabel(kit, "B")).toBe("Roja");
+  });
+
   it("names the shirt colour", () => {
-    const kit = { mode: "shirts", teamA: "red", teamB: "black" } as const;
+    const kit = { mode: "shirts", teamA: KIT_PRESETS.red.hex, teamB: KIT_PRESETS.black.hex } as const;
 
     expect(kitLabel(kit, "A")).toBe("Roja");
     expect(kitLabel(kit, "B")).toBe("Negra");
@@ -91,28 +117,41 @@ describe("kitColor", () => {
     expect(kitColor(kit, "A")).not.toBe(kitColor(kit, "B"));
   });
 
-  it("resolves a preset to its hex", () => {
-    expect(kitColor({ mode: "shirts", teamA: "green", teamB: "yellow" }, "A")).toBe(KIT_PRESETS.green.hex);
+  it("gives back the shirt it was told", () => {
+    expect(kitColor({ mode: "shirts", teamA: "#123456", teamB: KIT_PRESETS.yellow.hex }, "A")).toBe("#123456");
   });
 });
 
 describe("setShirt", () => {
-  const kit = { mode: "shirts", teamA: "white", teamB: "blue" } as const;
+  const kit = { mode: "shirts", teamA: KIT_PRESETS.white.hex, teamB: KIT_PRESETS.blue.hex } as const;
 
   it("changes only the team you picked when the colour is free", () => {
-    expect(setShirt(kit, "A", "red")).toEqual({ mode: "shirts", teamA: "red", teamB: "blue" });
+    expect(setShirt(kit, "A", "#123456")).toEqual({
+      mode: "shirts",
+      teamA: "#123456",
+      teamB: KIT_PRESETS.blue.hex,
+    });
   });
 
   it("swaps the kits when you pick what the other team is wearing", () => {
-    expect(setShirt(kit, "A", "blue")).toEqual({ mode: "shirts", teamA: "blue", teamB: "white" });
-    expect(setShirt(kit, "B", "white")).toEqual({ mode: "shirts", teamA: "blue", teamB: "white" });
+    expect(setShirt(kit, "A", KIT_PRESETS.blue.hex)).toEqual({
+      mode: "shirts",
+      teamA: KIT_PRESETS.blue.hex,
+      teamB: KIT_PRESETS.white.hex,
+    });
+    expect(setShirt(kit, "B", KIT_PRESETS.white.hex)).toEqual({
+      mode: "shirts",
+      teamA: KIT_PRESETS.blue.hex,
+      teamB: KIT_PRESETS.white.hex,
+    });
   });
 
   it("never leaves both teams in the same shirt", () => {
     const sides = ["A", "B"] as const;
 
     sides.forEach((side) =>
-      (["white", "black", "celeste", "blue", "red", "green", "yellow"] as const).forEach((color) => {
+      /* The seven swatches and a hex nobody offered: both have to obey the rule. */
+      [...PRESET_COLORS.map((preset) => KIT_PRESETS[preset].hex), "#123456"].forEach((color) => {
         const next = setShirt(kit, side, color);
 
         expect(next.teamA).not.toBe(next.teamB);
@@ -154,24 +193,25 @@ describe("two teams never wear the same shirt", () => {
 
     expect(kit.mode).toBe("shirts");
     if (kit.mode !== "shirts") return;
-    expect(kit.teamA).toBe("blue");
-    expect(kit.teamB).not.toBe("blue");
+    expect(kit.teamA).toBe(KIT_PRESETS.blue.hex);
+    expect(kit.teamB).not.toBe(KIT_PRESETS.blue.hex);
   });
 
   it("moves the second team off a colour that persisted JSON repeated", () => {
-    const kit = parseKit({ mode: "shirts", teamA: "red", teamB: "red" });
+    const kit = parseKit({ mode: "shirts", teamA: "#e8505e", teamB: "#E8505E" });
 
     expect(kit.mode).toBe("shirts");
     if (kit.mode !== "shirts") return;
-    expect(kit.teamA).toBe("red");
-    expect(kit.teamB).not.toBe("red");
+    // Normalised first, or the same shirt spelled two ways would slip past the rule.
+    expect(kit.teamA).toBe("#e8505e");
+    expect(kit.teamB).not.toBe("#e8505e");
   });
 
   it("leaves a kit with two different colours alone", () => {
-    expect(parseKit({ mode: "shirts", teamA: "white", teamB: "black" })).toEqual({
+    expect(parseKit({ mode: "shirts", teamA: KIT_PRESETS.white.hex, teamB: KIT_PRESETS.black.hex })).toEqual({
       mode: "shirts",
-      teamA: "white",
-      teamB: "black",
+      teamA: KIT_PRESETS.white.hex,
+      teamB: KIT_PRESETS.black.hex,
     });
   });
 });
@@ -180,8 +220,14 @@ describe("teamPhrase", () => {
   it("says the team the way the sideline does", () => {
     expect(teamPhrase({ mode: "shades", lightTeam: "A" }, "B")).toBe("los de oscuro");
     expect(teamPhrase({ mode: "shades", lightTeam: "A" }, "A")).toBe("los de claro");
-    expect(teamPhrase({ mode: "shirts", teamA: "white", teamB: "blue" }, "B")).toBe("los de azul");
-    expect(teamPhrase({ mode: "shirts", teamA: "red", teamB: "yellow" }, "A")).toBe("los de rojo");
+    expect(teamPhrase({ mode: "shirts", teamA: KIT_PRESETS.white.hex, teamB: KIT_PRESETS.blue.hex }, "B")).toBe(
+      "los de azul"
+    );
+    // A colour nobody offered is spoken about as the team, not as a colour it only resembles.
+    expect(teamPhrase({ mode: "shirts", teamA: "#b91c1c", teamB: KIT_PRESETS.yellow.hex }, "A")).toBe("el equipo A");
+    expect(teamPhrase({ mode: "shirts", teamA: KIT_PRESETS.red.hex, teamB: KIT_PRESETS.yellow.hex }, "A")).toBe(
+      "los de rojo"
+    );
     expect(teamPhrase({ mode: "bibs", bibTeam: "A" }, "B")).toBe("el equipo B");
   });
 });
