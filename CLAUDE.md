@@ -331,6 +331,29 @@ The card is still laid out by the real viewport's media queries, so `sm:` paddin
 on a desktop and not on a phone — about 16px of height between the two. Container queries would
 close that if it ever matters.
 
+## The form's layout
+
+**One block across the top, two columns under it, and the kit alone on the right.** Side-by-side
+columns were tried three ways first and the measurements are the argument, not taste:
+
+| arrangement | columns | picking Colores |
+| --- | --- | --- |
+| list beside every control | 384 / 900 | grows |
+| list + the blocks that talk about it, beside the rest | 785 / 408 | grows |
+| list on top, settings split evenly | 348 / 381 | **grows the page 65px** |
+| list on top, kit full width | 256 / 166 | flat, but seven shirts stranded across 900px |
+| **list on top, everything but the kit on the left** | **442 / 287** | **flat** |
+
+The last one works because the left column is deliberately the taller one: the space beside the kit
+is not a hole, it is the room `Colores` opens into, so changing mode moves nothing on the page. The
+list gets the full width because it is the one element that can use it — a long name prints instead
+of wrapping — and it keeps its own height (fourteen lines) rather than stretching to whatever the
+field stack beside it happens to measure. It used to: 620×901 of box on a laptop for a list that
+fills 120×274, which is 94% empty.
+
+`Cupo` and `Precio` share a row. They are the only pair alike enough — both short, both numeric,
+both skippable — and it is the one exception the single-column research allows.
+
 ## Traps that have already cost time
 
 - **`<Controller defaultValue>` overrides the form's `defaultValues`.** Hit twice: the random toggle
@@ -338,6 +361,11 @@ close that if it ever matters.
 - **`useForm` reads its defaults once, on first render.** `CreateMatchForm` is its own component
   precisely so it mounts after zustand has rehydrated; when it lived in the page it captured an
   empty store and the saved name came back blank every reload.
+- **`random` and `prefersRandom` are two different things.** `random` is a fact about *this* match
+  — these teams were drawn — and it is what the card claims to the group and what turns dragging
+  off. `prefersRandom` is how the group usually plays and is all the form's switch writes. They
+  were one field until Mezclar had to set the fact mid-match, at which point one Tuesday's rescue
+  started deciding how the next Tuesday's form opened.
 - **A deleted row still takes up a slot in `players`.** `isDeleted` hides a row, it does not remove
   it, so the list can grow while the number of people on the pitch does not. Anything that counts
   has to go through `countPlaying`; anything that decides a side has to read `player.team`.
@@ -346,6 +374,12 @@ close that if it ever matters.
 - **`mode: "onTouched"`, not `"onBlur"`** — `onBlur` leaves a field red while you are fixing it.
 - **Anything put in an effect's dependency array must be stable.** `useAlert` is memoised; when it
   was not, the "partido ya finalizó" dialog reopened on every render.
+- **Mezclar equipos lives in Editar, and it is the only way out of a 6v4.** Two drop-outs on one
+  side leaves a match nothing can even: Sumar jugador asks for people who are not there, and
+  dragging is off while the draw is a claim. Dealing again is the one move that fixes the sides
+  without breaking the claim — nobody picked them before and nobody picks them now — and the
+  history says `se mezclaron los equipos.` out loud, which is what keeps it honest. It marks the
+  match as drawn, so a hand-arranged match that gets mixed starts telling the truth about itself.
 - **The draw flag is not editable, on purpose.** "Sorteo al azar" is a claim made to the group about
   something that already happened. It used to be a switch that could be turned off, which re-enabled
   dragging players between teams — the promise laundered in three taps. Replacing, dropping and
@@ -385,14 +419,23 @@ WhatsApp puts U+2060 WORD JOINER between the number and the name (42 in one mess
 whitespace nor a letter, and it is stripped first with the other zero-width characters. The three
 real messages the rule was written against are in `message.test.ts`; keep them.
 
-**The empty box's example is six names off the group's own roster, dealt fresh every day**
+**The empty box's example is six names off the group's own roster, dealt fresh on every load**
 (`placeholderList` in `src/utils/placeholder.ts`). Five hardcoded names meant the same five people
 were the example forever, which in a group that all reads the same screen looks like the app has
-favourites. The deal is seeded by the local calendar day, not `Math.random`: everyone opening the
-link on a Tuesday sees the same six, and the placeholder does not reshuffle under the cursor while
-someone pastes over it. Measured over 120 days nobody is left out and the spread is 16–30
-appearances against an expected 23. It is safe to compute at render because `CreateMatchForm` only
-mounts after the stores rehydrate, so it never renders on the server and cannot mismatch.
+favourites. `ListInput` memoises the call, so the deal happens once per mount and then holds —
+a placeholder that reshuffled under the cursor while someone pastes would read as the box doing
+something. It is safe to compute at render because `CreateMatchForm` only mounts after the stores
+rehydrate, so it never renders on the server and cannot mismatch on hydration.
+
+**The draw is stratified, not free.** `NAMES` is written in the order the names arrived, one
+night's list after another, and the deal takes one name out of each equal slice of it. A free
+uniform draw measured identical to a real shuffle — it was not biased — but six names out of
+thirty-four land in the same third of the list about one day in ten, and the pool is grouped by
+night: so one load in ten the example was a photograph of a single Tuesday, which is exactly what
+it exists not to be. Slicing makes spanning the roster a guarantee: measured over 120 draws, zero
+miss either end, and nobody is left out. **Keep `NAMES` grouped by where each name came from** —
+append a new night's list at the end rather than sprinkling it in, or the slices stop meaning
+anything.
 
 The form opens with a proposed date: the coming occurrence of the last match's weekday and hour
 (`proposeKickoff`). The group plays on a schedule and the date wheel is the slowest field on a

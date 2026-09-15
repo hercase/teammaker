@@ -1,4 +1,4 @@
-import { usePlayersStore } from "@/store";
+import { useMatchStore, usePlayersStore } from "@/store";
 import { Player, TeamSide } from "@/types";
 import useAlert from "@/hooks/useAlert";
 import { duplicateTags, generateFullName, splitTeams, validateName } from "@/utils";
@@ -16,8 +16,11 @@ const usePlayers = () => {
     promoteSubstitute,
     addPlayer: _addPlayer,
     addSubstitute,
+    shuffleTeams: _shuffleTeams,
     ...store
   } = usePlayersStore();
+
+  const markAsDrawn = useMatchStore((state) => state.markAsDrawn);
 
   const waiting = substitutes ?? [];
 
@@ -117,6 +120,23 @@ const usePlayers = () => {
     });
   };
 
+  /*
+    Asked first, because there is no undo and the picture may already be in the group. Confirming
+    deals the sides again and marks the match as drawn: after this the teams *are* random, so the
+    card says so — which is also what takes dragging away, and that is the point. Rescuing a 6v4
+    must not become a back door to picking the teams by hand.
+  */
+  const shuffleTeams = (after?: () => void) => {
+    alert({
+      text: "¿Mezclar los equipos? Se reparten de nuevo al azar y no vas a poder moverlos a mano.",
+      cb: () => {
+        _shuffleTeams();
+        markAsDrawn();
+        after?.();
+      },
+    });
+  };
+
   const renamePlayer = (player: Player) => {
     alert({
       text: `Ingresa el nuevo nombre para ${shownOf(player).name}`,
@@ -137,6 +157,7 @@ const usePlayers = () => {
     replacePlayer,
     renamePlayer,
     addPlayer,
+    shuffleTeams,
     ...store,
   };
 };

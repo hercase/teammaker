@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import classNames from "classnames";
-import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/20/solid";
+import { ArrowDownCircleIcon, ArrowsRightLeftIcon, ArrowUpCircleIcon } from "@heroicons/react/20/solid";
 import { format } from "date-fns";
 import usePlayers from "@/hooks/usePlayers";
 import { splitFullName } from "@/utils";
@@ -34,6 +34,7 @@ const MatchHistory = () => {
     if (type === "delete") return "se dio de baja.";
     if (type === "restore") return "volvió a sumarse.";
     if (type === "join") return "se sumó.";
+    if (type === "shuffle") return "se mezclaron los equipos.";
   };
 
   return (
@@ -46,22 +47,31 @@ const MatchHistory = () => {
         >
           <span className="text-text-subtle tabular-nums">{format(date, "dd/MM HH:mm")}</span>
 
-          {/* min-w-0 + truncate so one long name cannot stretch the line: the name itself is
-              already cut short when the Player is made, so this only bites on a narrow phone. */}
-          {/* Cyan means came in, rose means went out — the same two meanings the team list uses. */}
-          <span
-            className={classNames("flex min-w-0 items-center gap-1 capitalize", {
-              "text-secondary-400": type === "restore" || type === "join",
-              "text-error-400": type !== "restore" && type !== "join",
-            })}
-          >
-            {type === "restore" || type === "join" ? (
-              <ArrowUpCircleIcon className="h-4 w-4 shrink-0" />
-            ) : (
-              <ArrowDownCircleIcon className="h-4 w-4 shrink-0" />
-            )}
-            <EventName>{old_name}</EventName>
-          </span>
+          {/*
+            A shuffle is the one event with nobody in it, so it gets the mark instead of a name:
+            the same ⇄ the card wears for "Sorteo al azar", in the same cyan, because it is the same
+            claim being made again. An arrow here would say somebody arrived or left, and nobody did.
+          */}
+          {old_name ? (
+            /* min-w-0 + truncate so one long name cannot stretch the line: the name itself is
+               already cut short when the Player is made, so this only bites on a narrow phone. */
+            /* Cyan means came in, rose means went out — the same two meanings the team list uses. */
+            <span
+              className={classNames("flex min-w-0 items-center gap-1 capitalize", {
+                "text-secondary-400": type === "restore" || type === "join",
+                "text-error-400": type !== "restore" && type !== "join",
+              })}
+            >
+              {type === "restore" || type === "join" ? (
+                <ArrowUpCircleIcon className="h-4 w-4 shrink-0" />
+              ) : (
+                <ArrowDownCircleIcon className="h-4 w-4 shrink-0" />
+              )}
+              <EventName>{old_name}</EventName>
+            </span>
+          ) : (
+            <ArrowsRightLeftIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-secondary-400" />
+          )}
 
           <span className="text-text-muted">{renderText(type)}</span>
 

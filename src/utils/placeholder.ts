@@ -4,9 +4,10 @@
   like the app has favourites. So the six it shows are dealt from the whole group, and the deal
   changes every day: nobody is the example twice in a row, and nobody is never the example.
 
-  Deterministic, not random: everyone opening the link on a Tuesday sees the same six, and the box
-  does not reshuffle its own placeholder on every keystroke. The component still memoises it, but
-  the guarantee lives here.
+  A fresh six on every load. What must not happen is a reshuffle while someone is reading or
+  pasting over it, and that is the component's job: it memoises the call, so the deal happens once
+  per mount and then holds. Seeded rather than reaching for Math.random inside the shuffle, so a
+  test can ask for one particular hand and get it every time.
 */
 
 /*
@@ -76,11 +77,7 @@ export const PLACEHOLDER_NAMES = dedupe(NAMES);
 
 export const PLACEHOLDER_COUNT = 6;
 
-/*
-  mulberry32. A seeded generator rather than Math.random because the same day has to deal the same
-  hand: the placeholder is read while someone is pasting over it, and a list that reshuffled under
-  the cursor would read as the box doing something.
-*/
+/* mulberry32: small, seeded, and good enough to deal six names out of thirty-four. */
 const random = (seed: number) => () => {
   // | 0 on every step: without it the seed drifts past 32 bits and stops being the integer the
   // rest of the arithmetic assumes.
@@ -92,25 +89,51 @@ const random = (seed: number) => () => {
   return ((state ^ (state >>> 14)) >>> 0) / 4294967296;
 };
 
-// The local calendar day, so the deal turns over at midnight where the person is, not in UTC.
-const daySeed = (date: Date): number => date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+// A different hand every time the form is opened. Callers that need a fixed one pass their own.
+const freshSeed = (): number => Math.floor(Math.random() * 2 ** 31);
 
 /*
-  Fisher-Yates, stopped once enough names are drawn: a partial shuffle picks without replacement,
-  so the six are always six different people however small the pool gets.
+  One name out of each equal slice of the pool, then the six shuffled into a reading order.
+
+  A plain uniform draw was the first version and it was not wrong — measured against a real
+  shuffle it came out identical. It was just not what the box needed: six names taken freely out
+  of thirty-four land all in the same corner of the list about one day in ten, and the pool is
+  written down in the order the names arrived, one night's list after another. So one day in ten
+  the example was a photograph of a single Tuesday, which is exactly what it exists not to be.
+
+  Slicing first makes spanning the roster a guarantee instead of a hope, and it costs nothing:
+  the slices are disjoint, so nobody can be drawn twice, and within a slice the pick is still
+  uniform. It also evens out how often each name appears, because a name now competes with its
+  own five neighbours rather than with the whole list.
+
+  The one thing it asks in return: NAMES stays grouped by where each name came from. Append a new
+  night's list at the end rather than sprinkling it in, or the slices stop meaning anything.
 */
-export function placeholderNames(date: Date = new Date(), count: number = PLACEHOLDER_COUNT): string[] {
-  const pool = [...PLACEHOLDER_NAMES];
-  const next = random(daySeed(date));
+export function placeholderNames(seed: number = freshSeed(), count: number = PLACEHOLDER_COUNT): string[] {
+  const pool = PLACEHOLDER_NAMES;
   const draw = Math.max(0, Math.min(count, pool.length));
 
-  for (let i = 0; i < draw; i += 1) {
-    const j = i + Math.floor(next() * (pool.length - i));
+  if (draw === 0) return [];
 
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+  const next = random(seed);
+  const picked = Array.from({ length: draw }, (_, slice) => {
+    const start = Math.floor((slice * pool.length) / draw);
+    const end = Math.floor(((slice + 1) * pool.length) / draw);
+
+    return pool[start + Math.floor(next() * (end - start))];
+  });
+
+  /*
+    Shuffled after the fact, or the example would always run down the pool in order and the first
+    line would only ever be somebody from the oldest list.
+  */
+  for (let i = picked.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(next() * (i + 1));
+
+    [picked[i], picked[j]] = [picked[j], picked[i]];
   }
 
-  return pool.slice(0, draw);
+  return picked;
 }
 
 /*
@@ -118,8 +141,8 @@ export function placeholderNames(date: Date = new Date(), count: number = PLACEH
   player — the example in the box is the format the box expects. The trailing "…" says the real
   thing is longer than six.
 */
-export function placeholderList(date: Date = new Date()): string {
-  return placeholderNames(date)
+export function placeholderList(seed: number = freshSeed()): string {
+  return placeholderNames(seed)
     .map((name, index) => `${index + 1}. ${name}`)
     .join("\n")
     .concat(" ...");

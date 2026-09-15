@@ -138,3 +138,77 @@ describe("exchangePlayers", () => {
     expect(teams().playingB).toBe(5);
   });
 });
+
+describe("shuffleTeams", () => {
+  /*
+    The 6v4 the group actually hit: twelve signed up, two of Oscuras dropped out and nobody came.
+    Sumar jugador asks for people who are not there and dragging is off while the draw is a claim,
+    so before this there was no move left at all.
+  */
+  it("evens out a 6v4 left by two drop-outs", () => {
+    usePlayersStore.getState().startMatch(roster(...TEN, "Max", "Willy"), []);
+
+    for (const name of ["Marcos", "Joel"]) usePlayersStore.getState().removePlayer(byName(name).id);
+
+    expect([teams().playingA, teams().playingB]).toEqual([6, 4]);
+
+    usePlayersStore.getState().shuffleTeams();
+
+    expect([teams().playingA, teams().playingB]).toEqual([5, 5]);
+  });
+
+  it("deals everyone who is playing and loses nobody", () => {
+    const before = usePlayersStore.getState().players.map((p) => p.id).sort();
+
+    usePlayersStore.getState().shuffleTeams();
+
+    const { teamA, teamB } = teams();
+
+    expect([...teamA, ...teamB].map((p) => p.id).sort()).toEqual(before);
+  });
+
+  /*
+    A dropped row keeps its side, so Sumar jugador still offers the person back on the side the
+    group last saw them on — and a deal that moved them would move somebody who is not there.
+  */
+  it("leaves a dropped row on the side it dropped from", () => {
+    usePlayersStore.getState().removePlayer(byName("Maci").id);
+
+    const side = usePlayersStore.getState().players.find((p) => p.name === "Maci")!.team;
+
+    usePlayersStore.getState().shuffleTeams();
+
+    expect(usePlayersStore.getState().players.find((p) => p.name === "Maci")!.team).toBe(side);
+  });
+
+  it("does not touch the bench or the waiting list", () => {
+    const [waiting] = roster("Suplente");
+    usePlayersStore.getState().setSubstitutes([waiting]);
+    usePlayersStore.getState().replacePlayer(byName("Maci").id, "Teto");
+
+    const bench = usePlayersStore.getState().bench.map((p) => p.name);
+
+    usePlayersStore.getState().shuffleTeams();
+
+    expect(usePlayersStore.getState().bench.map((p) => p.name)).toEqual(bench);
+    expect(usePlayersStore.getState().substitutes.map((p) => p.name)).toEqual(["Suplente"]);
+  });
+
+  // The history is what keeps the draw honest: a couple dropped out, then the sides were dealt again.
+  it("writes one nameless event to the history", () => {
+    usePlayersStore.getState().shuffleTeams();
+
+    const [event] = usePlayersStore.getState().history.filter((e) => e.type === "shuffle");
+
+    expect(event).toBeDefined();
+    expect(event.old_name).toBeUndefined();
+    expect(event.new_name).toBeUndefined();
+  });
+
+  it("does nothing with nobody left to deal", () => {
+    usePlayersStore.getState().startMatch(roster("Solo"), []);
+    usePlayersStore.getState().shuffleTeams();
+
+    expect(usePlayersStore.getState().history).toEqual([]);
+  });
+});

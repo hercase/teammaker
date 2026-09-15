@@ -25,10 +25,11 @@ const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPa
   const isEmpty = !value?.trim();
 
   /*
-    Six names off the group's own roster, a different six every day, so the example never reads as
-    the app having favourites. Memoised because the box re-renders on every keystroke and the deal
-    has no business being recomputed while someone is typing over it. The form only mounts once
-    the stores have rehydrated, so this never renders on the server and cannot mismatch on hydration.
+    Six names off the group's own roster, a fresh six every time the form is opened, so the example
+    never reads as the app having favourites. Memoised because the box re-renders on every
+    keystroke and the deal has no business being recomputed while someone is typing over it: once
+    per mount, then it holds. The form only mounts once the stores have rehydrated, so this never
+    renders on the server and cannot mismatch on hydration.
   */
   const placeholder = useMemo(() => placeholderList(), []);
 
@@ -80,7 +81,17 @@ const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPa
             md:min-h-0 hands the height back to the flex column on a desktop, where the box already
             stretches to the form.
           */
-          className="h-auto min-h-84 flex-1 resize-none font-mono text-sm leading-relaxed md:min-h-0"
+          /*
+            336px on a phone: at 14px over a 22.75px line that is exactly fourteen names, which is
+            a full Tuesday list visible without scrolling the box. It used to be 256px, which held
+            ten — so a normal list was always cut off while you were checking it against WhatsApp.
+
+            Fourteen everywhere, then. It used to be told md:min-h-0 on a desktop and let the flex
+            column decide, which meant the field stack beside it decided: 901px of box for a list
+            that fills 274 of them. Across the top of the form it has the width instead, which is
+            the dimension a list of names can actually use — "Ezequiel (Hernandez)" prints whole.
+          */
+          className="min-h-84 resize-none font-mono text-sm leading-relaxed"
           placeholder={placeholder}
           {...register("list", {
             required: true,
@@ -98,7 +109,13 @@ const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPa
           type="button"
           variant="ghost"
           aria-label="Pegar lista desde el portapapeles"
-          className="absolute bottom-3 right-3 p-3"
+          /*
+            Bottom-right on a phone, where the box is short and the thumb is. On a desktop the box
+            is taller than the list inside it, so down there the button sat alone in an empty
+            rectangle, a long way from the text it writes — and pasting is how the list gets in at
+            all, since the group sends lists, nobody types them.
+          */
+          className="absolute bottom-3 right-3 p-3 md:bottom-auto md:top-3"
           onClick={() => handlePaste()}
         >
           <ClipboardIcon className="size-5" />

@@ -1,5 +1,6 @@
 import {
   assignTeams,
+  uid,
   firstSurname,
   generateMatchEvent,
   generatePlayer,
@@ -8,6 +9,7 @@ import {
   shortenFullName,
 } from "@/utils";
 import { MatchEvent, Player, PlayersStore, TeamSide } from "@/types";
+import { shuffle } from "lodash";
 import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -155,6 +157,35 @@ export const usePlayersStore = create(
             }
           })
         ),
+      /*
+        The way out of a 6v4. Two drop-outs on one side and nobody coming leaves a match that
+        cannot be evened: Sumar jugador needs people who are not there, and dragging is off while
+        the draw is a claim. Re-drawing is the one move that fixes the sides without breaking that
+        claim — nobody picked the teams before and nobody picks them now.
+
+        Only whoever is playing is dealt again. A row that dropped out keeps its side, so Volver a
+        sumar still puts the person back where the group last saw them, and the bench and the
+        waiting list are not part of a draw at all.
+      */
+      shuffleTeams: () =>
+        set(
+          produce((state: PlayersStore) => {
+            const playing = state.players.filter((player) => !player.isDeleted);
+
+            if (playing.length < 2) return;
+
+            const sides = new Map(assignTeams(shuffle(playing)).map((player) => [player.id, player.team]));
+
+            state.players.forEach((player) => {
+              const side = sides.get(player.id);
+
+              if (side) player.team = side;
+            });
+
+            // No name on it: this happened to the match, not to anybody in particular.
+            state.history.push({ id: uid(), type: "shuffle", date: new Date() });
+          })
+        ),
       resetMatch: () =>
         set(
           produce((state: PlayersStore) => ({
@@ -218,7 +249,7 @@ export const usePlayersStore = create(
             bench: (state.bench ?? []).map(shorten),
             history: (state.history ?? []).map((event: MatchEvent) => ({
               ...event,
-              old_name: shortenFullName(event.old_name),
+              ...(event.old_name && { old_name: shortenFullName(event.old_name) }),
               ...(event.new_name && { new_name: shortenFullName(event.new_name) }),
             })),
           };
