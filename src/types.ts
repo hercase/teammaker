@@ -1,14 +1,22 @@
+export type TeamSide = "A" | "B";
+
 export type Player = {
   id: string;
   name: string;
   details?: string;
   isDeleted?: boolean;
   isReplacedBy?: Player["id"];
+  /*
+    Which side this row is on, written down. It used to be derived from where the row sat in the
+    list — the first ceil(n/2) rows were team A — and that cannot represent a B bigger than A, so
+    every Sumar jugador that should have grown the smaller side silently stole a player from the
+    other one instead. Optional only because a Player is also minted for a rename event and for
+    the bench, where no side applies; every row in players carries one.
+  */
+  team?: TeamSide;
 };
 
 export type PresetColor = "white" | "black" | "celeste" | "blue" | "red" | "green" | "yellow";
-
-export type TeamSide = "A" | "B";
 
 /*
   A discriminated union rather than a bag of optional fields: shirt colours and bibs are mutually
