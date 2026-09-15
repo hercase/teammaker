@@ -91,22 +91,24 @@ describe("kitLabel", () => {
   });
 
   /*
-    A colour off the swatches has no name, so the panel is titled the way bibs mode titles both of
-    its own: naming a teal "Verde" because green is the nearest of six would be a title nobody
-    chose and nobody can correct.
+    No shirt names a panel, not even one straight off the swatches. Half a rule — right for the six
+    offered and wrong for every other colour — is worse than none, and the header is read off the
+    shared picture where nobody can correct it.
   */
-  it("titles the team when the shirt is not one of the named colours", () => {
-    const kit = { mode: "shirts", teamA: "#1fa2a2", teamB: KIT_PRESETS.red.hex } as const;
+  it("titles both teams A and B whatever they are wearing", () => {
+    const offered = { mode: "shirts", teamA: KIT_PRESETS.red.hex, teamB: KIT_PRESETS.black.hex } as const;
+    const custom = { mode: "shirts", teamA: "#1fa2a2", teamB: "#ff00aa" } as const;
 
-    expect(kitLabel(kit, "A")).toBe("Equipo A");
-    expect(kitLabel(kit, "B")).toBe("Roja");
+    expect(kitLabel(offered, "A")).toBe("Equipo A");
+    expect(kitLabel(custom, "A")).toBe("Equipo A");
+    expect(kitLabel(custom, "B")).toBe("Equipo B");
   });
 
-  it("names the shirt colour", () => {
-    const kit = { mode: "shirts", teamA: KIT_PRESETS.red.hex, teamB: KIT_PRESETS.black.hex } as const;
+  it("names the two sides of the light-and-dark split, which is the one that names itself", () => {
+    const kit = { mode: "shades", lightTeam: "A" } as const;
 
-    expect(kitLabel(kit, "A")).toBe("Roja");
-    expect(kitLabel(kit, "B")).toBe("Negra");
+    expect(kitLabel(kit, "A")).toBe("Claras");
+    expect(kitLabel(kit, "B")).toBe("Oscuras");
   });
 });
 
@@ -157,6 +159,22 @@ describe("setShirt", () => {
         expect(next.teamA).not.toBe(next.teamB);
       })
     );
+  });
+
+  /*
+    The ColorPicker spells a hex in upper case and everything else in this file spells it in lower,
+    so the same blue arrived as two different strings: the swap did not fire and the kit came out
+    { teamA: "#6085EE", teamB: "#6085ee" } — two teams, one shirt.
+  */
+  it("reads a hex the same however it is spelled", () => {
+    const shouted = KIT_PRESETS.blue.hex.toUpperCase();
+
+    expect(setShirt(kit, "A", shouted)).toEqual({
+      mode: "shirts",
+      teamA: KIT_PRESETS.blue.hex,
+      teamB: KIT_PRESETS.white.hex,
+    });
+    expect(setShirt(kit, "A", "#123456").teamA).toBe("#123456");
   });
 });
 
@@ -220,13 +238,9 @@ describe("teamPhrase", () => {
   it("says the team the way the sideline does", () => {
     expect(teamPhrase({ mode: "shades", lightTeam: "A" }, "B")).toBe("los de oscuro");
     expect(teamPhrase({ mode: "shades", lightTeam: "A" }, "A")).toBe("los de claro");
+    // Shirts are spoken about as the team, the way bibs already were.
     expect(teamPhrase({ mode: "shirts", teamA: KIT_PRESETS.white.hex, teamB: KIT_PRESETS.blue.hex }, "B")).toBe(
-      "los de azul"
-    );
-    // A colour nobody offered is spoken about as the team, not as a colour it only resembles.
-    expect(teamPhrase({ mode: "shirts", teamA: "#b91c1c", teamB: KIT_PRESETS.yellow.hex }, "A")).toBe("el equipo A");
-    expect(teamPhrase({ mode: "shirts", teamA: KIT_PRESETS.red.hex, teamB: KIT_PRESETS.yellow.hex }, "A")).toBe(
-      "los de rojo"
+      "el equipo B"
     );
     expect(teamPhrase({ mode: "bibs", bibTeam: "A" }, "B")).toBe("el equipo B");
   });

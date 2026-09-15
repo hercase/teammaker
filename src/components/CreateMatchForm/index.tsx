@@ -117,30 +117,39 @@ const CreateMatchForm: FC = () => {
 
   return (
     <form
-      className="grid w-full max-w-md gap-5 md:max-w-(--breakpoint-lg) md:grid-cols-[minmax(0,1fr)_20rem] md:items-stretch lg:grid-cols-[minmax(0,1fr)_24rem]"
+      /*
+        List across the top, fields on the left, kit on the right. List-beside with items-start
+        left a cliff of canvas under a fourteen-line box; stretching the box to the field stack
+        filled that cliff with a 94% empty textarea. Full width on top is the one arrangement
+        where the list is a complete block and changing Colores moves nothing. On a phone the
+        areas are ignored and source order is list, fields, kit, switch, submit.
+      */
+      className="grid w-full max-w-md gap-5 md:max-w-(--breakpoint-lg) md:grid-cols-[minmax(0,1fr)_20rem] md:items-start md:[grid-template-areas:'list_list'_'fields_kit'_'rest_kit'] lg:grid-cols-[minmax(0,1fr)_24rem]"
       onSubmit={handleSubmit(onSubmit)}
     >
-      {/*
-        Present for the accessibility tree, absent from the screen. This page had no heading at all,
-        so a screen reader landed on a textarea with no idea what it had opened — but the app is one
-        page with its name already in the header, and a visible "Armar los equipos" above the form
-        was a title telling you what the only screen does.
-      */}
-      <h1 className="sr-only">Armar los equipos</h1>
+      <div className="w-full min-w-0 md:[grid-area:list]">
+        {/*
+          Present for the accessibility tree, absent from the screen. This page had no heading at all,
+          so a screen reader landed on a textarea with no idea what it had opened — but the app is one
+          page with its name already in the header, and a visible "Armar los equipos" above the form
+          was a title telling you what the only screen does.
+        */}
+        <h1 className="sr-only">Armar los equipos</h1>
 
-      <ListInput
-        register={register}
-        error={!!errors.list}
-        submitted={isSubmitted}
-        value={watch("list")}
-        onPaste={(clipText) => {
-          setValue("list", clipText, { shouldValidate: true });
-          fillFromMessage(clipText);
-        }}
-        onPasted={fillFromMessage}
-      />
+        <ListInput
+          register={register}
+          error={!!errors.list}
+          submitted={isSubmitted}
+          value={watch("list")}
+          onPaste={(clipText) => {
+            setValue("list", clipText, { shouldValidate: true });
+            fillFromMessage(clipText);
+          }}
+          onPasted={fillFromMessage}
+        />
+      </div>
 
-      <div className="flex flex-col gap-5">
+      <div className="flex min-w-0 flex-col gap-5 md:[grid-area:fields]">
         {/*
           This used to be a modal that opened before anything else and asked for a name, which is a
           lot to ask of someone who followed a link from the group and has not seen the app yet. It
@@ -205,15 +214,19 @@ const CreateMatchForm: FC = () => {
             register={register}
           />
         </div>
+      </div>
 
-        {/* No defaultValue: like the switch, it would win over the form's defaultValues and throw
-            away the kit the last match was saved with. */}
+      {/* No defaultValue: like the switch, it would win over the form's defaultValues and throw
+          away the kit the last match was saved with. */}
+      <div className="min-w-0 md:[grid-area:kit]">
         <Controller
           name="kit"
           control={control}
           render={({ field }) => <KitSelector value={field.value} onChange={field.onChange} />}
         />
+      </div>
 
+      <div className="flex min-w-0 flex-col gap-5 md:[grid-area:rest]">
         {/* The switch carries its own label and explanation; see the note in the component. */}
         <Controller
           name="random"

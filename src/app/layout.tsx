@@ -106,7 +106,7 @@ const Layout = ({
     app quietly fell through to the system UI face. On a Mac that is SF Pro, which is close enough
     to a grotesque that nobody noticed the web font was never loading.
   */
-  <html lang="es" data-theme="dark" className={classNames(body.variable, geistMono.variable)}>
+  <html lang="es-AR" data-theme="dark" className={classNames(body.variable, geistMono.variable)}>
     <body className="grid min-h-dvh grid-rows-[4rem_1fr] font-sans text-text antialiased">
       {/*
         No fill of its own, only blur. A flat bg-canvas/70 here was darker than the violet glow

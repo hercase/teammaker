@@ -1,11 +1,18 @@
-import { FC } from "react";
+import { FC, SVGProps } from "react";
 import { LIGHT_HEX } from "@/utils/kit";
 
-interface ShirtIconProps {
+// Extends the svg's own props because the rest of them are spread onto it: without that the type
+// refused a className the component has always accepted and passed through.
+interface ShirtIconProps extends SVGProps<SVGSVGElement> {
   color?: string;
   // Only the dark shirt asks for one, and only because no fill can hold a shape on this background.
   outline?: string;
   size?: number;
+  /*
+    Contour only. In bibs the other team wears whatever it turned up in: a filled shirt would
+    invent a colour, the outline is just "a shirt, not a bib".
+  */
+  empty?: boolean;
 }
 
 /*
@@ -16,16 +23,22 @@ interface ShirtIconProps {
   needs it for a reason no palette can argue with: measured against this panel a dark fill reaches
   1.57:1 and a darker one 1.06:1. The others are chosen to hold up on their own.
 */
-const ShirtIcon: FC<ShirtIconProps> = ({ color = LIGHT_HEX, outline, size = 42, ...rest }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
-    <path
-      d="M8.8 2.6 4.7 4.3a1 1 0 0 0-.6.7L3.1 9a.8.8 0 0 0 .5.9l2.1.7a.5.5 0 0 0 .7-.5V20a1.4 1.4 0 0 0 1.4 1.4h8.4A1.4 1.4 0 0 0 17.6 20v-9.9a.5.5 0 0 0 .7.5l2.1-.7a.8.8 0 0 0 .5-.9L20 5a1 1 0 0 0-.6-.7l-4.1-1.7a3.4 3.4 0 0 1-6.5 0Z"
-      fill={color}
-      stroke={outline}
-      strokeWidth={outline ? 1.1 : undefined}
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+const ShirtIcon: FC<ShirtIconProps> = ({ color = LIGHT_HEX, outline, size = 42, empty = false, ...rest }) => {
+  let strokeWidth: number | undefined;
+  if (empty) strokeWidth = 1.6;
+  else if (outline) strokeWidth = 1.1;
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <path
+        d="M8.8 2.6 4.7 4.3a1 1 0 0 0-.6.7L3.1 9a.8.8 0 0 0 .5.9l2.1.7a.5.5 0 0 0 .7-.5V20a1.4 1.4 0 0 0 1.4 1.4h8.4A1.4 1.4 0 0 0 17.6 20v-9.9a.5.5 0 0 0 .7.5l2.1-.7a.8.8 0 0 0 .5-.9L20 5a1 1 0 0 0-.6-.7l-4.1-1.7a3.4 3.4 0 0 1-6.5 0Z"
+        fill={empty ? "none" : color}
+        stroke={empty ? color : outline}
+        strokeWidth={strokeWidth}
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
 
 export default ShirtIcon;

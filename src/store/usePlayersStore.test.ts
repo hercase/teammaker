@@ -168,6 +168,27 @@ describe("shuffleTeams", () => {
   });
 
   /*
+    The button says the teams were mixed. Writing only `.team` onto the signup order made a deal
+    that kept most people on their side look identical, and a fluke that handed the same partition
+    back looked like a no-op while the history still recorded it. Both of those have to be gone.
+  */
+  it("changes who is on which side", () => {
+    const before = `${teams().namesA.slice().sort()}|${teams().namesB.slice().sort()}`;
+
+    usePlayersStore.getState().shuffleTeams();
+
+    expect(`${teams().namesA.slice().sort()}|${teams().namesB.slice().sort()}`).not.toBe(before);
+  });
+
+  it("reorders the list so the panels do not keep the signup order", () => {
+    const before = usePlayersStore.getState().players.map((p) => p.id).join(",");
+
+    usePlayersStore.getState().shuffleTeams();
+
+    expect(usePlayersStore.getState().players.map((p) => p.id).join(",")).not.toBe(before);
+  });
+
+  /*
     A dropped row keeps its side, so Sumar jugador still offers the person back on the side the
     group last saw them on — and a deal that moved them would move somebody who is not there.
   */

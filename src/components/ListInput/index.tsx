@@ -57,7 +57,7 @@ const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPa
 
   return (
     <TextField
-      className="flex w-full flex-1 flex-col gap-2"
+      className="flex w-full flex-col gap-2"
       /* React Aria owns what the box shows; without this, the Pegar button filled the form and
          left the box empty. See the note in TextInput. */
       value={value ?? ""}
@@ -69,19 +69,23 @@ const ListInput: FC<ListInputProps> = ({ register, error, submitted, value, onPa
       {/* The paste listener sits on the wrapper: React Aria decides which DOM props reach its
           textarea, and the event bubbles here regardless. */}
       <div
-        className="relative flex flex-1 flex-col"
+        className="relative"
         onPaste={(event) => onPasted?.(event.clipboardData.getData("text"))}
       >
         <TextArea
           rows={8}
           /*
-            336px on a phone: at 14px over a 22.75px line that is exactly fourteen names, which is
-            a full Tuesday list visible without scrolling the box. It used to be 256px, which held
-            ten — so a normal list was always cut off while you were checking it against WhatsApp.
-            md:min-h-0 hands the height back to the flex column on a desktop, where the box already
-            stretches to the form.
+            336px: at 14px over a 22.75px line that is exactly fourteen names, which is a full
+            Tuesday list visible without scrolling the box. It used to be 256px, which held ten —
+            so a normal list was always cut off while you were checking it against WhatsApp.
+            It also used to flex-grow on a desktop and fill the field stack beside it: 94% empty
+            panel, Pegar sitting on the vacancy. The height is the list's, on every width.
+
+            w-full is load-bearing. HeroUI sizes a TextArea to its content, so without it the box
+            shrank to the names and Pegar — absolute to this wrapper — floated off to the right
+            of the grid.
           */
-          className="h-auto min-h-84 flex-1 resize-none font-mono text-sm leading-relaxed md:min-h-0"
+          className="h-auto min-h-84 w-full resize-none font-mono text-sm leading-relaxed"
           placeholder={placeholder}
           {...register("list", {
             required: true,

@@ -36,18 +36,18 @@ import { Kit, PresetColor, ShirtsKit, TeamSide } from "@/types";
 */
 /*
   These are no longer the vocabulary, they are the swatches offered first and the dictionary that
-  names a colour. A shirt is any hex now; `nearestPreset` is what turns one back into a word, so
-  a panel can still be titled "Roja" and a dialog can still ask about "los de rojo".
+  names a colour. A shirt is any hex now, and nothing here titles a panel: `nearestPreset` survives
+  only to place a hex saved before the kit existed onto the swatch it was standing in for.
 */
-// `label` names the shirt ("Blanca"); `wearing` is how the group names the people in it ("los de blanco").
-export const KIT_PRESETS: Record<PresetColor, { label: string; wearing: string; hex: string; edge?: string }> = {
-  white: { label: "Blanca", wearing: "blanco", hex: "#e7e9f2" },
-  black: { label: "Negra", wearing: "negro", hex: "#22242e", edge: "#827ca2" },
-  celeste: { label: "Celeste", wearing: "celeste", hex: "#85caf2" },
-  blue: { label: "Azul", wearing: "azul", hex: "#6085ee" },
-  red: { label: "Roja", wearing: "rojo", hex: "#e8505e" },
-  green: { label: "Verde", wearing: "verde", hex: "#32c88e" },
-  yellow: { label: "Amarilla", wearing: "amarillo", hex: "#dab140" },
+// `label` is the swatch's name, for the picker and for a screen reader. Nothing titles a panel with it.
+export const KIT_PRESETS: Record<PresetColor, { label: string; hex: string; edge?: string }> = {
+  white: { label: "Blanca", hex: "#e7e9f2" },
+  black: { label: "Negra", hex: "#22242e", edge: "#827ca2" },
+  celeste: { label: "Celeste", hex: "#85caf2" },
+  blue: { label: "Azul", hex: "#6085ee" },
+  red: { label: "Roja", hex: "#e8505e" },
+  green: { label: "Verde", hex: "#32c88e" },
+  yellow: { label: "Amarilla", hex: "#dab140" },
 };
 
 /*
@@ -123,16 +123,6 @@ function hueDistance(a: number, b: number): number {
   in plain RGB it lands nearer to black than to blue, which is not what anyone picking it meant.
   Nearly greyscale colours are decided by lightness instead, since they have no meaningful hue.
 */
-/*
-  The preset a colour *is*, not the one it is near. Naming is the one place the difference matters:
-  the panel header is read off the shared picture, so calling a teal "Verde" because green is the
-  closest of six is not a shorthand, it is wrong — and nobody can correct a title they did not
-  choose. A colour that is not a preset has no name here, and the team is titled the way bibs mode
-  already titles both of its panels.
-*/
-export const presetOf = (hex: string): PresetColor | undefined =>
-  PRESET_COLORS.find((preset) => KIT_PRESETS[preset].hex === tinycolor(hex).toHexString());
-
 export function nearestPreset(hex?: string): PresetColor {
   const target = tinycolor(hex);
 
@@ -143,7 +133,7 @@ export function nearestPreset(hex?: string): PresetColor {
     blue-grey whose saturation clears the greyscale cut-off, so it took the hue path and landed on
     the nearest chromatic preset. Nothing is nearer to a colour than that colour.
   */
-  const exact = presetOf(target.toHexString());
+  const exact = PRESET_COLORS.find((preset) => KIT_PRESETS[preset].hex === target.toHexString());
 
   if (exact) return exact;
 
@@ -182,33 +172,28 @@ export function kitEdge(kit: Kit, side: TeamSide): string | null {
 }
 
 /*
-  In shirts mode the panel is titled by its colour, because the colour is what tells the teams
-  apart and a colour on its own is not something everyone can read. In bibs mode neither panel
-  carries a garment: only one side wears anything, so putting it in one header left the other with
-  a hole where a title should be. There the panels are titled A and B and a single line underneath
-  says which of them wears the bibs.
+  Only claras-and-oscuras names its teams, because light and dark is the one split that names
+  itself. A shirt does not: it is any colour now, and a colour has no name the app can be sure of —
+  a teal titled "Verde" because green is the nearest of six is a title nobody chose and nobody can
+  correct, and the header is read off the shared picture. Half a rule, right for the six offered
+  and wrong for everything else, is worse than none: shirts are titled the way bibs already were.
 */
 export function kitLabel(kit: Kit, side: TeamSide): string {
-  if (kit.mode === "bibs") return `Equipo ${side}`;
   if (kit.mode === "shades") return kit.lightTeam === side ? "Claras" : "Oscuras";
 
-  const preset = presetOf(side === "A" ? kit.teamA : kit.teamB);
-
-  return preset ? KIT_PRESETS[preset].label : `Equipo ${side}`;
+  return `Equipo ${side}`;
 }
 
 /*
   The team as people talk about it, for a sentence: "¿Quién se suma a los de oscuro?". The label is
   the team's name on a panel ("Oscuras") and reads wrong the moment it is spoken about; this is
-  what the group actually says on the sideline. Bibs mode has no colour to say, so it is the team.
+  what the group actually says on the sideline. Everything else has no colour to say, so it is the
+  team.
 */
 export function teamPhrase(kit: Kit, side: TeamSide): string {
-  if (kit.mode === "bibs") return `el equipo ${side}`;
   if (kit.mode === "shades") return kit.lightTeam === side ? "los de claro" : "los de oscuro";
 
-  const preset = presetOf(side === "A" ? kit.teamA : kit.teamB);
-
-  return preset ? `los de ${KIT_PRESETS[preset].wearing}` : `el equipo ${side}`;
+  return `el equipo ${side}`;
 }
 
 /*
@@ -278,11 +263,24 @@ export function parseKit(value: unknown): Kit {
   intermediate step just to exchange two kits.
 */
 export function setShirt(kit: ShirtsKit, side: TeamSide, color: string): ShirtsKit {
-  const mine = side === "A" ? kit.teamA : kit.teamB;
-  const taken = side === "A" ? kit.teamB : kit.teamA;
-  const other = taken === color ? mine : taken;
+  /*
+    Normalised before anything is compared, because the two sides of that comparison arrive from
+    different places and spell a hex differently: the presets and the persisted kit are lowercase,
+    and react-aria's Color.toString("hex") — what the ColorPicker hands over — is uppercase.
 
-  return side === "A" ? { mode: "shirts", teamA: color, teamB: other } : { mode: "shirts", teamA: other, teamB: color };
+    Compared raw, picking the colour the other team is already wearing read as a *different*
+    colour, so nothing swapped and the kit came out { teamA: "#6085EE", teamB: "#6085ee" }: both
+    teams in the same blue, which is the one thing this screen must never say. It only showed up
+    once the seven presets became a picker, since until then every hex came from the same table.
+  */
+  const [mine, taken, next] = [
+    side === "A" ? kit.teamA : kit.teamB,
+    side === "A" ? kit.teamB : kit.teamA,
+    color,
+  ].map((hex) => shirtHex(hex) ?? hex);
+  const other = taken === next ? mine : taken;
+
+  return side === "A" ? { mode: "shirts", teamA: next, teamB: other } : { mode: "shirts", teamA: other, teamB: next };
 }
 
 // Matches persisted before this change stored `colors: { teamA: hex, teamB: hex }`.

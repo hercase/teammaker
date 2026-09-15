@@ -43,9 +43,9 @@ const MatchSummary: FC = () => {
       </div>
 
       {/*
-        A statement, not a control. The way out of a lopsided match lives in Editar, with the other
-        things you do to the match itself — putting it here made a rare rescue look as permanent as
-        Compartir, and it is not the only answer to this line either: Sumar jugador is the other.
+        A statement, not a control. Mezclar equipos sits with Compartir below — on this screen,
+        not one tap away in Editar — because a 6v4 is exactly when you are looking at these teams,
+        and Sumar jugador is the other answer to this line when someone is still waiting.
       */}
       {short && (
         <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-text-muted">

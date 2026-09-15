@@ -1,7 +1,8 @@
-import { FC } from "react";
+import { FC, SVGProps } from "react";
 import { BIB_HEX } from "@/utils/kit";
 
-interface BibIconProps {
+// See ShirtIcon: the svg's own props, because the rest of them are spread onto it.
+interface BibIconProps extends SVGProps<SVGSVGElement> {
   color?: string;
   size?: number;
 }

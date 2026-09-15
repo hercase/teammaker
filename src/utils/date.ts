@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { nextKickoff } from "@/utils/message";
+import { formatMoney } from "@/utils";
 
 /*
   One place decides how a kickoff is written. The heading and the caption that leaves with the
@@ -25,20 +26,49 @@ export const matchFileName = (location: string, date: string | Date | null): str
     .replace(/^_|_$/g, "") || "equipos";
 
 /*
-  The words that travel with the picture. "Quintana y Salta · miércoles 16/09 · 18:30 hs" was the
-  heading's format reused as a caption, and read as a database row; the caption is a message to
-  the group, so it is written as one. Whatever is missing is simply left out of the sentence, and
-  the weekday is lower-case because Spanish writes it that way mid-sentence.
+  "luro y mexico" arrives as whoever typed it; the card uppercases with CSS so the store never
+  learns. The caption is plain text in the chat, so it has to title-case itself. Small words stay
+  lower mid-phrase the way Spanish writes a pitch: "Quintana y Salta", not "Quintana Y Salta".
+*/
+const SMALL_WORDS = new Set(["y", "e", "de", "del", "la", "las", "los", "a", "al"]);
+
+export function titleCasePlace(place: string): string {
+  return place
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word, index) => {
+      const lower = word.toLocaleLowerCase("es-AR");
+
+      if (index > 0 && SMALL_WORDS.has(lower)) return lower;
+
+      return lower.charAt(0).toLocaleUpperCase("es-AR") + lower.slice(1);
+    })
+    .join(" ");
+}
+
+const capitalise = (value: string): string =>
+  value ? value.charAt(0).toLocaleUpperCase("es-AR") + value.slice(1) : value;
+
+/*
+  The words that travel with the picture. Written as a heading the group can scan, not as a
+  sentence ("Equipos para el martes… en luro y mexico"): place and weekday capitalised, price per
+  head when there is one, cupo left out because the chips on the picture already say it.
 
   Android WhatsApp shows this under the image; iOS usually drops the text that comes with a file.
 */
-export const shareCaption = (location: string, date: string | Date | null): string => {
+export const shareCaption = (
+  location: string,
+  date: string | Date | null,
+  pricePerHead: number | null = null
+): string => {
+  const where = location.trim() ? titleCasePlace(location) : "";
   const when = date
-    ? `para el ${format(date, "EEEE dd/MM", { locale: es })} a las ${format(date, "p", { locale: es })} hs`
+    ? `${capitalise(format(date, "EEEE dd/MM", { locale: es }))} ${format(date, "p", { locale: es })}hs`
     : "";
-  const where = location ? `en ${location}` : "";
+  const cost = pricePerHead ? `${formatMoney(pricePerHead)} c/u` : "";
 
-  return ["Equipos", when, where].filter(Boolean).join(" ");
+  return [where, when, cost].filter(Boolean).join(" · ") || "Equipos";
 };
 
 /*

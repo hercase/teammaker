@@ -166,6 +166,13 @@ export const usePlayersStore = create(
         Only whoever is playing is dealt again. A row that dropped out keeps its side, so Volver a
         sumar still puts the person back where the group last saw them, and the bench and the
         waiting list are not part of a draw at all.
+
+        The deal is plain copies, not the immer drafts, and the list is rebuilt from it — not just
+        a new `.team` painted onto the old row order. Panel order is list order, so writing the
+        side alone left everyone where they signed up: a mix that kept four people on each side
+        looked identical to the last one, and Mezclar three times read as a no-op even while the
+        history said otherwise. Retries until the partition actually changes, because a button
+        that claims to mix and leaves the same two teams is lying.
       */
       shuffleTeams: () =>
         set(
@@ -174,13 +181,21 @@ export const usePlayersStore = create(
 
             if (playing.length < 2) return;
 
-            const sides = new Map(assignTeams(shuffle(playing)).map((player) => [player.id, player.team]));
+            const partition = (roster: Player[]) =>
+              roster
+                .map((player) => `${player.id}:${player.team}`)
+                .sort()
+                .join("|");
 
-            state.players.forEach((player) => {
-              const side = sides.get(player.id);
+            const before = partition(playing);
+            const deal = () => assignTeams(shuffle(playing.map((player) => ({ ...player }))));
+            let dealt = deal();
 
-              if (side) player.team = side;
-            });
+            // A dozen players have hundreds of partitions; the retries are only for the tiny lists
+            // where chance could keep handing the same split back.
+            for (let attempt = 0; attempt < 10 && partition(dealt) === before; attempt++) dealt = deal();
+
+            state.players = [...dealt, ...state.players.filter((player) => player.isDeleted)];
 
             // No name on it: this happened to the match, not to anybody in particular.
             state.history.push({ id: uid(), type: "shuffle", date: new Date() });

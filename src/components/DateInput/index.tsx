@@ -53,6 +53,8 @@ const DateInput: FC<DateInputProps> = ({ register, error, value, requireFuture =
     <Input
       id="date"
       type="datetime-local"
+      /* The native control follows the page locale for 24h vs AM/PM. es-AR is 18:30, not 06:30 PM. */
+      lang="es-AR"
       className="min-h-11 w-full"
       min={requireFuture ? format(addMinutes(new Date(), 15), FIELD_FORMAT) : undefined}
       {...register("date", {
