@@ -141,6 +141,9 @@ export interface PlayersStore {
 export interface UIStore {
   showEditModal: boolean;
   setShowEditModal: (show: boolean) => void;
+  // In a store rather than local state because the share nudge opens it from outside the page.
+  showFeedback: boolean;
+  setShowFeedback: (show: boolean) => void;
 }
 
 export interface DialogOptions {

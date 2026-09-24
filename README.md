@@ -12,7 +12,7 @@ nativo del teléfono, sin los menús ni los botones de la pantalla.
 
 ```bash
 yarn            # yarn, no npm
-yarn dev        # http://localhost:3000
+yarn dev        # http://localhost:3200
 ```
 
 ## Comandos

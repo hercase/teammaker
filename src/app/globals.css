@@ -290,6 +290,7 @@
     text-sm             metadata, descriptions, help
     text-xs  medium     uppercase labels
     text-xs medium      an annotation attached to something else, never standalone copy
+    text-sm small caps  a player's surname, beside the name: capitals at lowercase height
 
   The app used to run on eight sizes, three of them written as raw pixels, with player details at
   9px. Almost everything else was text-sm, which is why every screen read flat.

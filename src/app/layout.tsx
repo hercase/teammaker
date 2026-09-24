@@ -1,10 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import classNames from "classnames";
 import Logo from "@/components/Logo";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import DevBar from "@/components/DevBar";
 import Toasts from "@/components/Toasts";
+import MovedNotice from "@/components/MovedNotice";
+import FeedbackModal from "@/components/FeedbackModal";
+import FeedbackButton from "@/components/FeedbackButton";
+import { FEEDBACK_ENABLED } from "@/utils/feedback";
+import { URL_BASE, handoffScript } from "@/utils/site";
 
 import "./globals.css";
 
@@ -45,8 +51,6 @@ const geistMono = Geist_Mono({
   metadataBase is what makes the relative image URL below absolute. Without it Next warns and the
   card silently falls back to nothing, which is the same bare row.
 */
-const URL_BASE = "https://teammaker.vercel.app";
-
 const TITLE = "Teammaker";
 const DESCRIPTION = "Pegá la lista del grupo y armá los dos equipos. Compartilos como imagen en un toque.";
 
@@ -59,6 +63,11 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   applicationName: TITLE,
+  /*
+    One address for search. The same build answers on teammaker.vercel.app and on every preview
+    URL, and without a canonical each of them is a duplicate of the home competing with it.
+  */
+  alternates: { canonical: "/" },
   // Spanish, Rioplatense, like everything else a person reads here.
   openGraph: {
     type: "website",
@@ -92,6 +101,19 @@ export const viewport: Viewport = {
   themeColor: "#06050c",
 };
 
+/* What the app is, in the vocabulary search engines read: a free web app, in Spanish. */
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: TITLE,
+  url: URL_BASE,
+  description: DESCRIPTION,
+  applicationCategory: "SportsApplication",
+  operatingSystem: "Web",
+  inLanguage: "es-AR",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "ARS" },
+};
+
 const Layout = ({
   children,
 }: Readonly<{
@@ -107,6 +129,10 @@ const Layout = ({
     to a grotesque that nobody noticed the web font was never loading.
   */
   <html lang="es-AR" data-theme="dark" className={classNames(body.variable, geistMono.variable)}>
+    <head>
+      {/* Before the bundle, so the stores hydrate from what it writes. See handoff() for why. */}
+      <script dangerouslySetInnerHTML={{ __html: handoffScript() }} />
+    </head>
     <body className="grid min-h-dvh grid-rows-[4rem_1fr] font-sans text-text antialiased">
       {/*
         No fill of its own, only blur. A flat bg-canvas/70 here was darker than the violet glow
@@ -115,6 +141,7 @@ const Layout = ({
       */}
       <header className="sticky top-0 z-20 grid w-full place-items-center border-b border-border/60 backdrop-blur-md">
         <Logo />
+        {FEEDBACK_ENABLED && <FeedbackButton />}
       </header>
       {/* min-w-0 because a grid item, like a flex item, is never narrower than its own content
           unless told so. Without it one long player name widened the page itself and the whole
@@ -125,7 +152,22 @@ const Layout = ({
       <ConfirmDialog />
       {/* Mounted once, for the whole app: HeroUI's toast queue renders into it from anywhere. */}
       <Toasts />
+      {/* Once, for whoever arrived through the old address. Remove with the handoff. */}
+      <MovedNotice />
+      {/* Mounted here, not in a page: the share nudge opens it from wherever the share happened. */}
+      {FEEDBACK_ENABLED && <FeedbackModal />}
       {process.env.NODE_ENV === "development" && <DevBar />}
+      {/*
+        Vercel Web Analytics: visits, pages and where people come from, with no cookies and nothing
+        that identifies anyone, which is why it needs no consent banner. The only way to know
+        whether the move to teammaker.com.ar and the search work are bringing anyone in.
+      */}
+      <Analytics />
+      <script
+        type="application/ld+json"
+        // A constant of our own, not user input, so there is nothing here to escape.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+      />
     </body>
   </html>
 );

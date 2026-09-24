@@ -9,6 +9,7 @@ import { useMatchStore, usePlayersStore } from "@/store";
 import { shuffle } from "lodash";
 import { splitRoster } from "@/utils";
 import { DEFAULT_KIT } from "@/utils/kit";
+import { MOVED_NOTICE_KEY } from "@/utils/site";
 import { Kit } from "@/types";
 import {
   DUPLICATE_NAMES_LIST,
@@ -146,6 +147,15 @@ const DevBar = () => {
     store.removePlayer(players[8].id);
   };
 
+  /*
+    What the handoff leaves behind when someone arrives from the old host, without needing the old
+    host: the notice can only be looked at on localhost this way.
+  */
+  const simulateArrival = () => {
+    window.localStorage.setItem(MOVED_NOTICE_KEY, "carried");
+    window.location.reload();
+  };
+
   // Wiping the persisted stores and reloading is the only reset that leaves no stale state behind.
   const resetEverything = () => {
     usePlayersStore.persist.clearStorage();
@@ -191,6 +201,7 @@ const DevBar = () => {
 
           <Separator className="my-0.5 bg-amber-400/20" />
 
+          <DevAction onClick={simulateArrival}>Llegar desde el dominio viejo</DevAction>
           <DevAction onClick={resetEverything}>Borrar todo y empezar de cero</DevAction>
         </div>
       )}

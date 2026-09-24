@@ -128,14 +128,7 @@ const CreateMatchForm: FC = () => {
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="w-full min-w-0 md:[grid-area:list]">
-        {/*
-          Present for the accessibility tree, absent from the screen. This page had no heading at all,
-          so a screen reader landed on a textarea with no idea what it had opened — but the app is one
-          page with its name already in the header, and a visible "Armar los equipos" above the form
-          was a title telling you what the only screen does.
-        */}
-        <h1 className="sr-only">Armar los equipos</h1>
-
+        {/* The page's heading lives in app/page.tsx, where the server renders it: see there. */}
         <ListInput
           register={register}
           error={!!errors.list}

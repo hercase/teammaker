@@ -22,7 +22,7 @@ Two facts worth keeping in mind, because they have decided most of the design:
 ## Commands
 
 ```bash
-yarn dev
+yarn dev          # always http://localhost:3200 — the e2e suite uses the same port
 yarn run check     # tsc --noEmit && next lint && vitest run — run this before saying anything works
 yarn test
 yarn test:e2e     # Playwright, in e2e/ — measures the screen; needs (or starts) the dev server
@@ -433,6 +433,68 @@ Two things that still bite:
 The card is still laid out by the real viewport's media queries, so `sm:` padding inside it applies
 on a desktop and not on a phone — about 16px of height between the two. Container queries would
 close that if it ever matters.
+
+## The domain
+
+The app lives at **teammaker.com.ar** (`URL_BASE` in `src/utils/site.ts`; metadata, canonical,
+robots, sitemap and the JSON-LD all read it). The `.com.ar` was chosen over a themed TLD on
+purpose: Google gives new gTLDs no keyword advantage but does favour a country code for local
+searches, and `.com.ar` is what an Argentine types by reflex. NIC Argentina delegates it straight to
+`ns1/ns2.vercel-dns.com`; `www` redirects to the apex from the Vercel project's domain settings.
+
+**The old host redirects from the browser, not the server, and carries localStorage with it.**
+localStorage belongs to an origin, so a server redirect off `teammaker.vercel.app` would land every
+phone on the new domain with no match, no saved name and the default kit. `handoff()` runs as an
+inline script in `<head>` — ahead of the bundle, because zustand's persist reads storage the
+moment a store is created — moves what the old host holds in the URL fragment, and the new host
+writes it back only where it has nothing of its own. The fragment is untrusted input: known keys
+only, JSON objects only. A new persisted store must be added to `STORAGE_KEYS` or it is left
+behind on the next move.
+
+Whoever arrives that way sees **`MovedNotice` once**: the handoff sets `moved-notice`, the modal
+reads it, "Listo" writes `seen`. The move is otherwise invisible, and its one real risk is the link
+in the group description pointing at the old host for ever, so the notice asks for exactly that and
+has the link ready to copy. The dev bar's "Llegar desde el dominio viejo" shows it on localhost.
+
+**Temporary, and dated: revisit after 2026-11-30.** Once the phones that use the app have all been
+through the old link once, swap the handoff for a permanent server 308 from `teammaker.vercel.app`
+(robots and people alike — the strongest signal for search, and no longer costing anyone their
+data), then delete `handoff`, `MovedNotice` and the dev bar entry. The old host keeps redirecting
+for ever: its link is in group descriptions and old chats.
+
+`/match` is `noindex` and disallowed in robots: to a crawler it is always an empty screen.
+
+**The home's heading is rendered by the server** (`app/page.tsx`), sr-only as it always was, with a
+line of what the app does. Everything else on that page waits for the stores to rehydrate, so the
+HTML a crawler received was a spinner and nothing else. It is the same text a screen reader says —
+not a second page written for robots. The WhatsApp card (`opengraph-image.tsx`) prints the
+address, because the card is how most of the group meets the link.
+
+Vercel's DNS for the domain also carries ImprovMX's MX and SPF records, for mail forwarding at the
+domain, and `<Analytics />` (Vercel Web Analytics, cookieless) is in the layout.
+
+## Feedback
+
+**Formspree, not a server.** `FeedbackModal` posts JSON to `NEXT_PUBLIC_FORMSPREE_ENDPOINT`
+(`.env.local`, and all three environments in Vercel) and it arrives by email; the free plan's 50 a
+month is far more than the group sends. The endpoint is not a secret — the browser posts to it — it
+is a variable so it can change without a commit. Unset in production and the whole feature is off.
+**On localhost the send is simulated** even with the endpoint set, so working on the dialog does not
+fill the inbox.
+
+Two doors, neither of which opens anything by itself:
+
+- **`FeedbackButton`** in the header, right of the wordmark — where Vercel and Linear keep theirs.
+  An icon with a Tooltip, on the content column's right edge rather than the viewport's — a
+  "Sugerencias" label at the far edge of a laptop was the loudest thing in an otherwise empty bar
+  and floated 800px from anything it belonged to. The column differs per route, so it follows the
+  pathname. The dialog it opens is titled "Si tuvieras una varita mágica…". A footer
+  line was tried first and read as a legal footer with nothing else in it, below Crear equipos
+  where nobody scrolls; a floating corner button sits where the thumb rests and over the match
+  people photograph.
+- **One toast, once ever, after the third share** (`countShareAndShouldNudge`). It waits out the
+  share — past the "Copiado" toast's 4s, or the two stack — and its action is outlined, not violet.
+  The mark is set when it is shown, so ignoring it counts as an answer.
 
 ## The form's layout
 

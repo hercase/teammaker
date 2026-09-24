@@ -18,7 +18,7 @@ const EventName: FC<{ children: string }> = ({ children }) => {
   return (
     <>
       <span className="shrink-0">{name}</span>
-      <span className="truncate text-xs font-medium uppercase opacity-80">({details})</span>
+      <small className="truncate text-sm font-medium opacity-80 [font-variant-caps:all-small-caps]">({details})</small>
     </>
   );
 };

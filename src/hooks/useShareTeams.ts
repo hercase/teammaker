@@ -2,6 +2,8 @@
 
 import { RefObject, useCallback, useRef, useState } from "react";
 import { toast } from "@heroui/react";
+import { useUiStore } from "@/store";
+import { FEEDBACK_ENABLED, countShareAndShouldNudge } from "@/utils/feedback";
 
 /*
   Nobody sends the link: everyone screenshots the teams and posts the picture. A screenshot catches
@@ -42,6 +44,36 @@ const nextPaint = () =>
 const isTouchDevice = () => window.matchMedia("(pointer: coarse)").matches;
 
 const canCopyImages = () => typeof ClipboardItem !== "undefined" && typeof navigator.clipboard?.write === "function";
+
+/*
+  Once ever, after the third share (the rule lives in countShareAndShouldNudge). It waits out the
+  share itself so it arrives as a second, quieter thought rather than on top of the confirmation:
+  after the share sheet a moment is enough, but after a "Copiado" toast it has to outlast that
+  toast's 4s, or the two stack and read as one loud pile. The action is outlined, not violet — the
+  brand is for the screen's own actions, and this is an aside — and it dismisses itself if ignored.
+*/
+const AFTER_SHEET = 1500;
+const AFTER_TOAST = 4500;
+
+const afterShare = (delay: number) => {
+  if (!FEEDBACK_ENABLED || !countShareAndShouldNudge(window.localStorage)) return;
+
+  setTimeout(
+    () =>
+      toast("¿Te está sirviendo Teammaker?", {
+        description: "Si le agregarías algo, contanos.",
+        actionProps: {
+          children: "Contanos",
+          variant: "outline",
+          // The same 3:1 edge as the app's own outline buttons; HeroUI's measured 1.07:1 here.
+          className: "border-border-strong/60",
+          onPress: () => useUiStore.getState().setShowFeedback(true),
+        },
+        timeout: 10_000,
+      }),
+    delay
+  );
+};
 
 /*
   On a phone the share sheet is its own answer, so only the two silent outcomes say anything. What
@@ -91,12 +123,14 @@ const useShareTeams = (): ShareTeams => {
 
       if (isTouchDevice() && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], text });
+        afterShare(AFTER_SHEET);
         return;
       }
 
       if (canCopyImages()) {
         await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
         toast.success("Copiado al portapapeles");
+        afterShare(AFTER_TOAST);
         return;
       }
 
@@ -117,6 +151,7 @@ const useShareTeams = (): ShareTeams => {
       link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
       toast.success("Imagen descargada");
+      afterShare(AFTER_TOAST);
     } catch (error) {
       // Dismissing the share sheet is a decision, not a failure, and must not be reported as one.
       if (error instanceof DOMException && error.name === "AbortError") return;
