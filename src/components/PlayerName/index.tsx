@@ -86,11 +86,19 @@ const PlayerName: FC<PlayerNameProps> = ({ player, className }) => {
       {tags[currentPlayers.id] && (
         <span className="shrink-0 text-xs font-medium text-text-muted">({tags[currentPlayers.id]})</span>
       )}
-      {/* The rest of the name, smaller and in brackets. Not a badge: it is not a status. */}
+      {/*
+        The rest of the name, smaller and in brackets. Not a badge: it is not a status.
+
+        Small caps, not uppercase. Inter's capitals at 12px stand exactly as tall as the name's
+        lowercase at 16 (8.7px both), so "(RAIMONDO)" read the same size as "Mati" however small
+        the font-size said it was. Small caps keep the capitals and draw them at lowercase height,
+        and at 14px that is 7.6px against the name's 8.7: a step down, not a whisper. At 12px it was
+        6.5, which read as too small beside the name.
+      */}
       {currentPlayers.details && (
-        <span className="min-w-0 truncate text-xs font-medium uppercase text-text-muted">
+        <small className="min-w-0 truncate text-sm font-medium text-text-muted [font-variant-caps:all-small-caps]">
           ({currentPlayers.details})
-        </span>
+        </small>
       )}
     </p>
   );

@@ -8,7 +8,8 @@ import { defineConfig } from "@playwright/test";
   3000 that same flag is a trap: any other Next project left running answers, Playwright reuses
   it, and the whole suite measures somebody else's app. It happened — the contrast and layout
   numbers came back off a completely different site, and nothing in the output said so, because a
-  200 is a 200. 3200 is this app's, and `PORT` still overrides it.
+  200 is a 200. 3200 is this app's, and `yarn dev` opens on it too, so the browser tab and the
+  suite are the same address. `PORT` still overrides it here.
 
   One project, Chromium at 390px, and no `hasTouch`: the share test relies on the desktop path,
   which writes the PNG to the clipboard where a test can read it.
@@ -28,7 +29,7 @@ export default defineConfig({
     permissions: ["clipboard-read", "clipboard-write"],
   },
   webServer: {
-    command: `yarn dev --port ${PORT}`,
+    command: `yarn next dev --port ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: true,
     timeout: 120_000,

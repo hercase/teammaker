@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { URL_BASE } from "@/utils/site";
 
 /*
   The card WhatsApp draws when the link is pasted into the group. Generated rather than committed
@@ -32,6 +33,11 @@ const Image = () =>
       >
         <div style={{ fontSize: 128, fontWeight: 800, letterSpacing: -2, color: "#ffffff" }}>TEAMMAKER</div>
         <div style={{ fontSize: 40, color: "#a9a7b4" }}>Pegá la lista del grupo y armá los dos equipos</div>
+        {/*
+          The address, because the card is how most of the group meets the link and the move to
+          teammaker.com.ar only sticks if people see it. In --color-secondary-300, the cyan the app uses for "came in".
+        */}
+        <div style={{ marginTop: 20, fontSize: 36, fontWeight: 600, color: "#7cd5e4" }}>{new URL(URL_BASE).host}</div>
       </div>
     ),
     size

@@ -6,9 +6,9 @@
     "node": "24.x"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3200",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 3200",
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -22,6 +22,7 @@
     "@react-aria/i18n": "^3.13.1",
     "@react-aria/ssr": "^3.10.1",
     "@react-aria/utils": "^3.34.1",
+    "@vercel/analytics": "^2.0.1",
     "@zumer/snapdom": "^2.24.18",
     "classnames": "^2.5.1",
     "date-fns": "^3.3.1",

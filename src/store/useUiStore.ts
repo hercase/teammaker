@@ -4,4 +4,6 @@ import { create } from "zustand";
 export const useUiStore = create<UIStore>((set) => ({
   showEditModal: false,
   setShowEditModal: (show: boolean) => set(() => ({ showEditModal: show })),
+  showFeedback: false,
+  setShowFeedback: (show: boolean) => set(() => ({ showFeedback: show })),
 }));
