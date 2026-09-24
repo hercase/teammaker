@@ -4,6 +4,13 @@
 */
 export const URL_BASE = "https://teammaker.com.ar";
 
+/*
+  Forwarded by ImprovMX (the domain's MX records in Vercel) to the maintainer's inbox. Shown inside
+  the feedback dialog, as the other way to write in, and not on the screen at large: an address
+  printed on every page is one the harvesters find, and the alias is a catch-all.
+*/
+export const CONTACT_EMAIL = "hola@teammaker.com.ar";
+
 /* Where it lived until September 2026, and where the link in the group description still points. */
 export const LEGACY_HOST = "teammaker.vercel.app";
 

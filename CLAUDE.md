@@ -482,6 +482,11 @@ is a variable so it can change without a commit. Unset in production and the who
 **On localhost the send is simulated** even with the endpoint set, so working on the dialog does not
 fill the inbox.
 
+The dialog ends in a footer band with **hola@teammaker.com.ar** (`CONTACT_EMAIL`, forwarded by
+ImprovMX): the other way in, and its `mailto:` carries whatever was already typed. A failed send is
+HeroUI's `Alert` in **warning**, tinted and edged in amber — not rose, which already means "went
+out" and "this field is wrong", and a network failure is neither.
+
 Two doors, neither of which opens anything by itself:
 
 - **`FeedbackButton`** in the header, right of the wordmark — where Vercel and Linear keep theirs.

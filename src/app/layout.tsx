@@ -10,7 +10,7 @@ import MovedNotice from "@/components/MovedNotice";
 import FeedbackModal from "@/components/FeedbackModal";
 import FeedbackButton from "@/components/FeedbackButton";
 import { FEEDBACK_ENABLED } from "@/utils/feedback";
-import { URL_BASE, handoffScript } from "@/utils/site";
+import { CONTACT_EMAIL, URL_BASE, handoffScript } from "@/utils/site";
 
 import "./globals.css";
 
@@ -112,6 +112,7 @@ const STRUCTURED_DATA = {
   operatingSystem: "Web",
   inLanguage: "es-AR",
   offers: { "@type": "Offer", price: "0", priceCurrency: "ARS" },
+  provider: { "@type": "Organization", name: TITLE, url: URL_BASE, email: CONTACT_EMAIL },
 };
 
 const Layout = ({
