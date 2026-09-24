@@ -43,6 +43,11 @@ Next 15 (App Router) · React 19 · TypeScript · Tailwind v4 · zustand con `pe
 | Imagen para compartir | `html-to-image`, importada recién al tocar el botón |
 | Íconos | `@heroicons/react` |
 
+## Contacto
+
+La app está en [teammaker.com.ar](https://teammaker.com.ar). Sugerencias, ideas o algo que no anda:
+el botón de sugerencias en la app, o [hola@teammaker.com.ar](mailto:hola@teammaker.com.ar).
+
 ## Antes de tocar nada
 
 [`CLAUDE.md`](CLAUDE.md) tiene las decisiones de diseño, el modelo de nombres y de kit, y las
