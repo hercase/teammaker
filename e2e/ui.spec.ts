@@ -1164,3 +1164,28 @@ test("el que entró por otro también puede bajarse, y el historial lo nombra a 
   await expect(rows(page)).toHaveCount(10);
   await expect(page.getByText(/Nico se dio de baja/)).toBeVisible();
 });
+
+test("el diálogo de sugerencias firma a Keis Studio con su isotipo, en un link de 44px, sin desbordar a 320", async ({
+  page,
+}) => {
+  const errors = watchConsole(page);
+  await page.setViewportSize({ width: 320, height: 700 });
+  await openFixture(page, "Con un cambio y una baja");
+  await page.getByRole("button", { name: "Enviar una sugerencia" }).click();
+
+  const credit = page.getByRole("link", { name: /Hecho por Keis Studio/ });
+  await expect(credit).toHaveAttribute("href", "https://keis.studio");
+  const box = (await credit.boundingBox())!;
+  expect(box.height).toBeGreaterThanOrEqual(44);
+
+  /* The logo has to have actually loaded: an <img> that 404s still lays out and still passes. */
+  const logo = credit.locator("img");
+  await expect
+    .poll(() => logo.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBe(true);
+  expect(errors).toEqual([]);
+});

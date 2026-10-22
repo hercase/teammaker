@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { EnvelopeIcon, SparklesIcon } from "@heroicons/react/20/solid";
 import { Alert, Input, Label, Modal, TextArea, TextField, toast } from "@heroui/react";
 import Button from "@/components/Button";
 import { useMatchStore, useUiStore } from "@/store";
 import { isCoolingDown, sendFeedback } from "@/utils/feedback";
-import { CONTACT_EMAIL } from "@/utils/site";
+import { CONTACT_EMAIL, STUDIO } from "@/utils/site";
 
 /*
   What people would add or change, sent to Formspree (see utils/feedback). It never opens by itself:
@@ -167,14 +168,34 @@ const FeedbackModal = () => {
             a mail can carry a screenshot. The same footer band as MovedNotice — bled to the
             dialog's edges, one step lighter — so the two dialogs speak one language.
           */}
-          <div className="-mx-6 -mb-6 mt-6 flex flex-wrap items-center gap-x-2 rounded-b-[inherit] border-t border-border/60 bg-surface-secondary px-6 py-1">
-            <EnvelopeIcon className="size-4 shrink-0 text-secondary-400" aria-hidden />
-            <p className="text-xs text-text-muted">¿Preferís escribirnos?</p>
+          <div className="-mx-6 -mb-6 mt-6 rounded-b-[inherit] border-t border-border/60 bg-surface-secondary px-6">
+            <div className="flex flex-wrap items-center gap-x-2 py-1">
+              <EnvelopeIcon className="size-4 shrink-0 text-secondary-400" aria-hidden />
+              <p className="text-xs text-text-muted">¿Preferís escribirnos?</p>
+              <a
+                href={mailto}
+                className="ml-auto inline-flex min-h-11 items-center text-xs font-medium text-text underline decoration-text-muted underline-offset-4 hover:decoration-text"
+              >
+                {CONTACT_EMAIL}
+              </a>
+            </div>
+            {/*
+              The studio's credit, as its monogram and not as a name in a box: the file is the one
+              keis.studio/brand publishes for dark grounds, drawn as it ships (no recolour, a dot of
+              clear space around it). 24px, above the 16px the brand sets as its floor. Outside the
+              mail row's rhythm on purpose — a quieter line under the line that asks something of
+              you — and a whole 44px link, like every other tappable thing here.
+            */}
             <a
-              href={mailto}
-              className="ml-auto inline-flex min-h-11 items-center text-xs font-medium text-text underline decoration-text-muted underline-offset-4 hover:decoration-text"
+              href={STUDIO.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="-mx-2 flex min-h-11 items-center gap-2 rounded-lg border-t border-border/40 px-2 text-xs text-text-muted hover:text-text"
             >
-              {CONTACT_EMAIL}
+              <Image src="/brand/mark-dark.svg" alt="" width={24} height={24} unoptimized className="shrink-0" />
+              <span>
+                Hecho por <span className="font-medium text-text">{STUDIO.name}</span>
+              </span>
             </a>
           </div>
         </Modal.Dialog>

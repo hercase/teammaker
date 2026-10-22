@@ -11,6 +11,13 @@ export const URL_BASE = "https://teammaker.com.ar";
 */
 export const CONTACT_EMAIL = "hola@teammaker.com.ar";
 
+/*
+  The studio that makes it. Credited in the feedback dialog's footer band and in the metadata, and
+  nowhere else: not on the screen, and never in the shared picture, which goes into the group's chat
+  as the organiser's message and not as ours.
+*/
+export const STUDIO = { name: "Keis Studio", url: "https://keis.studio" } as const;
+
 /* Where it lived until September 2026, and where the link in the group description still points. */
 export const LEGACY_HOST = "teammaker.vercel.app";
 

@@ -10,7 +10,7 @@ import MovedNotice from "@/components/MovedNotice";
 import FeedbackModal from "@/components/FeedbackModal";
 import FeedbackButton from "@/components/FeedbackButton";
 import { FEEDBACK_ENABLED } from "@/utils/feedback";
-import { CONTACT_EMAIL, URL_BASE, handoffScript } from "@/utils/site";
+import { CONTACT_EMAIL, STUDIO, URL_BASE, handoffScript } from "@/utils/site";
 
 import "./globals.css";
 
@@ -63,6 +63,8 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   applicationName: TITLE,
+  authors: [{ name: STUDIO.name, url: STUDIO.url }],
+  creator: STUDIO.name,
   /*
     One address for search. The same build answers on teammaker.vercel.app and on every preview
     URL, and without a canonical each of them is a duplicate of the home competing with it.
@@ -113,6 +115,7 @@ const STRUCTURED_DATA = {
   inLanguage: "es-AR",
   offers: { "@type": "Offer", price: "0", priceCurrency: "ARS" },
   provider: { "@type": "Organization", name: TITLE, url: URL_BASE, email: CONTACT_EMAIL },
+  author: { "@type": "Organization", name: STUDIO.name, url: STUDIO.url },
 };
 
 const Layout = ({
