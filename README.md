@@ -50,7 +50,7 @@ el botón de sugerencias en la app, o [hola@teammaker.com.ar](mailto:hola@teamma
 
 ## Autoría
 
-Hecho por [Keis Studio](https://keis.studio).
+Hecho por [keis.studio](https://keis.studio).
 
 ## Antes de tocar nada
 

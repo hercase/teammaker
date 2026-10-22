@@ -16,7 +16,7 @@ export const CONTACT_EMAIL = "hola@teammaker.com.ar";
   nowhere else: not on the screen, and never in the shared picture, which goes into the group's chat
   as the organiser's message and not as ours.
 */
-export const STUDIO = { name: "Keis Studio", url: "https://keis.studio" } as const;
+export const STUDIO = { name: "keis.studio", url: "https://keis.studio" } as const;
 
 /* Where it lived until September 2026, and where the link in the group description still points. */
 export const LEGACY_HOST = "teammaker.vercel.app";

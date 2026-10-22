@@ -168,36 +168,37 @@ const FeedbackModal = () => {
             a mail can carry a screenshot. The same footer band as MovedNotice — bled to the
             dialog's edges, one step lighter — so the two dialogs speak one language.
           */}
-          <div className="-mx-6 -mb-6 mt-6 rounded-b-[inherit] border-t border-border/60 bg-surface-secondary px-6">
-            <div className="flex flex-wrap items-center gap-x-2 py-1">
-              <EnvelopeIcon className="size-4 shrink-0 text-secondary-400" aria-hidden />
-              <p className="text-xs text-text-muted">¿Preferís escribirnos?</p>
-              <a
-                href={mailto}
-                className="ml-auto inline-flex min-h-11 items-center text-xs font-medium text-text underline decoration-text-muted underline-offset-4 hover:decoration-text"
-              >
-                {CONTACT_EMAIL}
-              </a>
-            </div>
-            {/*
-              The studio's credit, as its monogram and not as a name in a box: the file is the one
-              keis.studio/brand publishes for dark grounds, drawn as it ships (no recolour, a dot of
-              clear space around it). 24px, above the 16px the brand sets as its floor. Outside the
-              mail row's rhythm on purpose — a quieter line under the line that asks something of
-              you — and a whole 44px link, like every other tappable thing here.
-            */}
+          <div className="-mx-6 mt-6 flex flex-wrap items-center gap-x-2 border-t border-border/60 bg-surface-secondary px-6 py-1">
+            <EnvelopeIcon className="size-4 shrink-0 text-secondary-400" aria-hidden />
+            <p className="text-xs text-text-muted">¿Preferís escribirnos?</p>
             <a
-              href={STUDIO.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="-mx-2 flex min-h-11 items-center gap-2 rounded-lg border-t border-border/40 px-2 text-xs text-text-muted hover:text-text"
+              href={mailto}
+              className="ml-auto inline-flex min-h-11 items-center text-xs font-medium text-text underline decoration-text-muted underline-offset-4 hover:decoration-text"
             >
-              <Image src="/brand/mark-dark.svg" alt="" width={24} height={24} unoptimized className="shrink-0" />
-              <span>
-                Hecho por <span className="font-medium text-text">{STUDIO.name}</span>
-              </span>
+              {CONTACT_EMAIL}
             </a>
           </div>
+          {/*
+            The studio's signature: its own plate under the band, not a second row inside it. As a row
+            it sat at a different left edge from the envelope above, behind a rule too faint to read,
+            and made one footer look like two things stacked badly. Centred, on the canvas's own tone
+            (darker than the band, so it reads as the base of the dialog), with nothing to align to.
+            The wordmark is the file keis.studio/brand publishes for dark grounds, drawn as it ships
+            (no recolour, no text beside it: the studio's name is the picture). 84px wide, which puts its
+            letters at the 12px of the text around it: at 160 they were twice that and the signature
+            outshouted the dialog. Under the brand's own 40px-of-type floor, on purpose — this is a
+            credit, and the file carries its own clear space. The plate stays a whole 44px link, like
+            every other tappable thing here.
+          */}
+          <a
+            href={STUDIO.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Hecho por ${STUDIO.name}`}
+            className="-mx-6 -mb-6 flex min-h-11 items-center justify-center rounded-b-[inherit] bg-background/70 px-6 opacity-70 transition-opacity hover:opacity-100"
+          >
+            <Image src="/brand/wordmark-dark.svg" alt="" width={84} height={24} unoptimized />
+          </a>
         </Modal.Dialog>
       </Modal.Container>
     </Modal.Backdrop>

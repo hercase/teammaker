@@ -1165,7 +1165,7 @@ test("el que entró por otro también puede bajarse, y el historial lo nombra a 
   await expect(page.getByText(/Nico se dio de baja/)).toBeVisible();
 });
 
-test("el diálogo de sugerencias firma a Keis Studio con su isotipo, en un link de 44px, sin desbordar a 320", async ({
+test("el diálogo de sugerencias firma a keis.studio con su wordmark, en un link de 44px, sin desbordar a 320", async ({
   page,
 }) => {
   const errors = watchConsole(page);
@@ -1173,7 +1173,7 @@ test("el diálogo de sugerencias firma a Keis Studio con su isotipo, en un link 
   await openFixture(page, "Con un cambio y una baja");
   await page.getByRole("button", { name: "Enviar una sugerencia" }).click();
 
-  const credit = page.getByRole("link", { name: /Hecho por Keis Studio/ });
+  const credit = page.getByRole("link", { name: /Hecho por keis.studio/ });
   await expect(credit).toHaveAttribute("href", "https://keis.studio");
   const box = (await credit.boundingBox())!;
   expect(box.height).toBeGreaterThanOrEqual(44);
